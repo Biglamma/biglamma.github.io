@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MOTHERSHIP 2e — Crew Manifest</title>
+  <style>
+/* ============================================================
+   MOTHERSHIP 2e — STYLESHEET
+   Aesthetic: industrial CRT terminal, sci-fi horror
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Teko:wght@400;500;600;700&display=swap');
+
+/* ── VARIABLES ─────────────────────────────────────────────── */
+:root {
+  --bg:          #080a0d;
+  --bg2:         #0c0f14;
+  --panel:       #0f1218;
+  --border:      #1c2230;
+  --border2:     #232c3e;
+  --accent:      #e05c2a;
+  --accent2:     #3d9bd4;
+  --accent3:     #1dba8a;
+  --red:         #d63031;
+  --green:       #00b894;
+  --yellow:      #fdcb6e;
+  --cyan:        #00cec9;
+  --text:        #b8c4d0;
+  --text-dim:    #4a5568;
+  --text-bright: #e2eaf2;
+  --mono:        'Share Tech Mono', monospace;
+  --display:     'Teko', sans-serif;
+}
+
+/* ── RESET ──────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 14px; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+/* ── OVERLAYS ───────────────────────────────────────────────── */
+.scanline-overlay {
+  pointer-events: none;
+  position: fixed; inset: 0; z-index: 9998;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 4px
+  );
+}
+
+.noise-overlay {
+  pointer-events: none;
+  position: fixed; inset: 0; z-index: 9997; opacity: 0.02;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── APP SHELL ──────────────────────────────────────────────── */
+.app {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* ── HEADER ─────────────────────────────────────────────────── */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+
+.logo {
+  font-family: var(--display);
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--accent);
+  text-transform: uppercase;
+  text-shadow: 0 0 30px rgba(224,92,42,0.4);
+}
+
+.logo-sub {
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.credits-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(61,155,212,0.08);
+  border: 1px solid rgba(61,155,212,0.2);
+  padding: 8px 16px;
+}
+
+.credits-icon { color: var(--accent2); font-size: 16px; }
+#creditsDisplay { font-family: var(--display); font-size: 24px; font-weight: 600; color: var(--accent2); }
+.credits-label { font-size: 9px; letter-spacing: 2px; color: var(--text-dim); }
+
+/* ── TABS ───────────────────────────────────────────────────── */
+.tab-nav {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--text-dim);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  margin-bottom: -1px;
+}
+
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ── PANELS ─────────────────────────────────────────────────── */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.panel::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border2), transparent);
+}
+
+.panel-label {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+}
+
+/* ── SHEET GRID ─────────────────────────────────────────────── */
+.sheet-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  grid-template-rows: auto auto 1fr;
+  gap: 12px;
+}
+
+.identity-panel { grid-column: 1 / 2; grid-row: 1; }
+.stats-panel    { grid-column: 2 / 3; grid-row: 1; }
+.condition-panel{ grid-column: 1 / 3; grid-row: 2; }
+.skills-panel   { grid-column: 1 / 2; grid-row: 3; }
+.notes-panel    { grid-column: 2 / 3; grid-row: 3; }
+
+/* ── IDENTITY ───────────────────────────────────────────────── */
+.identity-body {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.portrait-wrap { text-align: center; flex-shrink: 0; }
+
+.portrait {
+  width: 72px; height: 72px;
+  border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+  background: #090c11;
+  margin-bottom: 6px;
+}
+
+.portrait-class {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+
+.identity-fields { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+.field-group { display: flex; flex-direction: column; gap: 4px; }
+
+.field-group label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.field-group input, .field-group select {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text-bright);
+  font-family: var(--mono);
+  font-size: 13px;
+  padding: 6px 8px;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.2s;
+  text-transform: uppercase;
+  appearance: none;
+}
+
+.field-group input:focus, .field-group select:focus {
+  border-color: var(--accent2);
+}
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ── STATS ──────────────────────────────────────────────────── */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.stat-block {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 12px 8px;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+
+.stat-block:hover { border-color: var(--border2); }
+
+.stat-name {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.stat-value-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-family: var(--display);
+  font-size: 36px;
+  font-weight: 600;
+  color: var(--text-bright);
+  line-height: 1;
+  min-width: 52px;
+  text-align: center;
+}
+
+.stat-btn {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  width: 22px; height: 22px;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+  font-family: var(--mono);
+  flex-shrink: 0;
+}
+
+.stat-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.stat-save {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.stat-save span { color: var(--accent2); }
+
+/* ── CONDITIONS ─────────────────────────────────────────────── */
+.condition-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.condition-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.condition-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  width: 64px;
+  flex-shrink: 0;
+}
+
+.condition-track {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+.pip {
+  width: 12px; height: 12px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  transition: background 0.2s;
+}
+
+.stress-pip.filled { background: var(--yellow); border-color: var(--yellow); }
+.hp-pip.filled { background: var(--green); border-color: var(--green); }
+.green-track .pip { }
+
+.condition-num {
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-bright);
+  width: 48px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.cond-max { font-size: 12px; color: var(--text-dim); }
+
+.cond-btns {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.cond-btns button {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  width: 24px; height: 24px;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 14px;
+  transition: all 0.15s;
+}
+
+.cond-btns button:hover { border-color: var(--accent); color: var(--accent); }
+
+/* PANIC BAR */
+.panic-track {
+  flex: 1;
+  height: 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  position: relative;
+  overflow: visible;
+}
+
+.panic-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--yellow), var(--red));
+  transition: width 0.4s ease;
+  width: 0%;
+}
+
+.panic-tick {
+  position: absolute;
+  top: -4px;
+  width: 2px;
+  height: 20px;
+  background: var(--accent);
+  transform: translateX(-50%);
+  transition: left 0.4s ease;
+}
+
+/* WOUND BOXES */
+.wound-boxes {
+  flex: 1;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.wound-box {
+  border: 1px solid var(--border2);
+  padding: 3px 8px;
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  transition: all 0.2s;
+}
+
+.wound-box.filled {
+  background: rgba(214,48,49,0.15);
+  border-color: var(--red);
+  color: var(--red);
+}
+
+/* ── SKILLS ─────────────────────────────────────────────────── */
+.skills-body { display: flex; flex-direction: column; gap: 6px; }
+
+.skill-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--bg2);
+}
+
+.skill-row:hover { border-color: var(--border2); }
+.skill-row.trained { border-color: rgba(29,186,138,0.3); background: rgba(29,186,138,0.04); }
+
+.skill-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  border: 1px solid var(--text-dim);
+  flex-shrink: 0;
+}
+
+.skill-row.trained .skill-dot {
+  background: var(--green);
+  border-color: var(--green);
+  box-shadow: 0 0 6px var(--green);
+}
+
+.skill-name {
+  flex: 1;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.skill-row.trained .skill-name { color: var(--text-bright); }
+
+.skill-status {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+}
+
+.skill-row.trained .skill-status { color: var(--green); }
+
+/* ── NOTES ──────────────────────────────────────────────────── */
+.notes-panel { display: flex; flex-direction: column; }
+.notes-panel .panel-label { margin-bottom: 10px; }
+
+#notesField {
+  flex: 1;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 12px;
+  padding: 12px;
+  resize: none;
+  outline: none;
+  line-height: 1.7;
+  min-height: 180px;
+  transition: border-color 0.2s;
+}
+
+#notesField:focus { border-color: var(--border2); }
+
+/* ── GEAR TAB ───────────────────────────────────────────────── */
+.gear-grid {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 12px;
+}
+
+.loadout-slots { display: flex; flex-direction: column; gap: 8px; }
+
+.loadout-slot {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.loadout-slot:hover { border-color: var(--border2); }
+.loadout-slot.has-item { border-color: rgba(var(--slot-color), 0.4); }
+.loadout-slot.has-item:hover .slot-remove { opacity: 1; }
+
+.slot-rarity-stripe {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+}
+
+.slot-icon { font-size: 20px; flex-shrink: 0; }
+
+.slot-info { flex: 1; }
+
+.slot-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.slot-item-name {
+  font-size: 14px;
+  color: var(--text);
+  font-family: var(--display);
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.slot-item-name.rarity-xenotech { color: #00e5c8; }
+.slot-item-name.rarity-artifact { color: #ffd700; }
+.slot-item-name.rarity-prototype { color: #c0392b; }
+.slot-item-name.rarity-classified { color: #7b4fa6; }
+.slot-item-name.rarity-military { color: #3e7bbf; }
+.slot-item-name.rarity-standard { color: #5a8f9a; }
+
+.slot-stats {
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.slot-remove {
+  color: var(--red);
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+/* ── INVENTORY GRID ─────────────────────────────────────────── */
+.inv-hint {
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  float: right;
+  font-style: normal;
+  font-family: var(--mono);
+}
+
+.inv-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 6px;
+}
+
+.inv-cell {
+  height: 60px;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--bg2);
+}
+
+.inv-cell.has-item { border-color: color-mix(in srgb, var(--rar-color) 40%, transparent); }
+.inv-cell.has-item:hover { transform: scale(1.06); z-index: 5; border-color: var(--rar-color); }
+.inv-cell.empty-cell { border-style: dashed; opacity: 0.3; cursor: default; }
+
+.inv-icon { font-size: 24px; }
+
+.inv-rarity-bar {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+}
+
+/* ── SUPPLY DROPS TAB ───────────────────────────────────────── */
+.supply-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 12px;
+}
+
+.drop-intro {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.7;
+  margin-bottom: 16px;
+  border-left: 2px solid var(--accent);
+  padding-left: 12px;
+}
+
+.cases-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.case-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  padding: 18px;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-left: 3px solid var(--case-color, var(--border));
+}
+
+.case-card:hover {
+  border-color: var(--case-color, var(--border));
+  background: color-mix(in srgb, var(--case-color) 5%, var(--bg2));
+  transform: translateY(-2px);
+}
+
+.case-glow {
+  position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse at top left, color-mix(in srgb, var(--case-color) 8%, transparent), transparent 60%);
+}
+
+.case-icon { font-size: 28px; }
+
+.case-name {
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--text-bright);
+  text-transform: uppercase;
+}
+
+.case-desc {
+  font-size: 10px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.case-cost {
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--accent2);
+  margin-top: 4px;
+}
+
+.case-open-btn {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--case-color, var(--text-dim));
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* DROP HISTORY */
+.drop-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 460px;
+  overflow-y: auto;
+}
+
+.history-empty {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: center;
+  padding: 20px;
+  letter-spacing: 1px;
+}
+
+.history-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  font-size: 11px;
+}
+
+.history-icon { font-size: 16px; }
+.history-name { flex: 1; color: var(--text); }
+.history-rarity { font-size: 10px; letter-spacing: 1px; }
+.history-case { font-size: 9px; color: var(--text-dim); letter-spacing: 1px; }
+
+/* ── MODAL ──────────────────────────────────────────────────── */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.92);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.25s;
+}
+
+.modal-overlay.active { opacity: 1; pointer-events: all; }
+
+.case-modal {
+  width: 680px;
+  max-width: 96vw;
+  background: var(--panel);
+  border: 1px solid var(--border2);
+  position: relative;
+  overflow: hidden;
+}
+
+.modal-stripe {
+  height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+}
+
+.modal-close {
+  position: absolute; top: 14px; right: 14px;
+  background: none; border: none;
+  color: var(--text-dim); font-size: 18px; cursor: pointer;
+  transition: color 0.15s; font-family: var(--mono);
+  z-index: 10;
+}
+.modal-close:hover { color: var(--text-bright); }
+
+.modal-content { padding: 24px; }
+
+.modal-title {
+  font-family: var(--display);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--text-bright);
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.modal-case-icon {
+  text-align: center;
+  font-size: 40px;
+  margin-bottom: 18px;
+}
+
+/* REEL */
+.reel-wrap {
+  height: 100px;
+  overflow: hidden;
+  border: 1px solid var(--border2);
+  background: #06080b;
+  position: relative;
+  margin-bottom: 18px;
+}
+
+.reel-center-marker {
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 50%; width: 2px;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+  z-index: 10;
+}
+
+.reel-center-marker::before,
+.reel-center-marker::after {
+  content: '';
+  position: absolute;
+  left: -6px; width: 14px; height: 14px;
+  background: var(--accent);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+.reel-center-marker::before { top: -2px; }
+.reel-center-marker::after { bottom: -2px; transform: rotate(180deg); }
+
+.reel-fade {
+  position: absolute; top: 0; bottom: 0; width: 120px; z-index: 5; pointer-events: none;
+}
+.reel-fade-l { left: 0; background: linear-gradient(90deg, #06080b, transparent); }
+.reel-fade-r { right: 0; background: linear-gradient(-90deg, #06080b, transparent); }
+
+.reel-track {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  will-change: transform;
+  transition: none;
+}
+
+.reel-cell {
+  flex-shrink: 0;
+  width: 110px; height: 100%;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  position: relative;
+}
+
+.reel-cell-icon { font-size: 26px; }
+.reel-cell-name { font-size: 9px; letter-spacing: 1px; color: var(--rc, var(--text-dim)); text-transform: uppercase; }
+.reel-cell-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: var(--rc, transparent); }
+
+/* RESULT */
+.result-reveal {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px;
+  border: 1px solid var(--border2);
+  background: #09080d;
+  margin-bottom: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.result-reveal.visible { display: flex; }
+
+.result-flash {
+  position: absolute; inset: 0;
+  opacity: 0.06;
+  animation: flashPulse 1.2s ease-out;
+}
+
+@keyframes flashPulse {
+  0% { opacity: 0.25; }
+  100% { opacity: 0.06; }
+}
+
+.result-item-icon {
+  font-size: 52px;
+  animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes popIn {
+  from { transform: scale(0.2) rotate(-15deg); opacity: 0; }
+  to   { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+.result-rarity {
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.result-name {
+  font-family: var(--display);
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-bright);
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.result-stats {
+  font-size: 11px;
+  color: var(--accent2);
+  letter-spacing: 1px;
+}
+
+.result-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-align: center;
+  font-style: italic;
+}
+
+/* MODAL FOOTER */
+.modal-footer {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.modal-cost-line {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+.modal-cost-val {
+  color: var(--accent2);
+  font-family: var(--display);
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.open-btn {
+  flex: 1;
+  padding: 14px;
+  background: linear-gradient(135deg, rgba(224,92,42,0.1), rgba(61,155,212,0.1));
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.open-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(224,92,42,0.2), rgba(61,155,212,0.2));
+  box-shadow: 0 0 24px rgba(224,92,42,0.2);
+}
+
+.open-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── TOASTS ─────────────────────────────────────────────────── */
+.toast-container {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 8px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--panel);
+  border: 1px solid var(--border2);
+  padding: 10px 18px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 1px;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: all 0.3s;
+  max-width: 320px;
+}
+
+.toast.show { opacity: 1; transform: translateX(0); }
+.toast-good   { border-color: var(--green); color: var(--green); }
+.toast-warn   { border-color: var(--yellow); color: var(--yellow); }
+.toast-danger { border-color: var(--red); color: var(--red); }
+.toast-rare   { border-color: #ffd700; color: #ffd700; box-shadow: 0 0 20px rgba(255,215,0,0.2); }
+
+/* ── SCROLLBAR ──────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); }
+
+/* ── RESPONSIVE ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .sheet-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+  .identity-panel, .stats-panel, .condition-panel,
+  .skills-panel, .notes-panel {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .gear-grid, .supply-grid { grid-template-columns: 1fr; }
+  .cases-row { grid-template-columns: 1fr; }
+  .inv-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+</style>
+</head>
+<body>
+
+<div class="scanline-overlay"></div>
+<div class="noise-overlay"></div>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="logo">⬡ MOTHERSHIP</div>
+      <div class="logo-sub">2E // CREW MANIFEST v1.0</div>
+    </div>
+    <div class="header-right">
+      <div class="credits-display">
+        <span class="credits-icon">₡</span>
+        <span id="creditsDisplay">2500</span>
+        <span class="credits-label">CREDITS</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- TABS -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="sheet">CREW SHEET</button>
+    <button class="tab-btn" data-tab="gear">GEAR &amp; LOADOUT</button>
+    <button class="tab-btn" data-tab="supply">SUPPLY DROPS</button>
+  </nav>
+
+  <!-- TAB: CREW SHEET -->
+  <div class="tab-content active" id="tab-sheet">
+    <div class="sheet-grid">
+
+      <!-- IDENTITY BLOCK -->
+      <section class="panel identity-panel">
+        <div class="panel-label">// CREW IDENTITY</div>
+        <div class="identity-body">
+          <div class="portrait-wrap">
+            <div class="portrait" id="portraitDisplay">👨‍🚀</div>
+            <div class="portrait-class" id="classDisplay">TEAMSTER</div>
+          </div>
+          <div class="identity-fields">
+            <div class="field-group">
+              <label>NAME</label>
+              <input type="text" id="charName" value="VASQUEZ, J." maxlength="20" />
+            </div>
+            <div class="field-row">
+              <div class="field-group">
+                <label>CLASS</label>
+                <select id="charClass" onchange="updateClass()">
+                  <option value="teamster">TEAMSTER</option>
+                  <option value="scientist">SCIENTIST</option>
+                  <option value="marine">MARINE</option>
+                  <option value="android">ANDROID</option>
+                </select>
+              </div>
+              <div class="field-group">
+                <label>PRONOUNS</label>
+                <input type="text" id="charPronouns" value="THEY/THEM" maxlength="12" />
+              </div>
+            </div>
+            <div class="field-row">
+              <div class="field-group">
+                <label>SHIP</label>
+                <input type="text" id="charShip" value="UES PERSEPHONE" maxlength="20" />
+              </div>
+              <div class="field-group">
+                <label>PATCH</label>
+                <input type="text" id="charPatch" value="CREW-7" maxlength="10" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- STATS BLOCK -->
+      <section class="panel stats-panel">
+        <div class="panel-label">// STATS</div>
+        <div class="stats-grid">
+          <div class="stat-block" id="stat-STR">
+            <div class="stat-name">STRENGTH</div>
+            <div class="stat-value-wrap">
+              <button class="stat-btn" onclick="adjustStat('STR',-1)">−</button>
+              <div class="stat-value" id="val-STR">30</div>
+              <button class="stat-btn" onclick="adjustStat('STR',1)">+</button>
+            </div>
+            <div class="stat-save">SAVE <span id="save-STR">15</span></div>
+          </div>
+          <div class="stat-block" id="stat-SPD">
+            <div class="stat-name">SPEED</div>
+            <div class="stat-value-wrap">
+              <button class="stat-btn" onclick="adjustStat('SPD',-1)">−</button>
+              <div class="stat-value" id="val-SPD">30</div>
+              <button class="stat-btn" onclick="adjustStat('SPD',1)">+</button>
+            </div>
+            <div class="stat-save">SAVE <span id="save-SPD">15</span></div>
+          </div>
+          <div class="stat-block" id="stat-INT">
+            <div class="stat-name">INTELLECT</div>
+            <div class="stat-value-wrap">
+              <button class="stat-btn" onclick="adjustStat('INT',-1)">−</button>
+              <div class="stat-value" id="val-INT">35</div>
+              <button class="stat-btn" onclick="adjustStat('INT',1)">+</button>
+            </div>
+            <div class="stat-save">SAVE <span id="save-INT">17</span></div>
+          </div>
+          <div class="stat-block" id="stat-CMB">
+            <div class="stat-name">COMBAT</div>
+            <div class="stat-value-wrap">
+              <button class="stat-btn" onclick="adjustStat('CMB',-1)">−</button>
+              <div class="stat-value" id="val-CMB">25</div>
+              <button class="stat-btn" onclick="adjustStat('CMB',1)">+</button>
+            </div>
+            <div class="stat-save">SAVE <span id="save-CMB">12</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CONDITION BLOCK -->
+      <section class="panel condition-panel">
+        <div class="panel-label">// CONDITION MONITORS</div>
+        <div class="condition-body">
+
+          <!-- STRESS -->
+          <div class="condition-row">
+            <div class="condition-label">STRESS</div>
+            <div class="condition-track" id="stressTrack"></div>
+            <div class="condition-num"><span id="stressVal">2</span><span class="cond-max">/20</span></div>
+            <div class="cond-btns">
+              <button onclick="adjustCond('stress',-1)">−</button>
+              <button onclick="adjustCond('stress',1)">+</button>
+            </div>
+          </div>
+
+          <!-- PANIC -->
+          <div class="condition-row">
+            <div class="condition-label">PANIC</div>
+            <div class="panic-track">
+              <div class="panic-bar" id="panicBar"></div>
+              <div class="panic-tick" id="panicTick"></div>
+            </div>
+            <div class="condition-num"><span id="panicVal">3</span><span class="cond-max">/20</span></div>
+            <div class="cond-btns">
+              <button onclick="adjustCond('panic',-1)">−</button>
+              <button onclick="adjustCond('panic',1)">+</button>
+            </div>
+          </div>
+
+          <!-- WOUNDS -->
+          <div class="condition-row">
+            <div class="condition-label">WOUNDS</div>
+            <div class="wound-boxes" id="woundBoxes"></div>
+            <div class="cond-btns">
+              <button onclick="adjustCond('wound',-1)">−</button>
+              <button onclick="adjustCond('wound',1)">+</button>
+            </div>
+          </div>
+
+          <!-- HEALTH -->
+          <div class="condition-row">
+            <div class="condition-label">HEALTH</div>
+            <div class="condition-track green-track" id="hpTrack"></div>
+            <div class="condition-num"><span id="hpVal">20</span><span class="cond-max">/20</span></div>
+            <div class="cond-btns">
+              <button onclick="adjustCond('hp',-1)">−</button>
+              <button onclick="adjustCond('hp',1)">+</button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SKILLS BLOCK -->
+      <section class="panel skills-panel">
+        <div class="panel-label">// SKILLS &amp; TRAINING</div>
+        <div class="skills-body" id="skillsBody"></div>
+      </section>
+
+      <!-- NOTES -->
+      <section class="panel notes-panel">
+        <div class="panel-label">// NOTES &amp; LOG</div>
+        <textarea id="notesField" placeholder="Mission notes, contacts, XP milestones..."></textarea>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- TAB: GEAR -->
+  <div class="tab-content" id="tab-gear">
+    <div class="gear-grid">
+
+      <section class="panel loadout-panel">
+        <div class="panel-label">// EQUIPPED LOADOUT</div>
+        <div class="loadout-slots" id="loadoutSlots"></div>
+      </section>
+
+      <section class="panel inventory-panel">
+        <div class="panel-label">// CARGO BAY
+          <span class="inv-hint">CLICK ITEM TO EQUIP</span>
+        </div>
+        <div class="inv-grid" id="inventoryGrid"></div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- TAB: SUPPLY DROPS -->
+  <div class="tab-content" id="tab-supply">
+    <div class="supply-grid">
+
+      <section class="panel drop-cases-panel">
+        <div class="panel-label">// SUPPLY CASES</div>
+        <div class="drop-intro">Intercept corporate supply drops. Open a case to receive randomized gear — rarity determines quality. Higher-tier cases cost more credits but yield better equipment.</div>
+        <div class="cases-row" id="casesRow"></div>
+      </section>
+
+      <section class="panel drop-history-panel">
+        <div class="panel-label">// RECENT DROPS</div>
+        <div id="dropHistory" class="drop-history-list">
+          <div class="history-empty">— No drops intercepted yet —</div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- LOOTBOX MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="case-modal">
+    <div class="modal-stripe"></div>
+    <button class="modal-close" id="modalClose">✕</button>
+    <div class="modal-content">
+      <div class="modal-title" id="modalTitle">INTERCEPTING DROP</div>
+      <div class="modal-case-icon" id="modalCaseIcon">📦</div>
+
+      <!-- REEL -->
+      <div class="reel-wrap" id="reelWrap">
+        <div class="reel-center-marker"></div>
+        <div class="reel-fade reel-fade-l"></div>
+        <div class="reel-fade reel-fade-r"></div>
+        <div class="reel-track" id="reelTrack"></div>
+      </div>
+
+      <!-- RESULT -->
+      <div class="result-reveal" id="resultReveal">
+        <div class="result-flash" id="resultFlash"></div>
+        <div class="result-item-icon" id="resultIcon">📦</div>
+        <div class="result-rarity" id="resultRarity">CLASSIFIED</div>
+        <div class="result-name" id="resultName">ITEM NAME</div>
+        <div class="result-stats" id="resultStats"></div>
+        <div class="result-desc" id="resultDesc"></div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="modal-cost-line">COST: <span class="modal-cost-val" id="modalCostVal">₡ 200</span></div>
+        <button class="open-btn" id="openBtn">▶ OPEN CASE</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ============================================================
+//  MOTHERSHIP 2e — DATA
+// ============================================================
+
+const RARITIES = [
+  { id: 'salvage',    label: 'Salvage Grade',  color: '#7a7a7a', chance: 0.38 },
+  { id: 'standard',  label: 'Standard Issue',  color: '#5a8f9a', chance: 0.26 },
+  { id: 'military',  label: 'Military Grade',  color: '#3e7bbf', chance: 0.16 },
+  { id: 'classified',label: 'Classified',       color: '#7b4fa6', chance: 0.10 },
+  { id: 'prototype', label: 'Prototype',        color: '#c0392b', chance: 0.05 },
+  { id: 'xenotech',  label: 'Xenotech',         color: '#00e5c8', chance: 0.025 },
+  { id: 'artifact',  label: 'ANOMALY',          color: '#ffd700', chance: 0.005 },
+];
+
+const ITEMS = [
+  // SALVAGE
+  { id: 's1', name: 'Duct Tape',          icon: '🧰', rarity: 'salvage',    slot: 'tool',    wt: 0, stats: {}, desc: 'Fixes most things temporarily.' },
+  { id: 's2', name: 'Mess Kit',           icon: '🥫', rarity: 'salvage',    slot: 'supply',  wt: 1, stats: {}, desc: 'A crew must eat.' },
+  { id: 's3', name: 'Worn Coveralls',     icon: '🧥', rarity: 'salvage',    slot: 'body',    wt: 1, stats: { ARMOR: 1 }, desc: 'Offers minimal protection.' },
+  { id: 's4', name: 'Flashlight',         icon: '🔦', rarity: 'salvage',    slot: 'tool',    wt: 0, stats: {}, desc: '6-hour battery life.' },
+  { id: 's5', name: 'Work Gloves',        icon: '🧤', rarity: 'salvage',    slot: 'hands',   wt: 0, stats: {}, desc: 'Grip and basic protection.' },
+
+  // STANDARD
+  { id: 't1', name: 'Combat Knife',       icon: '🔪', rarity: 'standard',   slot: 'weapon',  wt: 1, stats: { DMG: '1d5' }, desc: 'Serrated blade. Silent.' },
+  { id: 't2', name: 'Bioscanner',         icon: '📡', rarity: 'standard',   slot: 'tool',    wt: 1, stats: {}, desc: 'Detects life signs up to 100m.' },
+  { id: 't3', name: 'Flak Vest',          icon: '🦺', rarity: 'standard',   slot: 'body',    wt: 3, stats: { ARMOR: 3 }, desc: 'Standard crew protection.' },
+  { id: 't4', name: 'Stimpak',            icon: '💉', rarity: 'standard',   slot: 'medical', wt: 0, stats: { HEAL: 3 }, desc: 'Recovers 3 Health.' },
+  { id: 't5', name: 'Glow Rod',           icon: '🪄', rarity: 'standard',   slot: 'tool',    wt: 0, stats: {}, desc: '24hr light source, crushproof.' },
+
+  // MILITARY
+  { id: 'm1', name: 'Revolver .357',      icon: '🔫', rarity: 'military',   slot: 'weapon',  wt: 2, stats: { DMG: '2d10' }, desc: '6 rounds. Never jams.' },
+  { id: 'm2', name: 'Frag Grenade',       icon: '💣', rarity: 'military',   slot: 'weapon',  wt: 1, stats: { DMG: '3d10' }, desc: '5m blast radius.' },
+  { id: 'm3', name: 'Tactical Armor',     icon: '🛡️', rarity: 'military',   slot: 'body',    wt: 5, stats: { ARMOR: 6 }, desc: 'Ceramic plating. Military issue.' },
+  { id: 'm4', name: 'Medkit',             icon: '🩺', rarity: 'military',   slot: 'medical', wt: 2, stats: { HEAL: 8 }, desc: 'Recovers 8 Health. 3 uses.' },
+  { id: 'm5', name: 'Night Goggles',      icon: '🥽', rarity: 'military',   slot: 'head',    wt: 1, stats: {}, desc: 'Full thermal/low-light.' },
+
+  // CLASSIFIED
+  { id: 'c1', name: 'Void Pistol',        icon: '⚡', rarity: 'classified', slot: 'weapon',  wt: 2, stats: { DMG: '3d10+5' }, desc: 'Classified tech. No serial.' },
+  { id: 'c2', name: 'Stealth Suit',       icon: '🌑', rarity: 'classified', slot: 'body',    wt: 2, stats: { ARMOR: 8, SPD: 5 }, desc: 'Light-bending polymers.' },
+  { id: 'c3', name: 'Neural Interface',   icon: '🧠', rarity: 'classified', slot: 'head',    wt: 1, stats: { INT: 10 }, desc: 'Direct machine uplink.' },
+  { id: 'c4', name: 'Trauma Kit+',        icon: '💊', rarity: 'classified', slot: 'medical', wt: 1, stats: { HEAL: 15 }, desc: 'Black market biotech. Unstable.' },
+
+  // PROTOTYPE
+  { id: 'p1', name: 'Pulse Rifle',        icon: '🔋', rarity: 'prototype',  slot: 'weapon',  wt: 4, stats: { DMG: '4d10+10' }, desc: 'Prototype energy weapon.' },
+  { id: 'p2', name: 'Exo-Skeleton',       icon: '🤖', rarity: 'prototype',  slot: 'body',    wt: 8, stats: { ARMOR: 12, STR: 10 }, desc: 'Powered exo-frame.' },
+  { id: 'p3', name: 'Cryo Grenade',       icon: '🧊', rarity: 'prototype',  slot: 'weapon',  wt: 1, stats: { DMG: '2d10', FX: 'FREEZE' }, desc: 'Instant cryogenic suspension.' },
+
+  // XENOTECH
+  { id: 'x1', name: 'Xenoblade',          icon: '🌀', rarity: 'xenotech',   slot: 'weapon',  wt: 2, stats: { DMG: '5d10' }, desc: 'Origin: Unknown. Alive.' },
+  { id: 'x2', name: 'Carapace Shell',     icon: '🐚', rarity: 'xenotech',   slot: 'body',    wt: 3, stats: { ARMOR: 15, STR: 5, SPD: -3 }, desc: 'Grafted from a dead titan.' },
+
+  // ARTIFACT
+  { id: 'a1', name: 'The Monolith Shard', icon: '🗿', rarity: 'artifact',   slot: 'tool',    wt: 0, stats: { INT: 20 }, desc: 'Do not look at it directly.' },
+  { id: 'a2', name: 'Deus Protocol',      icon: '✨', rarity: 'artifact',   slot: 'head',    wt: 0, stats: { INT: 25, CMB: 15 }, desc: 'You were not meant to find this.' },
+];
+
+const CASES = [
+  {
+    id: 'drop1',
+    name: 'SCAVENGE CRATE',
+    icon: '📦',
+    cost: 100,
+    color: '#5a8f9a',
+    pool: ['salvage', 'standard'],
+    desc: 'Abandoned cargo. Low yield, low cost.',
+  },
+  {
+    id: 'drop2',
+    name: 'CORP SUPPLY DROP',
+    icon: '🗃️',
+    cost: 250,
+    color: '#3e7bbf',
+    pool: ['standard', 'military', 'classified'],
+    desc: 'Intercepted Weyland shipment.',
+  },
+  {
+    id: 'drop3',
+    name: 'BLACK SITE CACHE',
+    icon: '💼',
+    cost: 500,
+    color: '#7b4fa6',
+    pool: ['military', 'classified', 'prototype'],
+    desc: 'Raided from a Seegson black site.',
+  },
+  {
+    id: 'drop4',
+    name: 'XENO ARTIFACT',
+    icon: '🛸',
+    cost: 1200,
+    color: '#00e5c8',
+    pool: ['prototype', 'xenotech', 'artifact'],
+    desc: 'Recovered near LV-426. Anomalous readings.',
+  },
+];
+
+const SKILLS_BY_CLASS = {
+  teamster: [
+    { name: 'Zero-G Maneuvering', trained: true },
+    { name: 'Mechanical Repair', trained: true },
+    { name: 'Piloting', trained: false },
+    { name: 'Jury-Rigging', trained: true },
+    { name: 'Athletics', trained: false },
+    { name: 'Barter', trained: false },
+  ],
+  scientist: [
+    { name: 'First Aid', trained: true },
+    { name: 'Pathology', trained: true },
+    { name: 'Xenobiology', trained: true },
+    { name: 'Archaeology', trained: false },
+    { name: 'Computers', trained: false },
+    { name: 'Linguistics', trained: false },
+  ],
+  marine: [
+    { name: 'Military Weapons', trained: true },
+    { name: 'Tactics', trained: true },
+    { name: 'Athletics', trained: true },
+    { name: 'Demolitions', trained: false },
+    { name: 'Heavy Machinery', trained: false },
+    { name: 'Intimidation', trained: false },
+  ],
+  android: [
+    { name: 'Computers', trained: true },
+    { name: 'Mathematics', trained: true },
+    { name: 'Linguistics', trained: true },
+    { name: 'Robotics', trained: true },
+    { name: 'Rimwise', trained: false },
+    { name: 'Psychology', trained: false },
+  ],
+};
+
+const CLASS_PORTRAITS = {
+  teamster: '👷',
+  scientist: '🔬',
+  marine: '🪖',
+  android: '🤖',
+};
+
+const CLASS_LABELS = {
+  teamster: 'TEAMSTER',
+  scientist: 'SCIENTIST',
+  marine: 'MARINE',
+  android: 'ANDROID',
+};
+
+const LOADOUT_SLOTS = [
+  { id: 'weapon',  label: 'PRIMARY',   icon: '🔫' },
+  { id: 'body',    label: 'ARMOR',     icon: '🛡️' },
+  { id: 'head',    label: 'HEAD',      icon: '⛑️' },
+  { id: 'hands',   label: 'HANDS',     icon: '🧤' },
+  { id: 'tool',    label: 'TOOL',      icon: '🧰' },
+  { id: 'medical', label: 'MEDICAL',   icon: '💊' },
+  { id: 'supply',  label: 'SUPPLY',    icon: '🎒' },
+];
+
+</script>
+<script>
+// ============================================================
+//  MOTHERSHIP 2e — APP LOGIC
+// ============================================================
+
+// ── STATE ────────────────────────────────────────────────────
+const STATE_KEY = 'mothership_sheet_v1';
+
+let state = loadState() || {
+  credits: 2500,
+  charName: 'VASQUEZ, J.',
+  charClass: 'teamster',
+  charPronouns: 'THEY/THEM',
+  charShip: 'UES PERSEPHONE',
+  charPatch: 'CREW-7',
+  stats: { STR: 30, SPD: 30, INT: 35, CMB: 25 },
+  stress: 2,
+  panic: 3,
+  wounds: 0,
+  hp: 20,
+  maxHp: 20,
+  skills: JSON.parse(JSON.stringify(SKILLS_BY_CLASS['teamster'])),
+  inventory: [
+    ITEMS.find(i => i.id === 't1'),
+    ITEMS.find(i => i.id === 't3'),
+    ITEMS.find(i => i.id === 's4'),
+  ],
+  equipped: {},
+  dropHistory: [],
+  notes: '',
+};
+
+function saveState() {
+  try { localStorage.setItem(STATE_KEY, JSON.stringify(state)); } catch(e) {}
+}
+
+function loadState() {
+  try {
+    const s = localStorage.getItem(STATE_KEY);
+    return s ? JSON.parse(s) : null;
+  } catch(e) { return null; }
+}
+
+// ── TABS ─────────────────────────────────────────────────────
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ── IDENTITY ─────────────────────────────────────────────────
+function bindField(id, key) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.value = state[key] || '';
+  el.addEventListener('input', () => { state[key] = el.value; saveState(); });
+}
+
+function updateClass() {
+  const cls = document.getElementById('charClass').value;
+  state.charClass = cls;
+  state.skills = JSON.parse(JSON.stringify(SKILLS_BY_CLASS[cls]));
+  document.getElementById('portraitDisplay').textContent = CLASS_PORTRAITS[cls];
+  document.getElementById('classDisplay').textContent = CLASS_LABELS[cls];
+  saveState();
+  renderSkills();
+}
+
+// ── STATS ─────────────────────────────────────────────────────
+function adjustStat(key, delta) {
+  state.stats[key] = Math.max(5, Math.min(100, (state.stats[key] || 30) + delta));
+  saveState();
+  renderStats();
+}
+
+function renderStats() {
+  ['STR','SPD','INT','CMB'].forEach(k => {
+    const v = state.stats[k];
+    document.getElementById('val-' + k).textContent = v;
+    document.getElementById('save-' + k).textContent = Math.floor(v / 2);
+  });
+}
+
+// ── CONDITIONS ───────────────────────────────────────────────
+function adjustCond(type, delta) {
+  if (type === 'stress') {
+    state.stress = Math.max(0, Math.min(20, state.stress + delta));
+  } else if (type === 'panic') {
+    state.panic = Math.max(0, Math.min(20, state.panic + delta));
+  } else if (type === 'wound') {
+    state.wounds = Math.max(0, Math.min(5, state.wounds + delta));
+  } else if (type === 'hp') {
+    state.hp = Math.max(0, Math.min(state.maxHp, state.hp + delta));
+  }
+  saveState();
+  renderConditions();
+}
+
+function renderConditions() {
+  // Stress pips
+  const stressTrack = document.getElementById('stressTrack');
+  stressTrack.innerHTML = '';
+  for (let i = 0; i < 20; i++) {
+    const pip = document.createElement('div');
+    pip.className = 'pip stress-pip' + (i < state.stress ? ' filled' : '');
+    stressTrack.appendChild(pip);
+  }
+  document.getElementById('stressVal').textContent = state.stress;
+
+  // Panic bar
+  const pct = (state.panic / 20) * 100;
+  document.getElementById('panicBar').style.width = pct + '%';
+  document.getElementById('panicTick').style.left = pct + '%';
+  document.getElementById('panicVal').textContent = state.panic;
+
+  // Wound boxes
+  const woundBoxes = document.getElementById('woundBoxes');
+  woundBoxes.innerHTML = '';
+  const labels = ['FLESH WOUND','BLEEDING','BROKEN','CRITICAL','DYING'];
+  for (let i = 0; i < 5; i++) {
+    const box = document.createElement('div');
+    box.className = 'wound-box' + (i < state.wounds ? ' filled' : '');
+    box.textContent = labels[i];
+    woundBoxes.appendChild(box);
+  }
+
+  // HP track
+  const hpTrack = document.getElementById('hpTrack');
+  hpTrack.innerHTML = '';
+  for (let i = 0; i < state.maxHp; i++) {
+    const pip = document.createElement('div');
+    pip.className = 'pip hp-pip' + (i < state.hp ? ' filled' : '');
+    hpTrack.appendChild(pip);
+  }
+  document.getElementById('hpVal').textContent = state.hp;
+}
+
+// ── SKILLS ───────────────────────────────────────────────────
+function toggleSkill(idx) {
+  state.skills[idx].trained = !state.skills[idx].trained;
+  saveState();
+  renderSkills();
+}
+
+function renderSkills() {
+  const body = document.getElementById('skillsBody');
+  body.innerHTML = state.skills.map((sk, i) => `
+    <div class="skill-row ${sk.trained ? 'trained' : ''}" onclick="toggleSkill(${i})">
+      <div class="skill-dot"></div>
+      <div class="skill-name">${sk.name}</div>
+      <div class="skill-status">${sk.trained ? '● TRAINED' : '○ UNTRAINED'}</div>
+    </div>
+  `).join('');
+}
+
+// ── LOADOUT SLOTS ────────────────────────────────────────────
+function renderLoadout() {
+  const container = document.getElementById('loadoutSlots');
+  container.innerHTML = LOADOUT_SLOTS.map(slot => {
+    const item = state.equipped[slot.id];
+    const rar = item ? RARITIES.find(r => r.id === item.rarity) : null;
+    return `
+      <div class="loadout-slot ${item ? 'has-item' : ''}" onclick="unequipSlot('${slot.id}')"
+        style="${rar ? '--slot-color:' + rar.color : '--slot-color:#333'}">
+        <div class="slot-icon">${item ? item.icon : slot.icon}</div>
+        <div class="slot-info">
+          <div class="slot-label">${slot.label}</div>
+          <div class="slot-item-name ${rar ? 'rarity-' + rar.id : ''}">${item ? item.name : '— EMPTY —'}</div>
+          ${item ? '<div class="slot-stats">' + formatStats(item.stats) + '</div>' : ''}
+        </div>
+        ${item ? '<div class="slot-remove">✕</div>' : ''}
+        ${rar ? `<div class="slot-rarity-stripe" style="background:${rar.color}"></div>` : ''}
+      </div>`;
+  }).join('');
+}
+
+function formatStats(stats) {
+  return Object.entries(stats)
+    .filter(([,v]) => v)
+    .map(([k,v]) => `${k}:${v}`)
+    .join(' · ') || '';
+}
+
+function unequipSlot(slotId) {
+  const item = state.equipped[slotId];
+  if (!item) return;
+  state.inventory.push(item);
+  delete state.equipped[slotId];
+  saveState();
+  renderLoadout();
+  renderInventory();
+  toast(`Unequipped ${item.icon} ${item.name}`, 'warn');
+}
+
+function equipItem(invIdx) {
+  const item = state.inventory[invIdx];
+  if (!item || !item.slot) return;
+  const slotDef = LOADOUT_SLOTS.find(s => s.id === item.slot);
+  if (!slotDef) { toast('Item has no valid slot.', 'warn'); return; }
+  const current = state.equipped[item.slot];
+  if (current) state.inventory.push(current);
+  state.equipped[item.slot] = item;
+  state.inventory.splice(invIdx, 1);
+  saveState();
+  renderLoadout();
+  renderInventory();
+  toast(`Equipped ${item.icon} ${item.name}`, 'good');
+}
+
+// ── INVENTORY ────────────────────────────────────────────────
+function renderInventory() {
+  const grid = document.getElementById('inventoryGrid');
+  const total = Math.max(18, state.inventory.length + 3);
+  let html = '';
+  for (let i = 0; i < total; i++) {
+    const item = state.inventory[i];
+    if (item) {
+      const rar = RARITIES.find(r => r.id === item.rarity);
+      html += `
+        <div class="inv-cell has-item" onclick="equipItem(${i})"
+          title="${item.name}&#10;${rar.label}&#10;${formatStats(item.stats) || 'No stats'}&#10;Click to equip"
+          style="--rar-color:${rar.color}">
+          <span class="inv-icon">${item.icon}</span>
+          <div class="inv-rarity-bar" style="background:${rar.color}"></div>
+        </div>`;
+    } else {
+      html += `<div class="inv-cell empty-cell"></div>`;
+    }
+  }
+  grid.innerHTML = html;
+}
+
+// ── CREDITS ──────────────────────────────────────────────────
+function renderCredits() {
+  document.getElementById('creditsDisplay').textContent = state.credits.toLocaleString();
+}
+
+// ── CASES DISPLAY ────────────────────────────────────────────
+function renderCases() {
+  const row = document.getElementById('casesRow');
+  row.innerHTML = CASES.map(c => `
+    <div class="case-card" onclick="openCase('${c.id}')" style="--case-color:${c.color}">
+      <div class="case-glow"></div>
+      <div class="case-icon">${c.icon}</div>
+      <div class="case-name">${c.name}</div>
+      <div class="case-desc">${c.desc}</div>
+      <div class="case-cost">₡ ${c.cost}</div>
+      <div class="case-open-btn">▶ INTERCEPT</div>
+    </div>
+  `).join('');
+}
+
+function renderDropHistory() {
+  const el = document.getElementById('dropHistory');
+  if (!state.dropHistory.length) {
+    el.innerHTML = '<div class="history-empty">— No drops intercepted yet —</div>';
+    return;
+  }
+  el.innerHTML = state.dropHistory.slice().reverse().slice(0, 20).map(d => {
+    const rar = RARITIES.find(r => r.id === d.rarity);
+    return `<div class="history-row">
+      <span class="history-icon">${d.icon}</span>
+      <span class="history-name">${d.name}</span>
+      <span class="history-rarity" style="color:${rar.color}">${rar.label}</span>
+      <span class="history-case">${d.caseName}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── LOOTBOX MODAL ────────────────────────────────────────────
+let activeCaseId = null;
+let spinning = false;
+
+function openCase(caseId) {
+  activeCaseId = caseId;
+  const c = CASES.find(x => x.id === caseId);
+  document.getElementById('modalTitle').textContent = c.name;
+  document.getElementById('modalCaseIcon').textContent = c.icon;
+  document.getElementById('modalCostVal').textContent = '₡ ' + c.cost;
+  document.getElementById('openBtn').textContent = '▶ OPEN CASE';
+  document.getElementById('openBtn').disabled = false;
+  document.getElementById('resultReveal').classList.remove('visible');
+  buildReel(c);
+  document.getElementById('modalOverlay').classList.add('active');
+}
+
+function buildReel(caseObj) {
+  const track = document.getElementById('reelTrack');
+  track.style.transition = 'none';
+  track.style.transform = 'translateX(0)';
+
+  const items = [];
+  for (let i = 0; i < 64; i++) {
+    const rarity = rollRarity(caseObj.pool);
+    const pool = ITEMS.filter(x => x.rarity === rarity);
+    items.push(pool[Math.floor(Math.random() * pool.length)]);
+  }
+  track._items = items;
+
+  track.innerHTML = items.map(item => {
+    const rar = RARITIES.find(r => r.id === item.rarity);
+    return `<div class="reel-cell" style="--rc:${rar.color}">
+      <div class="reel-cell-icon">${item.icon}</div>
+      <div class="reel-cell-name">${item.name.substring(0,12)}</div>
+      <div class="reel-cell-bar"></div>
+    </div>`;
+  }).join('');
+}
+
+function rollRarity(pool) {
+  const eligible = RARITIES.filter(r => pool.includes(r.id));
+  const total = eligible.reduce((s, r) => s + r.chance, 0);
+  let roll = Math.random() * total;
+  for (const r of eligible) {
+    roll -= r.chance;
+    if (roll <= 0) return r.id;
+  }
+  return eligible[eligible.length - 1].id;
+}
+
+document.getElementById('openBtn').addEventListener('click', () => {
+  if (spinning) return;
+  const c = CASES.find(x => x.id === activeCaseId);
+  if (state.credits < c.cost) {
+    toast(`Insufficient credits. Need ₡${c.cost}.`, 'danger');
+    return;
+  }
+  state.credits -= c.cost;
+  renderCredits();
+  spinReel(c);
+});
+
+function spinReel(caseObj) {
+  spinning = true;
+  document.getElementById('openBtn').disabled = true;
+  document.getElementById('resultReveal').classList.remove('visible');
+
+  const track = document.getElementById('reelTrack');
+  const items = track._items;
+  const CELL_W = 110;
+  const CENTER = 310;
+  const targetIdx = 48 + Math.floor(Math.random() * 8);
+  const drift = (Math.random() - 0.5) * 40;
+  const finalX = -(targetIdx * CELL_W + CELL_W / 2 - CENTER + drift);
+
+  void track.offsetWidth;
+  const dur = 3400 + Math.random() * 600;
+  track.style.transition = `transform ${dur}ms cubic-bezier(0.12, 0.9, 0.3, 1.0)`;
+  track.style.transform = `translateX(${finalX}px)`;
+
+  setTimeout(() => {
+    const won = items[targetIdx];
+    showResult(won, caseObj);
+    state.inventory.push(won);
+    state.dropHistory.push({ ...won, caseName: caseObj.name, date: Date.now() });
+    saveState();
+    renderInventory();
+    renderDropHistory();
+    spinning = false;
+    document.getElementById('openBtn').textContent = '▶ OPEN AGAIN';
+    document.getElementById('openBtn').disabled = false;
+    buildReel(caseObj);
+  }, dur + 300);
+}
+
+function showResult(item, caseObj) {
+  const rar = RARITIES.find(r => r.id === item.rarity);
+  document.getElementById('resultFlash').style.background = rar.color;
+  document.getElementById('resultIcon').textContent = item.icon;
+  document.getElementById('resultRarity').textContent = rar.label;
+  document.getElementById('resultRarity').style.color = rar.color;
+  document.getElementById('resultName').textContent = item.name;
+  document.getElementById('resultStats').textContent = formatStats(item.stats) || '';
+  document.getElementById('resultDesc').textContent = item.desc;
+  document.getElementById('resultReveal').classList.add('visible');
+
+  // Special toast for high rarity
+  if (['xenotech','artifact'].includes(item.rarity)) {
+    toast(`⚠ ANOMALOUS DROP: ${item.icon} ${item.name}`, 'rare');
+  } else if (['prototype','classified'].includes(item.rarity)) {
+    toast(`${item.icon} ${item.name} — ${rar.label}`, 'good');
+  }
+}
+
+// ── MODAL CLOSE ──────────────────────────────────────────────
+document.getElementById('modalClose').addEventListener('click', () => {
+  if (!spinning) document.getElementById('modalOverlay').classList.remove('active');
+});
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (!spinning && e.target === document.getElementById('modalOverlay'))
+    document.getElementById('modalOverlay').classList.remove('active');
+});
+
+// ── TOAST ─────────────────────────────────────────────────────
+function toast(msg, type = 'good') {
+  const c = document.getElementById('toastContainer');
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.textContent = msg;
+  c.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => {
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 400);
+  }, 2800);
+}
+
+// ── NOTES ─────────────────────────────────────────────────────
+function initNotes() {
+  const el = document.getElementById('notesField');
+  el.value = state.notes || '';
+  el.addEventListener('input', () => { state.notes = el.value; saveState(); });
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+function init() {
+  // Bind identity fields
+  bindField('charName', 'charName');
+  bindField('charPronouns', 'charPronouns');
+  bindField('charShip', 'charShip');
+  bindField('charPatch', 'charPatch');
+
+  // Class select
+  const classEl = document.getElementById('charClass');
+  classEl.value = state.charClass;
+  classEl.addEventListener('change', updateClass);
+
+  // Portrait/class label
+  document.getElementById('portraitDisplay').textContent = CLASS_PORTRAITS[state.charClass];
+  document.getElementById('classDisplay').textContent = CLASS_LABELS[state.charClass];
+
+  renderStats();
+  renderConditions();
+  renderSkills();
+  renderLoadout();
+  renderInventory();
+  renderCases();
+  renderDropHistory();
+  renderCredits();
+  initNotes();
+}
+
+init();
+
+</script>
+</body>
+</html>
