@@ -4,478 +4,14 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
 <title>MOTHERSHIP® — Crew Sheet</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Teko:wght@400;500;600;700&display=swap');
-
-:root {
-  --bg:      #080a0d;
-  --bg2:     #0c0f14;
-  --panel:   #0f1218;
-  --border:  #1c2230;
-  --b2:      #26334a;
-  --acc:     #d95f2b;
-  --acc2:    #3a8fc4;
-  --green:   #1db880;
-  --yellow:  #f0b429;
-  --red:     #d63031;
-  --cyan:    #00cec9;
-  --gold:    #f9c74f;
-  --text:    #b0bcc8;
-  --dim:     #404e60;
-  --bright:  #e2eaf2;
-  --mono:    'Share Tech Mono', monospace;
-  --disp:    'Teko', sans-serif;
-  --tab-h:   48px;
-  --hdr-h:   52px;
-}
-
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{font-size:14px;-webkit-text-size-adjust:100%;}
-body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:var(--mono);
-  min-height:100vh;
-  overflow-x:hidden;
-}
-
-/* ── SCANLINES ── */
-.scanlines{
-  pointer-events:none;
-  position:fixed;inset:0;z-index:9000;
-  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.07) 2px,rgba(0,0,0,0.07) 4px);
-}
-
-/* ── HEADER ── */
-.hdr{
-  position:sticky;top:0;z-index:100;
-  height:var(--hdr-h);
-  background:var(--bg);
-  border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 14px;
-}
-.hdr-logo{
-  font-family:var(--disp);font-size:26px;font-weight:700;
-  letter-spacing:3px;color:var(--acc);
-  text-shadow:0 0 20px rgba(217,95,43,0.35);
-}
-.hdr-ver{font-size:14px;color:var(--dim);margin-left:4px;}
-.hdr-credits{
-  font-family:var(--disp);font-size:22px;font-weight:600;
-  color:var(--acc2);
-  background:rgba(58,143,196,0.08);
-  border:1px solid rgba(58,143,196,0.2);
-  padding:4px 12px;
-  cursor:pointer;
-}
-
-/* ── TABS ── */
-.tabs{
-  position:sticky;top:var(--hdr-h);z-index:99;
-  display:flex;
-  background:var(--bg);
-  border-bottom:1px solid var(--border);
-  overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
-}
-.tabs::-webkit-scrollbar{display:none;}
-.tab{
-  flex:1;min-width:56px;
-  height:var(--tab-h);
-  background:none;border:none;
-  border-bottom:2px solid transparent;
-  color:var(--dim);
-  font-family:var(--mono);font-size:11px;
-  letter-spacing:1.5px;text-transform:uppercase;
-  cursor:pointer;transition:all .18s;
-  padding:0 4px;
-  white-space:nowrap;
-}
-.tab:hover{color:var(--text);}
-.tab.active{color:var(--acc);border-bottom-color:var(--acc);}
-
-/* ── PANES ── */
-.pane{display:none;padding:10px;padding-bottom:80px;}
-.pane.active{display:block;}
-
-/* ── PANELS ── */
-.panel{
-  background:var(--panel);
-  border:1px solid var(--border);
-  padding:14px;
-  margin-bottom:10px;
-  position:relative;overflow:hidden;
-}
-.panel::after{
-  content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent,var(--b2),transparent);
-}
-.plabel{
-  font-size:9px;letter-spacing:3px;color:var(--dim);
-  text-transform:uppercase;
-  margin-bottom:12px;
-  border-bottom:1px solid var(--border);
-  padding-bottom:8px;
-  display:flex;justify-content:space-between;align-items:center;
-}
-.plabel-hint{font-size:9px;color:var(--dim);letter-spacing:1px;}
-
-/* ── FORM FIELDS ── */
-.field-g{display:flex;flex-direction:column;gap:4px;}
-.field-g label{font-size:9px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;}
-.field-g input,.field-g select{
-  background:var(--bg2);
-  border:1px solid var(--border);
-  color:var(--bright);
-  font-family:var(--mono);font-size:13px;
-  padding:7px 9px;width:100%;outline:none;
-  text-transform:uppercase;
-  appearance:none;-webkit-appearance:none;
-  transition:border-color .2s;
-  border-radius:0;
-}
-.field-g input:focus,.field-g select:focus{border-color:var(--acc2);}
-.field-row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
-
-/* ── PORTRAIT ── */
-.portrait-row{display:flex;gap:14px;align-items:flex-start;}
-.portrait{
-  width:72px;height:72px;flex-shrink:0;
-  border:1px solid var(--b2);
-  background:var(--bg2);
-  display:flex;align-items:center;justify-content:center;
-  font-size:36px;
-}
-.portrait-info{flex:1;display:flex;flex-direction:column;gap:8px;}
-
-/* ── TRAUMA BOX ── */
-.trauma-box{
-  background:rgba(217,95,43,0.06);
-  border-left:3px solid var(--acc);
-  padding:10px 12px;
-  font-size:12px;line-height:1.6;
-  color:var(--text);
-}
-
-/* ── STRESS/PANIC/RESOLVE ── */
-.spr-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
-@media(max-width:480px){.spr-grid{grid-template-columns:1fr 1fr;}}
-.spr-block{
-  background:var(--bg2);border:1px solid var(--border);
-  padding:10px;text-align:center;
-}
-.spr-label{font-size:9px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:8px;}
-.spr-controls{display:flex;align-items:center;justify-content:center;gap:8px;}
-.spr-nums{text-align:center;}
-.spr-sub{font-size:8px;letter-spacing:1px;color:var(--dim);text-transform:uppercase;}
-.spr-val{font-family:var(--disp);font-size:32px;font-weight:700;color:var(--bright);line-height:1;}
-.stress-val{color:var(--yellow)!important;}
-.resolve-hint{font-size:9px;color:var(--dim);margin-top:6px;line-height:1.5;}
-.panic-roll-btn{
-  width:100%;padding:8px 4px;
-  background:rgba(217,95,43,0.1);
-  border:1px solid var(--acc);
-  color:var(--acc);
-  font-family:var(--mono);font-size:10px;
-  letter-spacing:1px;text-transform:uppercase;
-  cursor:pointer;margin-top:4px;
-  transition:all .2s;
-}
-.panic-roll-btn:hover{background:rgba(217,95,43,0.2);}
-.panic-result{font-size:11px;color:var(--yellow);margin-top:8px;line-height:1.5;min-height:20px;text-align:left;}
-
-/* ── HEALTH/WOUNDS ── */
-.hw-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.hw-block{background:var(--bg2);border:1px solid var(--border);padding:12px;}
-.hw-label{font-size:9px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:10px;}
-.hw-controls{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-.hw-val-wrap{flex:1;text-align:center;}
-.hw-val{font-family:var(--disp);font-size:36px;font-weight:700;color:var(--bright);line-height:1;}
-.hw-sep{font-size:18px;color:var(--dim);}
-.hw-max{font-family:var(--disp);font-size:22px;color:var(--dim);}
-.hw-hint{font-size:9px;color:var(--dim);letter-spacing:1px;margin-top:4px;}
-.hp-bar-wrap{height:4px;background:var(--border);margin-top:4px;}
-.hp-bar{height:100%;background:var(--green);transition:width .3s;}
-.wound-boxes{display:flex;flex-direction:column;gap:4px;margin-top:4px;}
-.wound-box{
-  padding:4px 8px;border:1px solid var(--border);
-  font-size:10px;letter-spacing:1px;color:var(--dim);
-  text-transform:uppercase;transition:all .2s;
-}
-.wound-box.active{background:rgba(214,48,49,0.12);border-color:var(--red);color:var(--red);}
-
-/* ── ADJ BUTTON ── */
-.adj-btn{
-  background:none;border:1px solid var(--border);
-  color:var(--dim);width:28px;height:28px;
-  cursor:pointer;font-size:16px;font-family:var(--mono);
-  display:flex;align-items:center;justify-content:center;
-  transition:all .15s;flex-shrink:0;
-  touch-action:manipulation;
-}
-.adj-btn:hover,.adj-btn:active{border-color:var(--acc);color:var(--acc);}
-
-/* ── NOTES ── */
-#f-notes{
-  width:100%;min-height:120px;
-  background:var(--bg2);border:1px solid var(--border);
-  color:var(--text);font-family:var(--mono);font-size:12px;
-  padding:10px;resize:vertical;outline:none;line-height:1.7;
-  border-radius:0;
-}
-#f-notes:focus{border-color:var(--b2);}
-
-/* ── STATS ── */
-.stat-hint,.save-hint{font-size:10px;color:var(--dim);margin-bottom:12px;line-height:1.6;}
-.stats-list,.saves-list{display:flex;flex-direction:column;gap:8px;}
-.stat-row{
-  background:var(--bg2);border:1px solid var(--border);
-  padding:10px 12px;
-  display:flex;align-items:center;gap:10px;
-}
-.sr-name{font-size:9px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;width:72px;flex-shrink:0;}
-.sr-controls{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-.sr-val{
-  font-family:var(--disp);font-size:34px;font-weight:700;
-  color:var(--bright);width:52px;text-align:center;line-height:1;
-}
-.sr-bar-wrap{flex:1;height:4px;background:var(--border);}
-.sr-bar{height:100%;transition:width .3s;}
-.sr-desc{font-size:9px;color:var(--dim);margin-top:4px;line-height:1.5;}
-
-.save-row{
-  background:var(--bg2);border:1px solid var(--border);
-  padding:10px 12px;
-}
-.save-header{display:flex;align-items:center;gap:10px;}
-.save-name{font-size:9px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;width:72px;flex-shrink:0;}
-.save-controls{display:flex;align-items:center;gap:6px;}
-.save-val{font-family:var(--disp);font-size:30px;font-weight:700;color:var(--bright);width:48px;text-align:center;line-height:1;}
-.save-desc{font-size:10px;color:var(--dim);margin-top:6px;line-height:1.5;border-top:1px solid var(--border);padding-top:6px;}
-
-/* AP */
-.ap-row{display:flex;align-items:center;gap:12px;justify-content:center;padding:8px 0;}
-.ap-display{text-align:center;}
-.ap-val{font-family:var(--disp);font-size:48px;font-weight:700;color:var(--acc2);line-height:1;}
-.ap-label{font-size:9px;letter-spacing:3px;color:var(--dim);text-transform:uppercase;}
-.ap-hint{font-size:10px;color:var(--dim);margin-top:6px;line-height:1.5;}
-
-/* PANIC TABLE */
-.panic-table{font-size:11px;line-height:1;}
-.pt-row{
-  display:flex;gap:8px;
-  padding:5px 8px;
-  border-bottom:1px solid var(--border);
-}
-.pt-row:last-child{border-bottom:none;}
-.pt-roll{color:var(--acc);width:28px;flex-shrink:0;font-weight:700;}
-.pt-result{color:var(--text);line-height:1.5;}
-.pt-row.pt-bad{background:rgba(214,48,49,0.05);}
-.pt-row.pt-good{background:rgba(29,184,128,0.05);}
-
-/* ── SKILLS ── */
-.skill-legend{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--dim);margin-bottom:12px;flex-wrap:wrap;}
-.sk-dot{width:10px;height:10px;border-radius:50%;border:1px solid var(--dim);display:inline-block;flex-shrink:0;}
-.sk-dot.trained{background:#3a8fc4;border-color:#3a8fc4;}
-.sk-dot.expert{background:#9b59b6;border-color:#9b59b6;}
-.sk-dot.master{background:#f9c74f;border-color:#f9c74f;}
-.skill-tree{display:flex;flex-direction:column;gap:6px;}
-.skill-branch{margin-bottom:6px;}
-.skill-branch-label{font-size:9px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:6px;padding-left:4px;border-left:2px solid var(--b2);}
-.skill-item{
-  display:flex;align-items:center;gap:10px;
-  padding:8px 10px;
-  background:var(--bg2);border:1px solid var(--border);
-  cursor:pointer;transition:all .15s;
-  margin-bottom:4px;
-}
-.skill-item:hover{border-color:var(--b2);}
-.skill-item.sub{margin-left:20px;}
-.skill-item.sub2{margin-left:40px;}
-.skill-item.sk-trained{border-color:rgba(58,143,196,0.4);background:rgba(58,143,196,0.05);}
-.skill-item.sk-expert{border-color:rgba(155,89,182,0.4);background:rgba(155,89,182,0.05);}
-.skill-item.sk-master{border-color:rgba(249,199,79,0.4);background:rgba(249,199,79,0.05);}
-.si-dot{width:10px;height:10px;border-radius:50%;border:1px solid var(--dim);flex-shrink:0;}
-.skill-item.sk-trained .si-dot{background:#3a8fc4;border-color:#3a8fc4;box-shadow:0 0 6px #3a8fc4;}
-.skill-item.sk-expert .si-dot{background:#9b59b6;border-color:#9b59b6;box-shadow:0 0 6px #9b59b6;}
-.skill-item.sk-master .si-dot{background:#f9c74f;border-color:#f9c74f;box-shadow:0 0 6px #f9c74f;}
-.si-name{flex:1;font-size:12px;color:var(--text);}
-.skill-item.sk-trained .si-name,.skill-item.sk-expert .si-name,.skill-item.sk-master .si-name{color:var(--bright);}
-.si-rank{font-size:9px;letter-spacing:1px;color:var(--dim);text-transform:uppercase;}
-.skill-item.sk-trained .si-rank{color:#3a8fc4;}
-.skill-item.sk-expert .si-rank{color:#9b59b6;}
-.skill-item.sk-master .si-rank{color:#f9c74f;}
-.si-bonus{font-size:10px;color:var(--dim);}
-.skill-item.sk-trained .si-bonus{color:#3a8fc4;}
-.skill-item.sk-expert .si-bonus{color:#9b59b6;}
-.skill-item.sk-master .si-bonus{color:#f9c74f;}
-
-/* SP */
-.sp-row{display:flex;align-items:center;gap:12px;justify-content:center;padding:6px 0;}
-.sp-display{text-align:center;}
-.sp-val{font-family:var(--disp);font-size:40px;font-weight:700;color:var(--green);line-height:1;}
-.sp-label{font-size:9px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;}
-.sp-costs{font-size:10px;color:var(--dim);margin-top:8px;text-align:center;line-height:1.6;}
-
-/* ── GEAR ── */
-.loadout-list{display:flex;flex-direction:column;gap:8px;}
-.loadout-slot{
-  display:flex;align-items:center;gap:10px;
-  padding:10px 12px;
-  background:var(--bg2);border:1px solid var(--border);
-  cursor:pointer;transition:all .2s;
-  position:relative;overflow:hidden;
-}
-.loadout-slot.has-item:hover{border-color:var(--b2);}
-.ls-stripe{position:absolute;left:0;top:0;bottom:0;width:3px;}
-.ls-icon{font-size:22px;flex-shrink:0;}
-.ls-info{flex:1;}
-.ls-label{font-size:9px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;}
-.ls-name{font-family:var(--disp);font-size:17px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--bright);}
-.ls-stats{font-size:10px;color:var(--dim);margin-top:2px;}
-.ls-remove{color:var(--red);font-size:12px;opacity:0;transition:opacity .2s;padding:0 4px;}
-.loadout-slot.has-item:hover .ls-remove{opacity:1;}
-.ls-empty-label{color:var(--dim)!important;}
-
-.inv-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
-@media(max-width:360px){.inv-grid{grid-template-columns:repeat(4,1fr);}}
-.inv-cell{
-  aspect-ratio:1;
-  border:1px solid var(--border);
-  display:flex;align-items:center;justify-content:center;
-  position:relative;overflow:hidden;
-  cursor:pointer;transition:all .2s;
-  background:var(--bg2);
-  font-size:22px;
-}
-.inv-cell.has-item:hover{transform:scale(1.08);z-index:5;}
-.inv-cell.inv-empty{border-style:dashed;opacity:.25;cursor:default;}
-.inv-rbar{position:absolute;bottom:0;left:0;right:0;height:2px;}
-
-/* ── DROPS TAB ── */
-.drop-intro{font-size:11px;color:var(--dim);line-height:1.7;margin-bottom:14px;border-left:2px solid var(--acc);padding-left:10px;}
-.cases-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-@media(max-width:400px){.cases-grid{grid-template-columns:1fr;}}
-.case-card{
-  background:var(--bg2);
-  border:1px solid var(--border);
-  border-left:3px solid var(--case-col,var(--border));
-  padding:14px;cursor:pointer;
-  transition:all .2s;position:relative;overflow:hidden;
-}
-.case-card:hover{background:color-mix(in srgb,var(--case-col,transparent) 6%,var(--bg2));}
-.cc-icon{font-size:26px;margin-bottom:6px;}
-.cc-name{font-family:var(--disp);font-size:16px;font-weight:600;letter-spacing:1.5px;color:var(--bright);text-transform:uppercase;}
-.cc-desc{font-size:10px;color:var(--dim);line-height:1.5;margin-top:4px;}
-.cc-cost{font-family:var(--disp);font-size:20px;font-weight:600;color:var(--acc2);margin-top:8px;}
-.cc-cta{font-size:9px;letter-spacing:2px;color:var(--case-col,var(--dim));text-transform:uppercase;margin-top:4px;}
-
-.drop-history{display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto;}
-.dh-empty{font-size:11px;color:var(--dim);text-align:center;padding:20px;letter-spacing:1px;}
-.dh-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg2);border:1px solid var(--border);font-size:11px;}
-.dh-icon{font-size:16px;}
-.dh-name{flex:1;color:var(--text);}
-.dh-rar{font-size:9px;letter-spacing:1px;}
-.dh-case{font-size:9px;color:var(--dim);letter-spacing:1px;}
-
-/* ── MODAL ── */
-.modal-bg{
-  position:fixed;inset:0;background:rgba(0,0,0,0.92);
-  display:flex;align-items:flex-end;justify-content:center;
-  z-index:500;opacity:0;pointer-events:none;transition:opacity .25s;
-}
-@media(min-width:600px){.modal-bg{align-items:center;}}
-.modal-bg.open{opacity:1;pointer-events:all;}
-.modal{
-  width:100%;max-width:600px;
-  background:var(--panel);border:1px solid var(--b2);
-  border-bottom:none;
-  position:relative;overflow:hidden;
-  max-height:92vh;overflow-y:auto;
-}
-@media(min-width:600px){.modal{border-bottom:1px solid var(--b2);max-height:90vh;}}
-.modal-stripe{height:3px;background:linear-gradient(90deg,var(--acc),var(--acc2),var(--green));}
-.modal-x{
-  position:absolute;top:12px;right:12px;z-index:10;
-  background:none;border:none;color:var(--dim);
-  font-size:18px;cursor:pointer;font-family:var(--mono);
-  transition:color .15s;
-}
-.modal-x:hover{color:var(--bright);}
-.modal-inner{padding:20px;}
-.modal-title{font-family:var(--disp);font-size:24px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--bright);text-align:center;margin-bottom:4px;}
-.modal-case-icon{text-align:center;font-size:36px;margin-bottom:14px;}
-
-/* REEL */
-.reel-wrap{height:90px;overflow:hidden;border:1px solid var(--b2);background:#060810;position:relative;margin-bottom:14px;}
-.reel-marker{position:absolute;top:0;bottom:0;left:50%;width:2px;background:var(--acc);box-shadow:0 0 10px var(--acc);z-index:10;}
-.reel-marker::before,.reel-marker::after{content:'';position:absolute;left:-5px;width:12px;height:12px;background:var(--acc);clip-path:polygon(50% 0%,0% 100%,100% 100%);}
-.reel-marker::before{top:-2px;}
-.reel-marker::after{bottom:-2px;transform:rotate(180deg);}
-.reel-fade{position:absolute;top:0;bottom:0;width:80px;z-index:5;pointer-events:none;}
-.reel-fl{left:0;background:linear-gradient(90deg,#060810,transparent);}
-.reel-fr{right:0;background:linear-gradient(-90deg,#060810,transparent);}
-.reel-track{display:flex;align-items:center;height:100%;will-change:transform;}
-.reel-cell{flex-shrink:0;width:100px;height:100%;border-right:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;position:relative;}
-.rc-icon{font-size:24px;}
-.rc-name{font-size:8px;letter-spacing:1px;color:var(--rc,var(--dim));text-transform:uppercase;}
-.rc-bar{position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--rc,transparent);}
-
-/* RESULT */
-.result-box{
-  display:none;flex-direction:column;align-items:center;gap:8px;
-  padding:18px;border:1px solid var(--b2);background:#08090e;
-  margin-bottom:14px;position:relative;overflow:hidden;
-}
-.result-box.show{display:flex;}
-.result-glow{position:absolute;inset:0;opacity:.06;transition:background .3s;}
-.result-icon{font-size:48px;animation:popIn .45s cubic-bezier(.34,1.56,.64,1);}
-@keyframes popIn{from{transform:scale(.2) rotate(-12deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
-.result-rarity{font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:700;}
-.result-name{font-family:var(--disp);font-size:24px;font-weight:700;letter-spacing:2px;color:var(--bright);text-transform:uppercase;text-align:center;}
-.result-stats{font-size:11px;color:var(--acc2);}
-.result-desc{font-size:11px;color:var(--dim);font-style:italic;text-align:center;}
-
-/* MODAL FOOTER */
-.modal-foot{display:flex;align-items:center;gap:12px;}
-.modal-cost-row{font-size:11px;letter-spacing:1px;color:var(--dim);text-transform:uppercase;white-space:nowrap;}
-#modal-cost-val{font-family:var(--disp);font-size:20px;font-weight:600;color:var(--acc2);}
-.open-btn{
-  flex:1;padding:14px;
-  background:rgba(217,95,43,0.1);border:1px solid var(--acc);
-  color:var(--acc);font-family:var(--mono);font-size:12px;
-  letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;
-}
-.open-btn:hover:not(:disabled){background:rgba(217,95,43,0.2);box-shadow:0 0 20px rgba(217,95,43,0.15);}
-.open-btn:disabled{opacity:.35;cursor:not-allowed;}
-
-/* TOASTS */
-.toast-wrap{position:fixed;bottom:20px;right:14px;display:flex;flex-direction:column-reverse;gap:6px;z-index:9999;pointer-events:none;}
-.toast{
-  background:var(--panel);border:1px solid var(--b2);
-  padding:9px 16px;font-family:var(--mono);font-size:11px;letter-spacing:1px;
-  opacity:0;transform:translateX(12px);transition:all .3s;max-width:280px;
-}
-.toast.show{opacity:1;transform:translateX(0);}
-.toast-good{border-color:var(--green);color:var(--green);}
-.toast-warn{border-color:var(--yellow);color:var(--yellow);}
-.toast-bad{border-color:var(--red);color:var(--red);}
-.toast-rare{border-color:var(--gold);color:var(--gold);box-shadow:0 0 16px rgba(249,199,79,.2);}
-
-/* SCROLLBAR */
-::-webkit-scrollbar{width:4px;height:4px;}
-::-webkit-scrollbar-track{background:var(--bg);}
-::-webkit-scrollbar-thumb{background:var(--b2);}
-</style>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <div class="scanlines"></div>
 <div class="app">
 
   <header class="hdr">
-    <div class="hdr-logo">⬡ MOTHERSHIP<span class="hdr-ver">® 1e</span></div>
+    <div class="hdr-logo">⬡ SPACE</div>
     <div class="hdr-credits" id="creditsDisplay" onclick="promptCredits()">₡ 2500</div>
   </header>
 
@@ -557,7 +93,7 @@ body{
     </div>
 
     <div class="panel">
-      <div class="plabel">// HEALTH &amp; WOUNDS</div>
+      <div class="plabel">// HEALTH, WOUNDS &amp; ARMOR</div>
       <div class="hw-grid">
         <div class="hw-block">
           <div class="hw-label">HEALTH</div>
@@ -578,6 +114,15 @@ body{
           </div>
           <div class="wound-boxes" id="wound-boxes"></div>
         </div>
+        <div class="hw-block">
+          <div class="hw-label">ARMOR POINTS</div>
+          <div class="hw-controls">
+            <button class="adj-btn" onclick="adj('ap',-1)">−</button>
+            <div class="hw-val-wrap"><span class="hw-val" id="v-ap">0</span><span class="hw-sep" style="font-size:12px">AP</span></div>
+            <button class="adj-btn" onclick="adj('ap',1)">+</button>
+          </div>
+          <div class="hw-hint">Reduces damage before Health</div>
+        </div>
       </div>
     </div>
 
@@ -592,30 +137,13 @@ body{
   <div class="pane" id="pane-stats">
 
     <div class="panel">
-      <div class="plabel">// STATS — roll 2d10+25 each</div>
-      <div class="stat-hint">Roll under stat on d100 to succeed. Critical success = doubles under. Critical fail = doubles over.</div>
-      <div class="stats-list" id="stats-list"></div>
+      <div class="plabel">// STATS <span style="font-size:9px;color:var(--dim)">roll under on d100</span></div>
+      <div class="ref-grid" id="stats-list"></div>
     </div>
 
     <div class="panel">
-      <div class="plabel">// SAVES</div>
-      <div class="save-hint">Roll under save on d100. Failure = +1 Stress + consequences. Critical fail = Panic Check.</div>
-      <div class="saves-list" id="saves-list"></div>
-    </div>
-
-    <div class="panel">
-      <div class="plabel">// ARMOR POINTS (AP)</div>
-      <div class="ap-row">
-        <button class="adj-btn" onclick="adj('ap',-1)">−</button>
-        <div class="ap-display"><div class="ap-val" id="v-ap">0</div><div class="ap-label">AP</div></div>
-        <button class="adj-btn" onclick="adj('ap',1)">+</button>
-      </div>
-      <div class="ap-hint">Vaccsuit = 1 AP. Patched vaccsuit = 1 AP. Attacks reduce AP first, then Health.</div>
-    </div>
-
-    <div class="panel">
-      <div class="plabel">// PANIC TABLE (2d10 + Stress − Resolve)</div>
-      <div class="panic-table" id="panic-table"></div>
+      <div class="plabel">// SAVES <span style="font-size:9px;color:var(--dim)">fail = +1 stress · crit fail = panic</span></div>
+      <div class="ref-grid" id="saves-list"></div>
     </div>
 
   </div>
@@ -994,7 +522,6 @@ function renderAll(){
   renderIdentity();
   renderStats();
   renderSaves();
-  renderConditions();
   renderSkills();
   renderLoadout();
   renderInventory();
@@ -1011,7 +538,7 @@ function renderIdentity(){
   document.getElementById('portrait').textContent=cd.icon;
   document.getElementById('f-class').value=S.charClass;
   document.getElementById('trauma-text').textContent=cd.trauma;
-  document.getElementById('v-stress').textContent=S.stress;
+  document.getElementById('v-ap').textContent=S.ap;
   document.getElementById('v-stressMin').textContent=S.stressMin;
   document.getElementById('v-resolve').textContent=S.resolve;
   document.getElementById('v-wounds').textContent=S.wounds;
@@ -1032,72 +559,41 @@ function renderIdentity(){
 
 function renderStats(){
   const STAT_DEFS=[
-    {key:'str',label:'STRENGTH',color:'#d95f2b',desc:'Physical actions, melee attacks, carrying capacity. Max Health = STR × 2.'},
-    {key:'spd',label:'SPEED',   color:'#3ab880',desc:'Initiative, movement, quick reactions, perception.'},
-    {key:'int',label:'INTELLECT',color:'#3a8fc4',desc:'Problem solving, hacking, science, medicine.'},
-    {key:'cmb',label:'COMBAT',  color:'#d44040',desc:'Ranged attacks, tactical decisions, combat maneuvers.'},
+    {key:'str',label:'STRENGTH', desc:'Physical actions, melee, carrying. Max HP = STR×2.'},
+    {key:'spd',label:'SPEED',    desc:'Initiative, movement, quick reactions.'},
+    {key:'int',label:'INTELLECT',desc:'Hacking, science, medicine, problem-solving.'},
+    {key:'cmb',label:'COMBAT',   desc:'Ranged attacks, tactical maneuvers.'},
   ];
   const cont=document.getElementById('stats-list');
-  cont.innerHTML='';
-  STAT_DEFS.forEach(d=>{
+  cont.innerHTML=STAT_DEFS.map(d=>{
     const v=S.stats[d.key]||25;
-    const row=document.createElement('div');
-    row.className='stat-row';
-    row.innerHTML=`
-      <div class="sr-name">${d.label}</div>
-      <div class="sr-controls">
-        <button class="adj-btn" onclick="adj('${d.key}',-1)">−</button>
-        <div class="sr-val" style="color:${d.color}">${v}</div>
-        <button class="adj-btn" onclick="adj('${d.key}',1)">+</button>
-      </div>
-      <div style="flex:1">
-        <div class="sr-bar-wrap"><div class="sr-bar" style="width:${v}%;background:${d.color}"></div></div>
-        <div class="sr-desc">${d.desc}</div>
-      </div>`;
-    cont.appendChild(row);
-  });
-  document.getElementById('v-ap').textContent=S.ap;
+    return `<div class="ref-row">
+      <div class="ref-name">${d.label}</div>
+      <div class="ref-val">${v}</div>
+      <div class="ref-desc">${d.desc}</div>
+    </div>`;
+  }).join('');
 }
 
 function renderSaves(){
   const SAVE_DEFS=[
-    {key:'sanity',label:'SANITY', color:'#3a8fc4',desc:'Triggers: Witnessing xenomorph activity, discovering cosmic horror, losing crew. Failure = +1 Stress.'},
-    {key:'fear',  label:'FEAR',   color:'#d95f2b',desc:'Triggers: Sudden violence, jump scares, environmental horror. Failure = +1 Stress.'},
-    {key:'body',  label:'BODY',   color:'#3ab880', desc:'Triggers: Poisons, disease, radiation, physical trauma. Also used for rest & healing.'},
-    {key:'armor', label:'ARMOR',  color:'#8a4faa',desc:'Add AP from armor to this save. Each attack depletes AP before damaging Health.'},
+    {key:'sanity',label:'SANITY', desc:'Triggers on xenomorph activity, cosmic horror, crew loss.'},
+    {key:'fear',  label:'FEAR',   desc:'Triggers on sudden violence, jump scares, dread.'},
+    {key:'body',  label:'BODY',   desc:'Triggers on poison, disease, radiation, trauma.'},
+    {key:'armor', label:'ARMOR',  desc:'Add AP from armor. Damage hits AP before Health.'},
   ];
   const cont=document.getElementById('saves-list');
-  cont.innerHTML='';
-  SAVE_DEFS.forEach(d=>{
+  cont.innerHTML=SAVE_DEFS.map(d=>{
     const v=S.saves[d.key]||25;
-    const row=document.createElement('div');
-    row.className='save-row';
-    row.innerHTML=`
-      <div class="save-header">
-        <div class="save-name">${d.label}</div>
-        <div class="spr-controls">
-          <button class="adj-btn" onclick="adj('${d.key}',-1)">−</button>
-          <div class="save-val" style="color:${d.color}">${v}</div>
-          <button class="adj-btn" onclick="adj('${d.key}',1)">+</button>
-        </div>
-        <div class="sr-bar-wrap" style="flex:1;margin-left:10px"><div class="sr-bar" style="width:${v}%;background:${d.color}"></div></div>
-      </div>
-      <div class="save-desc">${d.desc}</div>`;
-    cont.appendChild(row);
-  });
-
-  // Panic table
-  const pt=document.getElementById('panic-table');
-  pt.innerHTML=PANIC_TABLE.map(r=>`
-    <div class="pt-row ${r.type==='good'?'pt-good':r.type==='bad'?'pt-bad':''}">
-      <div class="pt-roll">${r.roll}</div>
-      <div class="pt-result">${r.result}</div>
-    </div>`).join('');
+    return `<div class="ref-row">
+      <div class="ref-name">${d.label}</div>
+      <div class="ref-val">${v}</div>
+      <div class="ref-desc">${d.desc}</div>
+    </div>`;
+  }).join('');
 }
 
-function renderConditions(){
-  // already handled in renderIdentity
-}
+
 
 function renderSkills(){
   const tree=document.getElementById('skill-tree');
