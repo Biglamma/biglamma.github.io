@@ -331,7 +331,7 @@ function spin() {
 
   void track.offsetWidth;
 
-  const dur = 6000 + Math.random() * 4000;
+  const dur = 10000 + Math.random() * 5000;
 
   track.style.transition = `transform ${dur}ms cubic-bezier(0.08, 0.92, 0.22, 1.0)`;
   track.style.transform = `translateX(${finalX}px)`;
