@@ -212,10 +212,43 @@ function selectCase(id) {
 // ITEM PICKING
 // ------------------------------------------------------------
 
+const RARITY_WEIGHTS = {
+  common: 60,
+  uncommon: 25,
+  rare: 10,
+  epic: 4,
+  legendary: 1
+};
+
+function weightedRandomRarity(pool) {
+  // Build weighted list only from allowed rarities
+  const entries = pool.map(r => ({
+    rarity: r,
+    weight: RARITY_WEIGHTS[r]
+  }));
+
+  const total = entries.reduce((sum, e) => sum + e.weight, 0);
+  let roll = Math.random() * total;
+
+  for (const e of entries) {
+    if (roll < e.weight) return e.rarity;
+    roll -= e.weight;
+  }
+
+  return entries[entries.length - 1].rarity;
+}
+
+
 function pickItem(pool) {
-  const candidates = ITEMS.filter(i => pool.includes(i.rarity));
+  // Step 1: choose rarity based on weights
+  const chosenRarity = weightedRandomRarity(pool);
+
+  // Step 2: pick a random item from that rarity
+  const candidates = ITEMS.filter(i => i.rarity === chosenRarity);
+
   return candidates[Math.floor(Math.random() * candidates.length)];
 }
+
 
 function makeReelCell(item) {
   const rar = RARITIES[item.rarity];
