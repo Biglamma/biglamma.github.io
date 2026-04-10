@@ -1,0 +1,59 @@
+{
+  "armor": [
+    {
+      "id": "standard_crew_attire",
+      "name": "Standard Crew Attire",
+      "description": "Basic clothing.",
+      "cost": "100cr",
+      "ap": 1,
+      "o2": "None",
+      "speed": "Normal",
+      "special": "",
+      "image": "/images/standard_crew_attire.png"
+    },
+    {
+      "id": "vaccsuit",
+      "name": "Vaccsuit",
+      "description": "Designed for outer space operations.",
+      "cost": "10kcr",
+      "ap": 3,
+      "o2": "12 hrs",
+      "speed": "[-]",
+      "special": "Includes short-range comms, headlamp, radiation shielding. Decompresses within 1d5 rounds if punctured.",
+      "image": "/images/vaccsuit.png"
+    },
+    {
+      "id": "hazard_suit",
+      "name": "Hazard Suit",
+      "description": "Environmental protection while exploring unknown planets.",
+      "cost": "4kcr",
+      "ap": 5,
+      "o2": "1 hr",
+      "speed": "Normal",
+      "special": "Air filter, extreme heat/cold protection, hydration reclamation (1L lasts 4 days), comms, headlamp, radiation shielding.",
+      "image": "/images/hazard_suit.png"
+    },
+    {
+      "id": "standard_battle_dress",
+      "name": "Standard Battle Dress",
+      "description": "Lightly-plated armor worn by most marines.",
+      "cost": "2kcr",
+      "ap": 7,
+      "o2": "None",
+      "speed": "Normal",
+      "special": "Includes short-range comms.",
+      "image": "/images/standard_battle_dress.png"
+    },
+    {
+      "id": "advanced_battle_dress",
+      "name": "Advanced Battle Dress",
+      "description": "Heavy armor for marines deployed in high combat offworld engagements.",
+      "cost": "12kcr",
+      "ap": 10,
+      "o2": "1 hr",
+      "speed": "[-]",
+      "special": "Comms, body cam, headlamp, HUD, exoskeletal weave (Strength Checks [+]).",
+      "image": "/images/advanced_battle_dress.png"
+    }
+  ]
+}

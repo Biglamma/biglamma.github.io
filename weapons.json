@@ -1,0 +1,235 @@
+{
+  "weapons": [
+    {
+      "id": "ammo",
+      "name": "Ammo",
+      "cost": "50cr",
+      "range": "N/A",
+      "damage": "N/A",
+      "shots": "N/A",
+      "wound": "N/A",
+      "special": "Per magazine / Per container.",
+      "image": "/images/ammo.png"
+    },
+    {
+      "id": "boarding_axe",
+      "name": "Boarding Axe",
+      "cost": "150cr",
+      "range": "Adjacent",
+      "damage": "2d10",
+      "shots": "N/A",
+      "wound": "Gore [+]",
+      "special": "",
+      "image": "/images/boarding_axe.png"
+    },
+    {
+      "id": "combat_shotgun",
+      "name": "Combat Shotgun",
+      "cost": "1400cr",
+      "range": "Close",
+      "damage": "4d10",
+      "shots": "4",
+      "wound": "Gunshot",
+      "special": "Deals 1d10 damage at Long Range or greater.",
+      "image": "/images/combat_shotgun.png"
+    },
+    {
+      "id": "crowbar",
+      "name": "Crowbar",
+      "cost": "25cr",
+      "range": "Adjacent",
+      "damage": "1d5",
+      "shots": "N/A",
+      "wound": "Blunt Force [+]",
+      "special": "Grants [+] on Strength checks to force open or lift objects.",
+      "image": "/images/crowbar.png"
+    },
+    {
+      "id": "flamethrower",
+      "name": "Flamethrower",
+      "cost": "4000cr",
+      "range": "Close",
+      "damage": "2d10",
+      "shots": "4",
+      "wound": "Fire/Explosives [+]",
+      "special": "Body Save or catch fire (2d10 damage per round).",
+      "image": "/images/flamethrower.png"
+    },
+    {
+      "id": "flare_gun",
+      "name": "Flare Gun",
+      "cost": "25cr",
+      "range": "Long",
+      "damage": "1d5",
+      "shots": "2",
+      "wound": "Fire/Explosives [-]",
+      "special": "High-intensity flare visible from Long Range.",
+      "image": "/images/flare_gun.png"
+    },
+    {
+      "id": "foam_gun",
+      "name": "Foam Gun",
+      "cost": "500cr",
+      "range": "Close",
+      "damage": "1",
+      "shots": "3",
+      "wound": "Blunt Force",
+      "special": "Body Save or stuck; Strength Check [-] to escape.",
+      "image": "/images/foam_gun.png"
+    },
+    {
+      "id": "frag_grenade",
+      "name": "Frag Grenade",
+      "cost": "400cr",
+      "range": "Close",
+      "damage": "3d10",
+      "shots": "1",
+      "wound": "Fire/Explosives",
+      "special": "Damages all Adjacent targets.",
+      "image": "/images/frag_grenade.png"
+    },
+    {
+      "id": "gpmg",
+      "name": "General-Purpose Machine Gun",
+      "cost": "4500cr",
+      "range": "Long",
+      "damage": "4d10",
+      "shots": "5",
+      "wound": "Gunshot [+]",
+      "special": "Two-handed, heavy; can fire around corners.",
+      "image": "/images/gpmg.png"
+    },
+    {
+      "id": "hand_welder",
+      "name": "Hand Welder",
+      "cost": "250cr",
+      "range": "Adjacent",
+      "damage": "1d10",
+      "shots": "N/A",
+      "wound": "Bleeding",
+      "special": "Can cut through airlock doors.",
+      "image": "/images/hand_welder.png"
+    },
+    {
+      "id": "laser_cutter",
+      "name": "Laser Cutter",
+      "cost": "1200cr",
+      "range": "Long",
+      "damage": "1d100",
+      "shots": "6",
+      "wound": "Bleeding [+] or Gore [+]",
+      "special": "Two-handed, heavy; 1 round recharge.",
+      "image": "/images/laser_cutter.png"
+    },
+    {
+      "id": "nail_gun",
+      "name": "Nail Gun",
+      "cost": "150cr",
+      "range": "Close",
+      "damage": "1d5",
+      "shots": "32",
+      "wound": "Bleeding",
+      "special": "",
+      "image": "/images/nail_gun.png"
+    },
+    {
+      "id": "pulse_rifle",
+      "name": "Pulse Rifle",
+      "cost": "2400cr",
+      "range": "Long",
+      "damage": "3d10",
+      "shots": "5",
+      "wound": "Gunshot",
+      "special": "",
+      "image": "/images/pulse_rifle.png"
+    },
+    {
+      "id": "revolver",
+      "name": "Revolver",
+      "cost": "750cr",
+      "range": "Close",
+      "damage": "1d10+1",
+      "shots": "6",
+      "wound": "Gunshot",
+      "special": "",
+      "image": "/images/revolver.png"
+    },
+    {
+      "id": "rigging_gun",
+      "name": "Rigging Gun",
+      "cost": "350cr",
+      "range": "Close",
+      "damage": "1d10 + 2d10 (removal)",
+      "shots": "1",
+      "wound": "Bleeding [+]",
+      "special": "100m micro-filament; Body Save or entangled.",
+      "image": "/images/rigging_gun.png"
+    },
+    {
+      "id": "scalpel",
+      "name": "Scalpel",
+      "cost": "50cr",
+      "range": "Adjacent",
+      "damage": "1d5",
+      "shots": "N/A",
+      "wound": "Bleeding [+]",
+      "special": "",
+      "image": "/images/scalpel.png"
+    },
+    {
+      "id": "smart_rifle",
+      "name": "Smart Rifle",
+      "cost": "5000cr",
+      "range": "Extreme",
+      "damage": "4d10 (AA)",
+      "shots": "3",
+      "wound": "Gunshot [+]",
+      "special": "[-] to Combat Checks at Close Range.",
+      "image": "/images/smart_rifle.png"
+    },
+    {
+      "id": "smg",
+      "name": "SMG",
+      "cost": "1000cr",
+      "range": "Long",
+      "damage": "2d10",
+      "shots": "5",
+      "wound": "Gunshot",
+      "special": "Can be fired one-handed.",
+      "image": "/images/smg.png"
+    },
+    {
+      "id": "stun_baton",
+      "name": "Stun Baton",
+      "cost": "150cr",
+      "range": "Adjacent",
+      "damage": "1d5",
+      "shots": "N/A",
+      "wound": "Blunt Force",
+      "special": "Body Save or stunned 1 round.",
+      "image": "/images/stun_baton.png"
+    },
+    {
+      "id": "tranq_pistol",
+      "name": "Tranq Pistol",
+      "cost": "250cr",
+      "range": "Close",
+      "damage": "1d5",
+      "shots": "6",
+      "wound": "Blunt Force",
+      "special": "If damage dealt: Body Save or unconscious 1d10 rounds.",
+      "image": "/images/tranq_pistol.png"
+    },
+    {
+      "id": "vibechete",
+      "name": "Vibechete",
+      "cost": "1000cr",
+      "range": "Adjacent",
+      "damage": "3d10 (AA)",
+      "shots": "N/A",
+      "wound": "Bleeding + Gore",
+      "special": "On Wound: roll both Bleeding and Gore tables.",
+      "image": "/images/vibechete.png"
+    }
+  ]
+}

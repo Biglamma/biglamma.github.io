@@ -1,87 +1,113 @@
-// ----------------------
-// DATA
-// ----------------------
-
-const ITEM_IMAGES = {
-  crowbar_img: "",
-  stun_baton_img: "",
-  flare_gun_img: "",
-  tranq_img: "",
-  nail_gun_img: "",
-  revolver_img: "",
-  attire_img: "",
-  smg_img: "",
-  shotgun_img: "",
-  pulse_img: "",
-  grenade_img: "",
-  vibechete_img: "",
-  vaccsuit_img: "",
-  sbd_img: "",
-  flamethrower_img: "",
-  laser_img: "",
-  gpmg_img: "",
-  hazard_img: "",
-  smart_rifle_img: "",
-  abd_img: "",
-};
+// ------------------------------------------------------------
+// RARITIES
+// ------------------------------------------------------------
 
 const RARITIES = {
-  standard:   { label: 'Standard Issue',  color: '#4a9ab0', icon: '🔦', chance: 0.50 },
-  military:   { label: 'Military Grade',  color: '#3a7cc0', icon: '🔫', chance: 0.30 },
-  classified: { label: 'Classified',      color: '#8a4faa', icon: '🔥', chance: 0.15 },
-  prototype:  { label: 'Prototype',       color: '#c03535', icon: '⚡', chance: 0.05 },
+  common:    { label: 'Common',    color: '#7a7f8a', icon: '⬜' },
+  uncommon:  { label: 'Uncommon',  color: '#3fbf5a', icon: '🟩' },
+  rare:      { label: 'Rare',      color: '#3a7ccf', icon: '🟦' },
+  epic:      { label: 'Epic',      color: '#8a4faa', icon: '🟪' },
+  legendary: { label: 'Legendary', color: '#e67e22', icon: '🟧' }
 };
 
+// ------------------------------------------------------------
+// CASES
+// ------------------------------------------------------------
+
 const CASES = [
-  { id: 'c1', name: 'Teamster Cache',   icon: '📦', color: '#4a9ab0', pool: ['standard','military'] },
-  { id: 'c2', name: 'Corp Requisition', icon: '🗃️', color: '#3a7cc0', pool: ['standard','military','classified'] },
-  { id: 'c3', name: 'Marine Armory',    icon: '💼', color: '#8a4faa', pool: ['military','classified','prototype'] },
-  { id: 'c4', name: 'Black Budget',     icon: '🎖️', color: '#c03535', pool: ['classified','prototype'] },
+  { id: 'c1', name: 'Teamster Cache',   icon: '📦', color: '#7a7f8a', pool: ['common','uncommon'] },
+  { id: 'c2', name: 'Corp Requisition', icon: '🗃️', color: '#3fbf5a', pool: ['common','uncommon','rare'] },
+  { id: 'c3', name: 'Marine Armory',    icon: '💼', color: '#3a7ccf', pool: ['uncommon','rare','epic'] },
+  { id: 'c4', name: 'Black Budget',     icon: '🎖️', color: '#e67e22', pool: ['rare','epic','legendary'] }
 ];
 
-const ITEMS = [
-  { id:'crowbar',    name:'Crowbar', rarity:'standard', imgKey: 'crowbar_img' },
-  { id:'stun-baton', name:'Stun Baton', rarity:'standard', imgKey: 'stun_baton_img' },
-  { id:'flare-gun',  name:'Flare Gun', rarity:'standard', imgKey: 'flare_gun_img' },
-  { id:'tranq',      name:'Tranq Pistol', rarity:'standard', imgKey: 'tranq_img' },
-  { id:'nail-gun',   name:'Nail Gun', rarity:'standard', imgKey: 'nail_gun_img' },
-  { id:'revolver',   name:'FN Slug Revolver', rarity:'standard', imgKey: 'revolver_img' },
-  { id:'attire',     name:'Standard Crew Attire', rarity:'standard', imgKey: 'attire_img' },
-  { id:'smg',        name:'Arma 29 SMG', rarity:'military', imgKey: 'smg_img' },
-  { id:'shotgun',    name:'Kano X9 Shotgun', rarity:'military', imgKey: 'shotgun_img' },
-  { id:'pulse',      name:'F20 Arbiter Pulse', rarity:'military', imgKey: 'pulse_img' },
-  { id:'grenade',    name:'Frag Grenade', rarity:'military', imgKey: 'grenade_img' },
-  { id:'vibechete',  name:'Vibechete', rarity:'military', imgKey: 'vibechete_img' },
-  { id:'vaccsuit',   name:'Valecore Mk2 Vaccsuit', rarity:'military', imgKey: 'vaccsuit_img' },
-  { id:'sbd',        name:'Standard Battle Dress', rarity:'military', imgKey: 'sbd_img' },
-  { id:'flamethrower',name:'Ramhorn 1 Flamer', rarity:'classified', imgKey: 'flamethrower_img' },
-  { id:'laser',      name:'MNC Mode A Laser', rarity:'classified', imgKey: 'laser_img' },
-  { id:'gpmg',       name:'GP Machine Gun', rarity:'classified', imgKey: 'gpmg_img' },
-  { id:'hazard',     name:'Hazard Suit', rarity:'classified', imgKey: 'hazard_img' },
-  { id:'smart-rifle',name:'SK 109 Smart Rifle', rarity:'prototype', imgKey: 'smart_rifle_img' },
-  { id:'abd',        name:'Armadyne Heavy-K ABD', rarity:'prototype', imgKey: 'abd_img' },
-];
+// ------------------------------------------------------------
+// GLOBALS
+// ------------------------------------------------------------
 
-// ----------------------
-// PERSISTENCE
-// ----------------------
-
+let ITEMS = [];
+let activeCase = CASES[0];
+let spinning = false;
 let inventory = JSON.parse(localStorage.getItem("inventory") || "[]");
 
-let savedCase = localStorage.getItem("activeCase");
-let activeCase = savedCase ? CASES.find(c => c.id === savedCase) : CASES[0];
+// ------------------------------------------------------------
+// JSON LOADING + COST PARSING + AUTO RARITY ASSIGNMENT
+// ------------------------------------------------------------
 
-function saveInventory() {
-  localStorage.setItem("inventory", JSON.stringify(inventory));
+async function loadAllItems() {
+  try {
+    const [weapons, armor, equipment] = await Promise.all([
+      fetch("./weapons.json").then(r => r.json()),
+      fetch("./armor.json").then(r => r.json()),
+      fetch("./equipment.json").then(r => r.json())
+    ]);
+
+    return [
+      ...weapons.weapons,
+      ...armor.armor,
+      ...equipment.tools
+    ];
+  } catch (err) {
+    console.error("JSON load failed:", err);
+    return [];
+  }
 }
 
-function saveActiveCase() {
-  localStorage.setItem("activeCase", activeCase.id);
+function parseCost(cost) {
+  if (!cost) return 0;
+  if (cost === "Free") return 0;
+  if (cost.endsWith("kcr")) return parseFloat(cost) * 1000;
+  if (cost.endsWith("cr")) return parseInt(cost);
+  return 0;
 }
 
-// ----------------------
+function autoAssignRarities(items) {
+  const sorted = [...items].sort((a, b) => parseCost(a.cost) - parseCost(b.cost));
+  const n = sorted.length;
+
+  sorted.forEach((item, i) => {
+    const p = i / n;
+
+    if (p < 0.20) item.rarity = "common";
+    else if (p < 0.40) item.rarity = "uncommon";
+    else if (p < 0.60) item.rarity = "rare";
+    else if (p < 0.80) item.rarity = "epic";
+    else item.rarity = "legendary";
+  });
+
+  return sorted;
+}
+
+async function initItems() {
+  const all = await loadAllItems();
+
+  if (!all.length) {
+    console.error("No items loaded — reel cannot be built.");
+    return;
+  }
+
+  ITEMS = autoAssignRarities(all);
+
+  renderLootPanel();
+  renderCaseNav();
+  buildReel();
+  updateInventory();
+}
+
+// ------------------------------------------------------------
+// IMAGE FALLBACK
+// ------------------------------------------------------------
+
+function imgOrEmoji(item) {
+  const rar = RARITIES[item.rarity];
+  if (!item.image) return rar.icon;
+
+  return `<img src="${item.image}" alt="" onerror="this.onerror=null; this.replaceWith('${rar.icon}')">`;
+}
+
+// ------------------------------------------------------------
 // MENU
-// ----------------------
+// ------------------------------------------------------------
 
 document.getElementById('menuBtn').addEventListener('click', () => {
   document.getElementById('menuDropdown').classList.toggle('show');
@@ -93,9 +119,9 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// ----------------------
+// ------------------------------------------------------------
 // TABS
-// ----------------------
+// ------------------------------------------------------------
 
 function switchTab(tab) {
   document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
@@ -112,12 +138,14 @@ document.querySelectorAll('.menu-item').forEach(btn => {
   btn.addEventListener('click', () => switchTab(btn.dataset.tab));
 });
 
-// ----------------------
+// ------------------------------------------------------------
 // LOOT PANEL
-// ----------------------
+// ------------------------------------------------------------
 
 function renderLootPanel() {
   const content = document.getElementById('lootContent');
+  if (!ITEMS.length) return;
+
   let html = '';
 
   Object.entries(RARITIES).forEach(([key, rar]) => {
@@ -126,10 +154,10 @@ function renderLootPanel() {
       <div class="loot-group">
         <div class="loot-group-title">
           <div class="loot-group-col" style="background:${rar.color}"></div>
-          ${rar.label} (${Math.round(rar.chance * 100)}%)
+          ${rar.label}
         </div>
         <div class="loot-items">
-          ${items.map(i => `<div class="loot-item">${i.name}</div>`).join('')}
+          ${items.map(i => `<div class="loot-item">${imgOrEmoji(i)} ${i.name}</div>`).join('')}
         </div>
       </div>`;
   });
@@ -137,9 +165,9 @@ function renderLootPanel() {
   content.innerHTML = html;
 }
 
-// ----------------------
+// ------------------------------------------------------------
 // CASE NAV
-// ----------------------
+// ------------------------------------------------------------
 
 function renderCaseNav() {
   const nav = document.getElementById('caseNav');
@@ -160,31 +188,17 @@ function renderCaseNav() {
 
 function selectCase(id) {
   activeCase = CASES.find(c => c.id === id);
-  saveActiveCase();
-  renderCaseNav();
   document.getElementById('openBtnIcon').textContent = activeCase.icon;
+  renderCaseNav();
   buildReel();
 }
 
-// ----------------------
-// ROLLING LOGIC
-// ----------------------
-
-function rollRarity(pool) {
-  const eligible = pool.map(id => ({ id, ...RARITIES[id] }));
-  const total = eligible.reduce((s, r) => s + r.chance, 0);
-  let roll = Math.random() * total;
-
-  for (const r of eligible) {
-    roll -= r.chance;
-    if (roll <= 0) return r.id;
-  }
-  return eligible[eligible.length - 1].id;
-}
+// ------------------------------------------------------------
+// ITEM PICKING
+// ------------------------------------------------------------
 
 function pickItem(pool) {
-  const rarity = rollRarity(pool);
-  const candidates = ITEMS.filter(i => i.rarity === rarity);
+  const candidates = ITEMS.filter(i => pool.includes(i.rarity));
   return candidates[Math.floor(Math.random() * candidates.length)];
 }
 
@@ -194,84 +208,94 @@ function makeReelCell(item) {
   div.className = 'rc';
   div.style.setProperty('--rc-col', rar.color);
   div.innerHTML = `
-    <div class="rc-icon">${rar.icon}</div>
+    <div class="rc-icon">${imgOrEmoji(item)}</div>
     <div class="rc-name">${item.name}</div>
     <div class="rc-bar"></div>`;
   return div;
 }
 
+// ------------------------------------------------------------
+// REEL
+// ------------------------------------------------------------
+
 function buildReel() {
+  if (!ITEMS.length) return;
+
   const track = document.getElementById('reelTrack');
   track.style.transition = 'none';
   track.style.transform = 'translateX(0)';
   track.innerHTML = '';
 
   const cells = [];
+
   for (let i = 0; i < 70; i++) {
     const item = pickItem(activeCase.pool);
     cells.push(item);
     track.appendChild(makeReelCell(item));
   }
+
   track._cells = cells;
 }
 
-// ----------------------
-// OPENING / SPINNING
-// ----------------------
+// ------------------------------------------------------------
+// OPENING FLOW
+// ------------------------------------------------------------
 
 document.getElementById('openBtn').addEventListener('click', openBox);
 
 function openBox() {
-  if (spinning) return;
+  if (spinning || !ITEMS.length) return;
 
   const openBtn = document.getElementById('openBtn');
   const reelWrap = document.getElementById('reelWrap');
   const resultPanel = document.getElementById('resultPanel');
 
   openBtn.style.display = 'none';
-  reelWrap.classList.add('show');
   resultPanel.classList.remove('show');
+  reelWrap.classList.add('show');
 
   setTimeout(spin, 500);
 }
+
+// ------------------------------------------------------------
+// SPIN
+// ------------------------------------------------------------
 
 function spin() {
   spinning = true;
 
   const reelWrap = document.getElementById('reelWrap');
   const track = document.getElementById('reelTrack');
-  const cells = track._cells;
 
-  const CELL_W = 110;
+  buildReel();
+
+  const cells = track._cells;
+  const CELL_W = 140;
   const wrapW = reelWrap.offsetWidth;
   const center = wrapW / 2;
 
-  const targetIdx = 50 + Math.floor(Math.random() * 12);
-  const drift = (Math.random() - 0.5) * 44;
-  const finalX = -(targetIdx * CELL_W + CELL_W / 2 - center + drift);
+  const targetIdx = 40 + Math.floor(Math.random() * 20);
+  const targetCenter = targetIdx * CELL_W + CELL_W / 2;
+  const finalX = -(targetCenter - center);
 
   void track.offsetWidth;
 
-  const dur = 3200 + Math.random() * 800;
+  const dur = 6000 + Math.random() * 4000;
+
   track.style.transition = `transform ${dur}ms cubic-bezier(0.08, 0.92, 0.22, 1.0)`;
   track.style.transform = `translateX(${finalX}px)`;
 
   setTimeout(() => {
     const won = cells[targetIdx];
-    reelWrap.classList.remove('show');
     showResult(won);
     addToInventory(won);
-
-    // Bring back the button
-    document.getElementById('openBtn').style.display = 'block';
-
     spinning = false;
-  }, dur + 300);
+  }, dur + 200);
 }
 
-// ----------------------
+// ------------------------------------------------------------
 // RESULT PANEL
-// ----------------------
+// ------------------------------------------------------------
 
 function showResult(item) {
   const rar = RARITIES[item.rarity];
@@ -282,7 +306,7 @@ function showResult(item) {
   document.getElementById('resultRarity').textContent = rar.label;
   document.getElementById('resultRarity').style.color = col;
   document.getElementById('resultName').textContent = item.name;
-  document.getElementById('resultIcon').textContent = rar.icon;
+  document.getElementById('resultIcon').innerHTML = imgOrEmoji(item);
   document.getElementById('resultDesc').textContent = 'Item acquired and added to inventory.';
 
   const wrap = document.getElementById('resultImgWrap');
@@ -291,14 +315,24 @@ function showResult(item) {
   const panel = document.getElementById('resultPanel');
   panel.classList.add('show');
 
+  const delay = {
+    common: 1200,
+    uncommon: 1500,
+    rare: 1800,
+    epic: 2200,
+    legendary: 2600
+  }[item.rarity] || 1500;
+
   setTimeout(() => {
     panel.classList.remove('show');
-  }, 2500);
+    document.getElementById('reelWrap').classList.remove('show');
+    document.getElementById('openBtn').style.display = 'block';
+  }, delay);
 }
 
-// ----------------------
+// ------------------------------------------------------------
 // INVENTORY
-// ----------------------
+// ------------------------------------------------------------
 
 function addToInventory(item) {
   const invItem = { ...item, id: Date.now() + Math.random() };
@@ -309,11 +343,6 @@ function addToInventory(item) {
 
 function updateInventory() {
   const grid = document.getElementById('invGrid');
-  const count = document.getElementById('invCount');
-
-  count.textContent = inventory.length;
-
-  saveInventory();
 
   if (!inventory.length) {
     grid.innerHTML = '<div class="inv-empty">No items yet</div>';
@@ -325,7 +354,7 @@ function updateInventory() {
     return `
       <div class="inv-item" style="--rarity-col:${rar.color}" data-id="${item.id}">
         <button class="delete-x">×</button>
-        <div class="inv-icon">${rar.icon}</div>
+        <div class="inv-icon">${imgOrEmoji(item)}</div>
         <div class="inv-name">${item.name}</div>
         <div class="inv-rar">${rar.label}</div>
       </div>`;
@@ -345,10 +374,15 @@ function removeFromInventory(id) {
   updateInventory();
 }
 
-// ----------------------
-// INIT
-// ----------------------
+// ------------------------------------------------------------
+// INIT — waits for DOM + JSON
+// ------------------------------------------------------------
 
-renderCaseNav();
-buildReel();
-updateInventory();
+window.addEventListener("DOMContentLoaded", async () => {
+  console.log("DOM ready — loading items...");
+
+  await initItems();
+  switchTab('main');
+
+  console.log("Initialization complete.");
+});
