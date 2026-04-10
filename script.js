@@ -62,9 +62,22 @@ const ITEMS = [
   { id:'abd',        name:'Armadyne Heavy-K ABD', rarity:'prototype', imgKey: 'abd_img' },
 ];
 
-let activeCase = CASES[0];
-let spinning = false;
-let inventory = [];
+// ----------------------
+// PERSISTENCE
+// ----------------------
+
+let inventory = JSON.parse(localStorage.getItem("inventory") || "[]");
+
+let savedCase = localStorage.getItem("activeCase");
+let activeCase = savedCase ? CASES.find(c => c.id === savedCase) : CASES[0];
+
+function saveInventory() {
+  localStorage.setItem("inventory", JSON.stringify(inventory));
+}
+
+function saveActiveCase() {
+  localStorage.setItem("activeCase", activeCase.id);
+}
 
 // ----------------------
 // MENU
@@ -147,6 +160,7 @@ function renderCaseNav() {
 
 function selectCase(id) {
   activeCase = CASES.find(c => c.id === id);
+  saveActiveCase();
   renderCaseNav();
   document.getElementById('openBtnIcon').textContent = activeCase.icon;
   buildReel();
@@ -248,9 +262,8 @@ function spin() {
     showResult(won);
     addToInventory(won);
 
-    // 🔥 FIX: Bring back the button so you can open again
-    const openBtn = document.getElementById('openBtn');
-    openBtn.style.display = 'block';
+    // Bring back the button
+    document.getElementById('openBtn').style.display = 'block';
 
     spinning = false;
   }, dur + 300);
@@ -278,7 +291,6 @@ function showResult(item) {
   const panel = document.getElementById('resultPanel');
   panel.classList.add('show');
 
-  // Optional: auto-hide result after 2.5s
   setTimeout(() => {
     panel.classList.remove('show');
   }, 2500);
@@ -291,6 +303,7 @@ function showResult(item) {
 function addToInventory(item) {
   const invItem = { ...item, id: Date.now() + Math.random() };
   inventory.unshift(invItem);
+  saveInventory();
   updateInventory();
 }
 
@@ -299,6 +312,8 @@ function updateInventory() {
   const count = document.getElementById('invCount');
 
   count.textContent = inventory.length;
+
+  saveInventory();
 
   if (!inventory.length) {
     grid.innerHTML = '<div class="inv-empty">No items yet</div>';
@@ -326,6 +341,7 @@ function updateInventory() {
 
 function removeFromInventory(id) {
   inventory = inventory.filter(i => i.id !== id);
+  saveInventory();
   updateInventory();
 }
 
