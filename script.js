@@ -106,6 +106,21 @@ function imgOrEmoji(item) {
 }
 
 // ------------------------------------------------------------
+// AUTO-DETECT CELL WIDTH (fixes misalignment)
+// ------------------------------------------------------------
+
+function getCellWidth() {
+  const temp = document.createElement('div');
+  temp.className = 'rc';
+  temp.style.visibility = 'hidden';
+  temp.innerHTML = '<div class="rc-icon">X</div>';
+  document.body.appendChild(temp);
+  const w = temp.getBoundingClientRect().width;
+  temp.remove();
+  return w;
+}
+
+// ------------------------------------------------------------
 // MENU
 // ------------------------------------------------------------
 
@@ -251,7 +266,10 @@ function openBox() {
   const resultPanel = document.getElementById('resultPanel');
 
   openBtn.style.display = 'none';
+  resultPanel.style.display = 'none';
   resultPanel.classList.remove('show');
+
+  reelWrap.style.display = 'block';
   reelWrap.classList.add('show');
 
   setTimeout(spin, 500);
@@ -270,7 +288,7 @@ function spin() {
   buildReel();
 
   const cells = track._cells;
-  const CELL_W = 140;
+  const CELL_W = getCellWidth();
   const wrapW = reelWrap.offsetWidth;
   const center = wrapW / 2;
 
@@ -301,6 +319,8 @@ function showResult(item) {
   const rar = RARITIES[item.rarity];
   const col = rar.color;
 
+  const panel = document.getElementById('resultPanel');
+
   document.getElementById('resultStripe').style.background = col;
   document.getElementById('resultGlow').style.background = `radial-gradient(circle, ${col} 0%, transparent 70%)`;
   document.getElementById('resultRarity').textContent = rar.label;
@@ -309,10 +329,7 @@ function showResult(item) {
   document.getElementById('resultIcon').innerHTML = imgOrEmoji(item);
   document.getElementById('resultDesc').textContent = 'Item acquired and added to inventory.';
 
-  const wrap = document.getElementById('resultImgWrap');
-  wrap.style.setProperty('--rarity-col', col);
-
-  const panel = document.getElementById('resultPanel');
+  panel.style.display = 'block';
   panel.classList.add('show');
 
   const delay = {
@@ -325,8 +342,14 @@ function showResult(item) {
 
   setTimeout(() => {
     panel.classList.remove('show');
-    document.getElementById('reelWrap').classList.remove('show');
-    document.getElementById('openBtn').style.display = 'block';
+    panel.style.display = 'none';
+
+    const reelWrap = document.getElementById('reelWrap');
+    reelWrap.classList.remove('show');
+    reelWrap.style.display = 'none';
+
+    const openBtn = document.getElementById('openBtn');
+    openBtn.style.display = 'flex';
   }, delay);
 }
 
@@ -339,6 +362,10 @@ function addToInventory(item) {
   inventory.unshift(invItem);
   saveInventory();
   updateInventory();
+}
+
+function saveInventory() {
+  localStorage.setItem("inventory", JSON.stringify(inventory));
 }
 
 function updateInventory() {
