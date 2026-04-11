@@ -6,18 +6,12 @@ const RARITIES = {
   legendary: { label: 'Legendary', color: '#e67e22' }
 };
 
-const RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
+const RARITY_ORDER = ['common','uncommon','rare','epic','legendary'];
 
 const ITEM_CATEGORIES = {
   weapons:   { label: 'Weapons' },
   armor:     { label: 'Armor' },
   equipment: { label: 'Equipment' }
-};
-
-const TAGS = {
-  "tools": true, "medical": true, "tech": true, "material": true, "consumable": true, "apparel": true,
-  "melee": true, "ranged": true, "sidearm": true, "heavy": true, "explosive": true, "throwable": true,
-  "energy": true, "utility": true, "ammunition": true, "tool": true, "combat": true
 };
 
 const CASES = [
@@ -28,8 +22,8 @@ const CASES = [
 ];
 
 let ITEMS = [];
-let activeCase = CASES[0];
-let activeRarityFilter = null; // null means show all
+let activeCase = null;
+let activeRarityFilter = null;
 let spinning = false;
 let inventory = JSON.parse(localStorage.getItem("inventory") || "[]");
 
@@ -66,7 +60,6 @@ function autoAssignRarities(items) {
 
   sorted.forEach((item, i) => {
     const p = i / n;
-
     if (p < 0.20) item.rarity = "common";
     else if (p < 0.40) item.rarity = "uncommon";
     else if (p < 0.60) item.rarity = "rare";
@@ -80,38 +73,19 @@ function autoAssignRarities(items) {
 
 async function initItems() {
   const all = await loadAllItems();
-
-  if (!all.length) {
-    console.error("No items loaded — reel cannot be built.");
-    return;
-  }
+  if (!all.length) return;
 
   ITEMS = autoAssignRarities(all);
 
-  renderLootPanel();
+  renderCaseTiles();
   renderCaseNav();
-  renderRarityFilter();
-  buildReel();
+  renderLootRarityTabs();
+  renderLootPanel();
   updateInventory();
+  buildReel();
 }
 
-function imgOrEmoji(item) {
-  const rar = RARITIES[item.rarity];
-  if (!item.image) return '';
-
-  return `<img src="${item.image}" alt="" onerror="this.onerror=null; this.replaceWith('')">`;
-}
-
-function getCellWidth() {
-  const temp = document.createElement('div');
-  temp.className = 'rc';
-  temp.style.visibility = 'hidden';
-  temp.innerHTML = '<div class="rc-icon">X</div>';
-  document.body.appendChild(temp);
-  const w = temp.getBoundingClientRect().width;
-  temp.remove();
-  return w;
-}
+initItems();
 
 document.getElementById('menuBtn').addEventListener('click', () => {
   document.getElementById('menuDropdown').classList.toggle('show');
@@ -131,32 +105,82 @@ function switchTab(tab) {
     m.classList.toggle('active', m.dataset.tab === tab);
   });
 
-  if (tab === 'loot') renderLootPanel();
+  if (tab === 'loot') {
+    renderLootPanel();
+    renderLootRarityTabs();
+  }
 }
 
 document.querySelectorAll('.menu-item').forEach(btn => {
   btn.addEventListener('click', () => switchTab(btn.dataset.tab));
 });
 
-function renderRarityFilter() {
-  const filterContainer = document.getElementById('rarityFilter');
-  
-  filterContainer.innerHTML = RARITY_ORDER.map(rarityKey => {
-    const rar = RARITIES[rarityKey];
-    return `
-      <button class="rarity-tab ${activeRarityFilter === rarityKey ? 'active' : ''}"
-        data-rarity="${rarityKey}"
-        style="background-color: ${rar.color}"
-        title="${rar.label}">
-      </button>
-    `;
-  }).join('');
+function renderCaseTiles() {
+  const grid = document.getElementById('caseSelectGrid');
 
-  filterContainer.querySelectorAll('.rarity-tab').forEach(btn => {
+  grid.innerHTML = CASES.map(c => `
+    <div class="case-tile" data-case="${c.id}" style="border-color:${c.color}">
+      <div style="font-size:20px; margin-bottom:6px;">📦</div>
+      <div>${c.name}</div>
+    </div>
+  `).join('');
+
+  grid.querySelectorAll('.case-tile').forEach(tile => {
+    tile.addEventListener('click', () => {
+      const id = tile.dataset.case;
+      activeCase = CASES.find(c => c.id === id);
+      enterCaseOpening();
+    });
+  });
+}
+
+function enterCaseOpening() {
+  document.getElementById('caseSelectGrid').style.display = 'none';
+  document.getElementById('caseOpenArea').style.display = 'flex';
+
+  renderCaseNav();
+  buildReel();
+}
+
+document.getElementById('backBtn').addEventListener('click', () => {
+  document.getElementById('caseOpenArea').style.display = 'none';
+  document.getElementById('caseSelectGrid').style.display = 'grid';
+});
+
+function renderCaseNav() {
+  const nav = document.getElementById('caseNav');
+
+  nav.innerHTML = CASES.map(c => `
+    <button class="case-tab ${activeCase && c.id === activeCase.id ? 'active' : ''}"
+      style="--case-col:${c.color}"
+      data-case="${c.id}">
+      ${c.name}
+    </button>
+  `).join('');
+
+  nav.querySelectorAll('.case-tab').forEach(btn => {
     btn.addEventListener('click', () => {
-      const rarity = btn.dataset.rarity;
-      activeRarityFilter = activeRarityFilter === rarity ? null : rarity;
-      renderRarityFilter();
+      activeCase = CASES.find(c => c.id === btn.dataset.case);
+      renderCaseNav();
+      buildReel();
+    });
+  });
+}
+
+function renderLootRarityTabs() {
+  const container = document.querySelector('.rarity-tabs');
+
+  container.innerHTML = RARITY_ORDER.map(r => `
+    <div class="rarity-tab ${r} ${activeRarityFilter === r ? 'active' : ''}"
+         data-rarity="${r}">
+    </div>
+  `).join('');
+
+  container.querySelectorAll('.rarity-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const r = tab.dataset.rarity;
+      activeRarityFilter = activeRarityFilter === r ? null : r;
+      renderLootRarityTabs();
       renderLootPanel();
     });
   });
@@ -169,35 +193,35 @@ function renderLootPanel() {
   let html = '';
 
   Object.entries(ITEM_CATEGORIES).forEach(([catKey, cat]) => {
-    const itemsInCategory = ITEMS.filter(i => i.category === catKey);
-    
-    if (!itemsInCategory.length) return;
+    let items = ITEMS.filter(i => i.category === catKey);
 
-    let displayItems = itemsInCategory;
     if (activeRarityFilter) {
-      displayItems = itemsInCategory.filter(i => i.rarity === activeRarityFilter);
+      items = items.filter(i => i.rarity === activeRarityFilter);
     }
 
-    if (!displayItems.length) return;
+    if (!items.length) return;
 
-    displayItems = displayItems.sort((a, b) => {
+    items = items.sort((a, b) => {
       return RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity);
     });
 
-    html += `<div class="loot-category-section">
-      <div class="loot-category-header">${cat.label}</div>
-      <div class="loot-items-list">
-        ${displayItems.map(i => {
-          const rar = RARITIES[i.rarity];
-          return `
-            <div class="loot-item" style="border-left: 4px solid ${rar.color}">
-              <div class="loot-item-icon">${imgOrEmoji(i)}</div>
-              <div class="loot-item-name">${i.name}</div>
-              <div class="loot-item-rarity">${rar.label}</div>
-            </div>`;
-        }).join('')}
+    html += `
+      <div class="loot-category-section">
+        <div class="loot-category-header">${cat.label}</div>
+        <div class="loot-items-list">
+          ${items.map(i => {
+            const rar = RARITIES[i.rarity];
+            return `
+              <div class="loot-item" style="border-left: 4px solid ${rar.color}">
+                <div class="loot-item-icon">${imgOrEmoji(i)}</div>
+                <div class="loot-item-name">${i.name}</div>
+                <div class="loot-item-rarity">${rar.label}</div>
+              </div>
+            `;
+          }).join('')}
+        </div>
       </div>
-    </div>`;
+    `;
   });
 
   if (!html) {
@@ -207,26 +231,20 @@ function renderLootPanel() {
   content.innerHTML = html;
 }
 
-function renderCaseNav() {
-  const nav = document.getElementById('caseNav');
-
-  nav.innerHTML = CASES.map(c => `
-    <button class="case-tab ${c.id === activeCase.id ? 'active' : ''}"
-      style="--case-col:${c.color}"
-      data-case="${c.id}">
-      <span>${c.name}</span>
-    </button>
-  `).join('');
-
-  nav.querySelectorAll('.case-tab').forEach(btn => {
-    btn.addEventListener('click', () => selectCase(btn.dataset.case));
-  });
+function imgOrEmoji(item) {
+  if (!item.image) return '';
+  return `<img src="${item.image}" alt="" onerror="this.onerror=null; this.replaceWith('')">`;
 }
 
-function selectCase(id) {
-  activeCase = CASES.find(c => c.id === id);
-  renderCaseNav();
-  buildReel();
+function getCellWidth() {
+  const temp = document.createElement('div');
+  temp.className = 'rc';
+  temp.style.visibility = 'hidden';
+  temp.innerHTML = '<div class="rc-icon">X</div>';
+  document.body.appendChild(temp);
+  const w = temp.getBoundingClientRect().width;
+  temp.remove();
+  return w;
 }
 
 function pickItem(pool) {
@@ -273,10 +291,8 @@ function openBox() {
   const openBtn = document.getElementById('openBtn');
   const reelWrap = document.getElementById('reelWrap');
   const resultPanel = document.getElementById('resultPanel');
-  const rarityFilter = document.getElementById('rarityFilter');
 
   openBtn.style.display = 'none';
-  rarityFilter.style.display = 'none';
   resultPanel.style.display = 'none';
   resultPanel.classList.remove('show');
 
@@ -320,101 +336,53 @@ function spin() {
 
 function showResult(item) {
   const rar = RARITIES[item.rarity];
-  const col = rar.color;
-
   const panel = document.getElementById('resultPanel');
 
-  document.getElementById('resultStripe').style.background = col;
-  document.getElementById('resultGlow').style.background = `radial-gradient(circle, ${col} 0%, transparent 70%)`;
-  document.getElementById('resultRarity').textContent = rar.label;
-  document.getElementById('resultRarity').style.color = col;
-  document.getElementById('resultName').textContent = item.name;
-  document.getElementById('resultIcon').innerHTML = imgOrEmoji(item);
-  document.getElementById('resultDesc').textContent = 'Item acquired and added to inventory.';
+  panel.querySelector('.result-stripe').style.background = rar.color;
+  panel.querySelector('.result-img-glow').style.setProperty('--rarity-col', rar.color);
+  panel.querySelector('.result-rarity').style.color = rar.color;
+
+  panel.querySelector('.result-icon').innerHTML = imgOrEmoji(item);
+  panel.querySelector('.result-name').textContent = item.name;
+  panel.querySelector('.result-desc').textContent = item.description || '';
 
   panel.style.display = 'block';
   panel.classList.add('show');
 
-  const delay = {
-    common: 1200,
-    uncommon: 1500,
-    rare: 1800,
-    epic: 2200,
-    legendary: 2600
-  }[item.rarity] || 1500;
-
-  setTimeout(() => {
-    panel.classList.remove('show');
-    panel.style.display = 'none';
-
-    const reelWrap = document.getElementById('reelWrap');
-    reelWrap.classList.remove('show');
-    reelWrap.style.display = 'none';
-
-    const openBtn = document.getElementById('openBtn');
-    openBtn.style.display = 'flex';
-
-    const rarityFilter = document.getElementById('rarityFilter');
-    rarityFilter.style.display = 'flex';
-  }, delay);
+  document.getElementById('openBtn').style.display = 'block';
 }
 
 function addToInventory(item) {
-  const invItem = { ...item, id: Date.now() + Math.random() };
-  inventory.unshift(invItem);
-  saveInventory();
-  updateInventory();
-}
-
-function saveInventory() {
+  inventory.push(item);
   localStorage.setItem("inventory", JSON.stringify(inventory));
+  updateInventory();
 }
 
 function updateInventory() {
   const grid = document.getElementById('invGrid');
-
   if (!inventory.length) {
     grid.innerHTML = '<div class="inv-empty">No items yet</div>';
     return;
   }
 
-  let html = '';
-
-  Object.entries(ITEM_CATEGORIES).forEach(([catKey, cat]) => {
-    const itemsOfCategory = inventory.filter(i => i.category === catKey);
-    
-    if (!itemsOfCategory.length) return;
-
-    html += `
-      <div class="inv-category-section">
-        <div class="inv-category-header">${cat.label}</div>
-        <div class="inv-category-items">
-          ${itemsOfCategory.map(item => {
-            const rar = RARITIES[item.rarity];
-            return `
-              <div class="inv-item" style="--rarity-col:${rar.color}; border-left: 4px solid ${rar.color}" data-id="${item.id}">
-                <button class="delete-x">×</button>
-                <div class="inv-icon">${imgOrEmoji(item)}</div>
-                <div class="inv-name">${item.name}</div>
-                <div class="inv-rar">${rar.label}</div>
-              </div>`;
-          }).join('')}
-        </div>
-      </div>`;
-  });
-
-  grid.innerHTML = html;
+  grid.innerHTML = inventory.map((i, idx) => {
+    const rar = RARITIES[i.rarity];
+    return `
+      <div class="inv-item" style="--rarity-col:${rar.color}">
+        <button class="delete-x" data-index="${idx}">×</button>
+        <div class="inv-icon">${imgOrEmoji(i)}</div>
+        <div class="inv-name">${i.name}</div>
+        <div class="inv-rar">${rar.label}</div>
+      </div>
+    `;
+  }).join('');
 
   grid.querySelectorAll('.delete-x').forEach(btn => {
-    btn.addEventListener('click', e => {
-      const id = Number(btn.closest('.inv-item').dataset.id);
-      removeFromInventory(id);
+    btn.addEventListener('click', () => {
+      const idx = btn.dataset.index;
+      inventory.splice(idx, 1);
+      localStorage.setItem("inventory", JSON.stringify(inventory));
+      updateInventory();
     });
   });
-}
-
-function removeFromInventory(id) {
-  inventory = inventory.filter(i => i.id !== id);
-  saveInventory();
-  updateInventory();
 }
