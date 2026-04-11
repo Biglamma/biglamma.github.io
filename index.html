@@ -4,9 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
   <title>MOTHERSHIP SUPPLY DROP</title>
-
-  <!-- External stylesheet -->
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style-final.css">
 </head>
 
 <body>
@@ -29,33 +27,37 @@
   </header>
 
   <div class="content-panel active" id="mainPanel">
-    <nav class="cases" id="caseNav"></nav>
+    <div class="main-layout">
+      <div id="rarityFilter"></div>
+      <div id="mainContent">
+        <nav class="cases" id="caseNav"></nav>
 
-    <div class="reel-section">
-      <button class="open-btn" id="openBtn">
-        <div class="open-btn-icon" id="openBtnIcon">📦</div>
-        <div class="open-btn-text">OPEN CASE</div>
-      </button>
+        <div class="reel-section">
+          <button class="open-btn" id="openBtn">
+            <div class="open-btn-text">OPEN CASE</div>
+          </button>
 
-      <div class="reel-wrap" id="reelWrap">
-        <div class="reel-marker"></div>
-        <div class="reel-fade reel-fade-l"></div>
-        <div class="reel-fade reel-fade-r"></div>
-        <div class="reel-track" id="reelTrack"></div>
-      </div>
-
-      <div class="result-panel" id="resultPanel">
-        <div class="result-stripe" id="resultStripe"></div>
-        <div class="result-body">
-          <div class="result-img-wrap" id="resultImgWrap">
-            <div class="result-img-glow" id="resultGlow"></div>
-            <div class="result-icon" id="resultIcon"></div>
+          <div class="reel-wrap" id="reelWrap">
+            <div class="reel-marker"></div>
+            <div class="reel-fade reel-fade-l"></div>
+            <div class="reel-fade reel-fade-r"></div>
+            <div class="reel-track" id="reelTrack"></div>
           </div>
 
-          <div class="result-info">
-            <div class="result-rarity" id="resultRarity"></div>
-            <div class="result-name" id="resultName"></div>
-            <div class="result-desc" id="resultDesc"></div>
+          <div class="result-panel" id="resultPanel">
+            <div class="result-stripe" id="resultStripe"></div>
+            <div class="result-body">
+              <div class="result-img-wrap" id="resultImgWrap">
+                <div class="result-img-glow" id="resultGlow"></div>
+                <div class="result-icon" id="resultIcon"></div>
+              </div>
+
+              <div class="result-info">
+                <div class="result-rarity" id="resultRarity"></div>
+                <div class="result-name" id="resultName"></div>
+                <div class="result-desc" id="resultDesc"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -84,8 +86,7 @@
 
 </div>
 
-<!-- External JavaScript -->
-<script src="script.js"></script>
+<script src="script-final.js"></script>
 
 </body>
 </html>

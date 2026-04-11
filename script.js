@@ -1,42 +1,30 @@
 // ------------------------------------------------------------
-// TAG DEFINITIONS
-// ------------------------------------------------------------
-
-const TAGS = {
-  // Equipment tags
-  "tools":       { label: 'Tools',       icon: '🔧', color: '#95a5a6' },
-  "medical":     { label: 'Medical',     icon: '💊', color: '#27ae60' },
-  "tech":        { label: 'Tech',        icon: '⚡', color: '#f39c12' },
-  "material":    { label: 'Materials',   icon: '📦', color: '#7f8c8d' },
-  "consumable":  { label: 'Consumable',  icon: '⚗️', color: '#e74c3c' },
-  "apparel":     { label: 'Apparel',     icon: '👔', color: '#3498db' },
-  
-  // Weapon tags
-  "melee":       { label: 'Melee',       icon: '⚔️', color: '#e74c3c' },
-  "ranged":      { label: 'Ranged',      icon: '🎯', color: '#e67e22' },
-  "sidearm":     { label: 'Sidearm',     icon: '🔫', color: '#c0392b' },
-  "heavy":       { label: 'Heavy',       icon: '💣', color: '#8b0000' },
-  "explosive":   { label: 'Explosive',   icon: '💥', color: '#d32f2f' },
-  "throwable":   { label: 'Throwable',   icon: '🎲', color: '#f44336' },
-  "energy":      { label: 'Energy',      icon: '⚛️', color: '#ffd700' },
-  "utility":     { label: 'Utility',     icon: '🛠️', color: '#90ee90' },
-  "ammunition":  { label: 'Ammunition',  icon: '🔫', color: '#ffcc00' },
-  "tool":        { label: 'Tool',        icon: '🔧', color: '#4caf50' },
-  
-  // Armor tags
-  "combat":      { label: 'Combat',      icon: '🛡️', color: '#1565c0' }
-};
-
-// ------------------------------------------------------------
 // RARITIES
 // ------------------------------------------------------------
 
 const RARITIES = {
-  common:    { label: 'Common',    color: '#7a7f8a', icon: '⬜' },
-  uncommon:  { label: 'Uncommon',  color: '#3fbf5a', icon: '🟩' },
-  rare:      { label: 'Rare',      color: '#3a7ccf', icon: '🟦' },
-  epic:      { label: 'Epic',      color: '#8a4faa', icon: '🟪' },
-  legendary: { label: 'Legendary', color: '#e67e22', icon: '🟧' }
+  common:    { label: 'Common',    color: '#7a7f8a' },
+  uncommon:  { label: 'Uncommon',  color: '#3fbf5a' },
+  rare:      { label: 'Rare',      color: '#3a7ccf' },
+  epic:      { label: 'Epic',      color: '#8a4faa' },
+  legendary: { label: 'Legendary', color: '#e67e22' }
+};
+
+// Display order for rarities (low to high)
+const RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
+
+// Item categories (main display organization)
+const ITEM_CATEGORIES = {
+  weapons:   { label: 'Weapons' },
+  armor:     { label: 'Armor' },
+  equipment: { label: 'Equipment' }
+};
+
+// Tags are internal only - used for organizing drop pools, not displayed
+const TAGS = {
+  "tools": true, "medical": true, "tech": true, "material": true, "consumable": true, "apparel": true,
+  "melee": true, "ranged": true, "sidearm": true, "heavy": true, "explosive": true, "throwable": true,
+  "energy": true, "utility": true, "ammunition": true, "tool": true, "combat": true
 };
 
 // ------------------------------------------------------------
@@ -44,10 +32,10 @@ const RARITIES = {
 // ------------------------------------------------------------
 
 const CASES = [
-  { id: 'c1', name: 'Teamster Cache',   icon: '📦', color: '#7a7f8a', pool: ['common','uncommon'] },
-  { id: 'c2', name: 'Corp Requisition', icon: '🗃️', color: '#3fbf5a', pool: ['common','uncommon','rare'] },
-  { id: 'c3', name: 'Marine Armory',    icon: '💼', color: '#3a7ccf', pool: ['uncommon','rare','epic'] },
-  { id: 'c4', name: 'Black Budget',     icon: '🎖️', color: '#e67e22', pool: ['rare','epic','legendary'] }
+  { id: 'c1', name: 'Teamster Cache',   color: '#7a7f8a', pool: ['common','uncommon'] },
+  { id: 'c2', name: 'Corp Requisition', color: '#3fbf5a', pool: ['common','uncommon','rare'] },
+  { id: 'c3', name: 'Marine Armory',    color: '#3a7ccf', pool: ['uncommon','rare','epic'] },
+  { id: 'c4', name: 'Black Budget',     color: '#e67e22', pool: ['rare','epic','legendary'] }
 ];
 
 // ------------------------------------------------------------
@@ -56,11 +44,12 @@ const CASES = [
 
 let ITEMS = [];
 let activeCase = CASES[0];
+let activeRarityFilter = null; // null means show all
 let spinning = false;
 let inventory = JSON.parse(localStorage.getItem("inventory") || "[]");
 
 // ------------------------------------------------------------
-// JSON LOADING + COST PARSING + AUTO RARITY ASSIGNMENT
+// JSON LOADING + COST PARSING + AUTO RARITY + CATEGORY ASSIGNMENT
 // ------------------------------------------------------------
 
 async function loadAllItems() {
@@ -72,9 +61,9 @@ async function loadAllItems() {
     ]);
 
     return [
-      ...weapons.weapons,
-      ...armor.armor,
-      ...equipment.tools
+      ...weapons.weapons.map(w => ({ ...w, category: 'weapons' })),
+      ...armor.armor.map(a => ({ ...a, category: 'armor' })),
+      ...equipment.tools.map(e => ({ ...e, category: 'equipment' }))
     ];
   } catch (err) {
     console.error("JSON load failed:", err);
@@ -103,7 +92,7 @@ function autoAssignRarities(items) {
     else if (p < 0.80) item.rarity = "epic";
     else item.rarity = "legendary";
 
-    // Ensure tags exist
+    // Ensure tags exist (internal use only)
     if (!item.tags) item.tags = [];
   });
 
@@ -122,6 +111,7 @@ async function initItems() {
 
   renderLootPanel();
   renderCaseNav();
+  renderRarityFilter();
   buildReel();
   updateInventory();
 }
@@ -132,13 +122,13 @@ async function initItems() {
 
 function imgOrEmoji(item) {
   const rar = RARITIES[item.rarity];
-  if (!item.image) return rar.icon;
+  if (!item.image) return '';
 
-  return `<img src="${item.image}" alt="" onerror="this.onerror=null; this.replaceWith('${rar.icon}')">`;
+  return `<img src="${item.image}" alt="" onerror="this.onerror=null; this.replaceWith('')">`;
 }
 
 // ------------------------------------------------------------
-// AUTO-DETECT CELL WIDTH (fixes misalignment)
+// AUTO-DETECT CELL WIDTH
 // ------------------------------------------------------------
 
 function getCellWidth() {
@@ -186,7 +176,35 @@ document.querySelectorAll('.menu-item').forEach(btn => {
 });
 
 // ------------------------------------------------------------
-// LOOT PANEL (organized by rarity → tags)
+// RARITY FILTER (Vertical Tabs)
+// ------------------------------------------------------------
+
+function renderRarityFilter() {
+  const filterContainer = document.getElementById('rarityFilter');
+  
+  filterContainer.innerHTML = RARITY_ORDER.map(rarityKey => {
+    const rar = RARITIES[rarityKey];
+    return `
+      <button class="rarity-tab ${activeRarityFilter === rarityKey ? 'active' : ''}"
+        data-rarity="${rarityKey}"
+        style="background-color: ${rar.color}"
+        title="${rar.label}">
+      </button>
+    `;
+  }).join('');
+
+  filterContainer.querySelectorAll('.rarity-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const rarity = btn.dataset.rarity;
+      activeRarityFilter = activeRarityFilter === rarity ? null : rarity;
+      renderRarityFilter();
+      renderLootPanel();
+    });
+  });
+}
+
+// ------------------------------------------------------------
+// LOOT PANEL (organized by category, filtered by rarity, sorted by rarity asc)
 // ------------------------------------------------------------
 
 function renderLootPanel() {
@@ -195,47 +213,44 @@ function renderLootPanel() {
 
   let html = '';
 
-  Object.entries(RARITIES).forEach(([rarityKey, rar]) => {
-    const itemsByRarity = ITEMS.filter(i => i.rarity === rarityKey);
+  // Group items by category
+  Object.entries(ITEM_CATEGORIES).forEach(([catKey, cat]) => {
+    const itemsInCategory = ITEMS.filter(i => i.category === catKey);
     
-    if (!itemsByRarity.length) return;
+    if (!itemsInCategory.length) return;
 
-    html += `<div class="loot-rarity-section">
-      <div class="loot-rarity-header" style="background:${rar.color}">
-        ${rar.icon} ${rar.label}
-      </div>`;
+    // Filter by active rarity if selected
+    let displayItems = itemsInCategory;
+    if (activeRarityFilter) {
+      displayItems = itemsInCategory.filter(i => i.rarity === activeRarityFilter);
+    }
 
-    // Collect all unique tags for this rarity
-    const tagsInRarity = new Set();
-    itemsByRarity.forEach(item => {
-      if (item.tags && item.tags.length > 0) {
-        item.tags.forEach(tag => tagsInRarity.add(tag));
-      }
+    if (!displayItems.length) return;
+
+    // Sort by rarity (low to high)
+    displayItems = displayItems.sort((a, b) => {
+      return RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity);
     });
 
-    // Sort tags and display items grouped by tag
-    Array.from(tagsInRarity).sort().forEach(tagKey => {
-      const tag = TAGS[tagKey];
-      if (!tag) return;
-      
-      const itemsByTag = itemsByRarity.filter(i => i.tags && i.tags.includes(tagKey));
-      
-      if (!itemsByTag.length) return;
-
-      html += `
-        <div class="loot-tag-section">
-          <div class="loot-tag-header">
-            <span class="loot-tag-icon">${tag.icon}</span>
-            <span>${tag.label}</span>
-          </div>
-          <div class="loot-items">
-            ${itemsByTag.map(i => `<div class="loot-item">${imgOrEmoji(i)} ${i.name}</div>`).join('')}
-          </div>
-        </div>`;
-    });
-
-    html += `</div>`;
+    html += `<div class="loot-category-section">
+      <div class="loot-category-header">${cat.label}</div>
+      <div class="loot-items-list">
+        ${displayItems.map(i => {
+          const rar = RARITIES[i.rarity];
+          return `
+            <div class="loot-item" style="border-left: 4px solid ${rar.color}">
+              <div class="loot-item-icon">${imgOrEmoji(i)}</div>
+              <div class="loot-item-name">${i.name}</div>
+              <div class="loot-item-rarity">${rar.label}</div>
+            </div>`;
+        }).join('')}
+      </div>
+    </div>`;
   });
+
+  if (!html) {
+    html = '<div class="loot-empty">No items found</div>';
+  }
 
   content.innerHTML = html;
 }
@@ -251,7 +266,6 @@ function renderCaseNav() {
     <button class="case-tab ${c.id === activeCase.id ? 'active' : ''}"
       style="--case-col:${c.color}"
       data-case="${c.id}">
-      <span class="case-icon">${c.icon}</span>
       <span>${c.name}</span>
     </button>
   `).join('');
@@ -263,13 +277,12 @@ function renderCaseNav() {
 
 function selectCase(id) {
   activeCase = CASES.find(c => c.id === id);
-  document.getElementById('openBtnIcon').textContent = activeCase.icon;
   renderCaseNav();
   buildReel();
 }
 
 // ------------------------------------------------------------
-// ITEM PICKING
+// ITEM PICKING (from pool)
 // ------------------------------------------------------------
 
 function pickItem(pool) {
@@ -324,8 +337,10 @@ function openBox() {
   const openBtn = document.getElementById('openBtn');
   const reelWrap = document.getElementById('reelWrap');
   const resultPanel = document.getElementById('resultPanel');
+  const rarityFilter = document.getElementById('rarityFilter');
 
   openBtn.style.display = 'none';
+  rarityFilter.style.display = 'none';
   resultPanel.style.display = 'none';
   resultPanel.classList.remove('show');
 
@@ -410,11 +425,14 @@ function showResult(item) {
 
     const openBtn = document.getElementById('openBtn');
     openBtn.style.display = 'flex';
+
+    const rarityFilter = document.getElementById('rarityFilter');
+    rarityFilter.style.display = 'flex';
   }, delay);
 }
 
 // ------------------------------------------------------------
-// INVENTORY (organized by tags)
+// INVENTORY (by category only, no emoticons)
 // ------------------------------------------------------------
 
 function addToInventory(item) {
@@ -436,36 +454,22 @@ function updateInventory() {
     return;
   }
 
-  // Collect all unique tags from inventory
-  const allTags = new Set();
-  inventory.forEach(item => {
-    if (item.tags && item.tags.length > 0) {
-      item.tags.forEach(tag => allTags.add(tag));
-    }
-  });
-
-  // Group inventory by tags
   let html = '';
 
-  Array.from(allTags).sort().forEach(tagKey => {
-    const tag = TAGS[tagKey];
-    if (!tag) return;
-
-    const itemsOfTag = inventory.filter(i => i.tags && i.tags.includes(tagKey));
+  // Group inventory by category
+  Object.entries(ITEM_CATEGORIES).forEach(([catKey, cat]) => {
+    const itemsOfCategory = inventory.filter(i => i.category === catKey);
     
-    if (!itemsOfTag.length) return;
+    if (!itemsOfCategory.length) return;
 
     html += `
-      <div class="inv-tag-section">
-        <div class="inv-tag-header">
-          <span>${tag.icon}</span>
-          <span>${tag.label}</span>
-        </div>
-        <div class="inv-tag-items">
-          ${itemsOfTag.map(item => {
+      <div class="inv-category-section">
+        <div class="inv-category-header">${cat.label}</div>
+        <div class="inv-category-items">
+          ${itemsOfCategory.map(item => {
             const rar = RARITIES[item.rarity];
             return `
-              <div class="inv-item" style="--rarity-col:${rar.color}" data-id="${item.id}">
+              <div class="inv-item" style="--rarity-col:${rar.color}; border-left: 4px solid ${rar.color}" data-id="${item.id}">
                 <button class="delete-x">×</button>
                 <div class="inv-icon">${imgOrEmoji(item)}</div>
                 <div class="inv-name">${item.name}</div>
@@ -493,7 +497,7 @@ function removeFromInventory(id) {
 }
 
 // ------------------------------------------------------------
-// INIT — waits for DOM + JSON
+// INIT
 // ------------------------------------------------------------
 
 window.addEventListener("DOMContentLoaded", async () => {
