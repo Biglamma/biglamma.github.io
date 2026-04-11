@@ -4,7 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
   <title>MOTHERSHIP SUPPLY DROP</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style-final.css">
 </head>
 
 <body>
@@ -26,12 +26,14 @@
     </div>
   </header>
 
+  <!-- MAIN PANEL -->
   <div class="content-panel active" id="mainPanel">
     <div class="main-layout">
-      <div id="rarityFilter"></div>
-      <div id="mainContent">
-        <nav class="cases" id="caseNav"></nav>
 
+      <!-- VERTICAL CASE NAV -->
+      <nav class="cases" id="caseNav"></nav>
+
+      <div id="mainContent">
         <div class="reel-section">
           <button class="open-btn" id="openBtn">
             <div class="open-btn-text">OPEN CASE</div>
@@ -59,11 +61,14 @@
               </div>
             </div>
           </div>
+
         </div>
       </div>
+
     </div>
   </div>
 
+  <!-- INVENTORY PANEL -->
   <div class="content-panel" id="inventoryPanel">
     <div class="inv-section">
       <div class="inv-label">
@@ -77,16 +82,21 @@
     </div>
   </div>
 
+  <!-- LOOT TABLE PANEL -->
   <div class="content-panel" id="lootPanel">
     <div class="loot-section">
       <div class="loot-label">// Drop Pools</div>
+
+      <!-- MOVED HERE: RARITY FILTER -->
+      <div id="rarityFilter"></div>
+
       <div id="lootContent"></div>
     </div>
   </div>
 
 </div>
 
-<script src="script.js"></script>
+<script src="script-final.js"></script>
 
 </body>
 </html>
