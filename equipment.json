@@ -5,308 +5,352 @@
       "name": "Assorted Tools",
       "cost": "20cr",
       "description": "Wrenches, spanners, screwdrivers; can be used as improvised tools.",
-      "image": "/images/assorted_tools.png"
+      "image": "/images/assorted_tools.png",
+      "tags": ["tools"]
     },
     {
       "id": "automed",
       "name": "Automed (x5)",
       "cost": "1.5kcr",
       "description": "Nanotech pills granting advantage on Body Saves vs. disease, poison, and healing attempts.",
-      "image": "/images/automed.png"
+      "image": "/images/automed.png",
+      "tags": ["medical", "consumable"]
     },
     {
       "id": "battery_high_power",
       "name": "Battery (High Power)",
       "cost": "500cr",
       "description": "Heavy-duty battery for high-power devices; recharges in 1h (power) or 6h (solar).",
-      "image": "/images/battery_high_power.png"
+      "image": "/images/battery_high_power.png",
+      "tags": ["tech", "material"]
     },
     {
       "id": "binoculars",
       "name": "Binoculars",
       "cost": "150cr",
       "description": "20x magnification; optional night vision or thermal upgrades.",
-      "image": "/images/binoculars.png"
+      "image": "/images/binoculars.png",
+      "tags": ["tech", "tools"]
     },
     {
       "id": "bioscanner",
       "name": "Bioscanner",
       "cost": "3kcr",
       "description": "Long-range life-sign detector; blocked by some materials.",
-      "image": "/images/bioscanner.png"
+      "image": "/images/bioscanner.png",
+      "tags": ["tech", "tools"]
     },
     {
       "id": "body_cam",
       "name": "Body Cam",
       "cost": "50cr",
       "description": "Wearable camera streaming to a control center; optional night/thermal upgrades.",
-      "image": "/images/body_cam.png"
+      "image": "/images/body_cam.png",
+      "tags": ["tech"]
     },
     {
       "id": "chemlight",
       "name": "Chemlight (x5)",
       "cost": "5cr",
       "description": "Small glowsticks providing dim 1m illumination.",
-      "image": "/images/chemlight.png"
+      "image": "/images/chemlight.png",
+      "tags": ["consumable"]
     },
     {
       "id": "crowbar_tool",
       "name": "Crowbar",
       "cost": "25cr",
       "description": "Grants advantage on Strength checks for forcing or lifting.",
-      "image": "/images/crowbar_tool.png"
+      "image": "/images/crowbar_tool.png",
+      "tags": ["tools"]
     },
     {
       "id": "cybernetic_scanner",
       "name": "Cybernetic Diagnostic Scanner",
       "cost": "2kcr",
       "description": "Scans androids/cybernetics for physical or mental issues.",
-      "image": "/images/cybernetic_scanner.png"
+      "image": "/images/cybernetic_scanner.png",
+      "tags": ["tech", "tools"]
     },
     {
       "id": "electronic_tool_set",
       "name": "Electronic Tool Set",
       "cost": "100cr",
       "description": "Detailed repair tools for electronics.",
-      "image": "/images/electronic_tool_set.png"
+      "image": "/images/electronic_tool_set.png",
+      "tags": ["tools"]
     },
     {
       "id": "emergency_beacon",
       "name": "Emergency Beacon",
       "cost": "2kcr",
       "description": "Flare + loud beacon + radio distress call; jammer-blockable.",
-      "image": "/images/emergency_beacon.png"
+      "image": "/images/emergency_beacon.png",
+      "tags": ["tech"]
     },
     {
       "id": "exoloader",
       "name": "Exoloader",
       "cost": "100kcr",
       "description": "Mechanical exoskeleton for lifting up to 5000kg; battery powered.",
-      "image": "/images/exoloader.png"
+      "image": "/images/exoloader.png",
+      "tags": ["tech", "apparel"]
     },
     {
       "id": "explosives_detonator",
       "name": "Explosives & Detonator",
       "cost": "500cr",
       "description": "Charge capable of breaching airlocks; detonator works at Long Range.",
-      "image": "/images/explosives_detonator.png"
+      "image": "/images/explosives_detonator.png",
+      "tags": ["material"]
     },
     {
       "id": "first_aid_kit",
       "name": "First Aid Kit",
       "cost": "75cr",
       "description": "Dressings and treatments for minor injuries.",
-      "image": "/images/first_aid_kit.png"
+      "image": "/images/first_aid_kit.png",
+      "tags": ["medical"]
     },
     {
       "id": "flashlight",
       "name": "Flashlight",
       "cost": "30cr",
       "description": "Handheld or mounted; illuminates 10m.",
-      "image": "/images/flashlight.png"
+      "image": "/images/flashlight.png",
+      "tags": ["tech"]
     },
     {
       "id": "foldable_stretcher",
       "name": "Foldable Stretcher",
       "cost": "150cr",
       "description": "Portable stretcher for safe patient transport.",
-      "image": "/images/foldable_stretcher.png"
+      "image": "/images/foldable_stretcher.png",
+      "tags": ["medical"]
     },
     {
       "id": "geiger_counter",
       "name": "Geiger Counter",
       "cost": "20cr",
       "description": "Detects and displays radiation levels.",
-      "image": "/images/geiger_counter.png"
+      "image": "/images/geiger_counter.png",
+      "tags": ["tech", "tools"]
     },
     {
       "id": "hud",
       "name": "Heads-Up Display (HUD)",
       "cost": "100cr",
       "description": "Displays body-cam feeds and smart-link weapon data.",
-      "image": "/images/hud.png"
+      "image": "/images/hud.png",
+      "tags": ["tech", "apparel"]
     },
     {
       "id": "infrared_goggles",
       "name": "Infrared Goggles",
       "cost": "1.5kcr",
       "description": "Detects heat signatures; optional night vision upgrade.",
-      "image": "/images/infrared_goggles.png"
+      "image": "/images/infrared_goggles.png",
+      "tags": ["tech", "apparel"]
     },
     {
       "id": "jetpack",
       "name": "Jetpack",
       "cost": "75kcr",
       "description": "Flight up to 100m high / 100kmh for 2 hours; fuel refill 200cr.",
-      "image": "/images/jetpack.png"
+      "image": "/images/jetpack.png",
+      "tags": ["tech", "apparel"]
     },
     {
       "id": "lockpick_set",
       "name": "Lockpick Set",
       "cost": "40cr",
       "description": "Tools for hacking basic airlocks and electronic doors.",
-      "image": "/images/lockpick_set.png"
+      "image": "/images/lockpick_set.png",
+      "tags": ["tools"]
     },
     {
       "id": "long_range_comms",
       "name": "Long-range Comms",
       "cost": "1kcr",
       "description": "Surface-to-ship communication device.",
-      "image": "/images/long_range_comms.png"
+      "image": "/images/long_range_comms.png",
+      "tags": ["tech"]
     },
     {
       "id": "mag_boots",
       "name": "Mag-boots",
       "cost": "350cr",
       "description": "Magnetic boots for walking on ship exteriors or metal surfaces.",
-      "image": "/images/mag_boots.png"
+      "image": "/images/mag_boots.png",
+      "tags": ["tech", "apparel"]
     },
     {
       "id": "medscanner",
       "name": "Medscanner",
       "cost": "8kcr",
       "description": "Scans bodies for disease or abnormalities; may require lab analysis.",
-      "image": "/images/medscanner.png"
+      "image": "/images/medscanner.png",
+      "tags": ["medical", "tech", "tools"]
     },
     {
       "id": "mohab_unit",
       "name": "MoHab Unit",
       "cost": "1kcr",
       "description": "Tent, stove, rucksack, compass, sleeping bag.",
-      "image": "/images/mohab_unit.png"
+      "image": "/images/mohab_unit.png",
+      "tags": ["tools"]
     },
     {
       "id": "mre",
       "name": "MRE (x7)",
       "cost": "70cr",
       "description": "One-day field ration pack.",
-      "image": "/images/mre.png"
+      "image": "/images/mre.png",
+      "tags": ["consumable"]
     },
     {
       "id": "mylar_blanket",
       "name": "Mylar Blanket",
       "cost": "10cr",
       "description": "Heat-reflective emergency blanket.",
-      "image": "/images/mylar_blanket.png"
+      "image": "/images/mylar_blanket.png",
+      "tags": ["material"]
     },
     {
       "id": "oxygen_tank",
       "name": "Oxygen Tank",
       "cost": "50cr",
       "description": "Provides 12h oxygen (4h under stress) when attached to vaccsuit.",
-      "image": "/images/oxygen_tank.png"
+      "image": "/images/oxygen_tank.png",
+      "tags": ["consumable", "tech"]
     },
     {
       "id": "paracord",
       "name": "Paracord (50m)",
       "cost": "10cr",
       "description": "Lightweight nylon rope.",
-      "image": "/images/paracord.png"
+      "image": "/images/paracord.png",
+      "tags": ["material"]
     },
     {
       "id": "patch_kit",
       "name": "Patch Kit (x3)",
       "cost": "200cr",
       "description": "Repairs vaccsuit punctures; patched suits have AP 1.",
-      "image": "/images/patch_kit.png"
+      "image": "/images/patch_kit.png",
+      "tags": ["material"]
     },
     {
       "id": "personal_locator",
       "name": "Personal Locator",
       "cost": "200cr",
       "description": "Allows remote tracking of wearer.",
-      "image": "/images/personal_locator.png"
+      "image": "/images/personal_locator.png",
+      "tags": ["tech"]
     },
     {
       "id": "pet_organic",
       "name": "Pet (Organic)",
       "cost": "200kcr",
       "description": "Organic pet; rare/larger pets cost 2d10× base cost.",
-      "image": "/images/pet_organic.png"
+      "image": "/images/pet_organic.png",
+      "tags": []
     },
     {
       "id": "pet_synthetic",
       "name": "Pet (Synthetic)",
       "cost": "15kcr",
       "description": "Synthetic pet; rare/larger models cost 2d10× base cost.",
-      "image": "/images/pet_synthetic.png"
+      "image": "/images/pet_synthetic.png",
+      "tags": ["tech"]
     },
     {
       "id": "portable_computer_terminal",
       "name": "Portable Computer Terminal",
       "cost": "1.5kcr",
       "description": "Portable computer for hacking and general tasks.",
-      "image": "/images/portable_computer_terminal.png"
+      "image": "/images/portable_computer_terminal.png",
+      "tags": ["tech", "tools"]
     },
     {
       "id": "radiation_pills",
       "name": "Radiation Pills (x5)",
       "cost": "200cr",
       "description": "Reduce radiation level temporarily.",
-      "image": "/images/radiation_pills.png"
+      "image": "/images/radiation_pills.png",
+      "tags": ["medical", "consumable"]
     },
     {
       "id": "radio_jammer",
       "name": "Radio Jammer",
       "cost": "4kcr",
       "description": "Blocks radio signals within 100km.",
-      "image": "/images/radio_jammer.png"
+      "image": "/images/radio_jammer.png",
+      "tags": ["tech"]
     },
     {
       "id": "rebreather",
       "name": "Rebreather",
       "cost": "500cr",
       "description": "Filters toxic air or allows 20 minutes underwater breathing.",
-      "image": "/images/rebreather.png"
+      "image": "/images/rebreather.png",
+      "tags": ["tech", "apparel"]
     },
     {
       "id": "rucksack",
       "name": "Rucksack",
       "cost": "50cr",
       "description": "Large waterproof backpack.",
-      "image": "/images/rucksack.png"
+      "image": "/images/rucksack.png",
+      "tags": ["apparel"]
     },
     {
       "id": "salvage_drone",
       "name": "Salvage Drone",
       "cost": "10kcr",
       "description": "Remote drone with modular equipment slots; 2h battery.",
-      "image": "/images/salvage_drone.png"
+      "image": "/images/salvage_drone.png",
+      "tags": ["tech"]
     },
     {
       "id": "sample_collection_kit",
       "name": "Sample Collection Kit",
       "cost": "50cr",
       "description": "Collects biological samples for analysis.",
-      "image": "/images/sample_collection_kit.png"
+      "image": "/images/sample_collection_kit.png",
+      "tags": ["tools"]
     },
     {
       "id": "short_range_comms",
       "name": "Short-range Comms",
       "cost": "100cr",
       "description": "Short-range communication; jammer-blockable.",
-      "image": "/images/short_range_comms.png"
+      "image": "/images/short_range_comms.png",
+      "tags": ["tech"]
     },
     {
       "id": "smart_link_addon",
       "name": "Smart-link Add-On",
       "cost": "10kcr",
       "description": "Remote viewing/operation of ranged weapons; +5 damage.",
-      "image": "/images/smart_link_addon.png"
+      "image": "/images/smart_link_addon.png",
+      "tags": ["tech"]
     },
     {
       "id": "stimpak",
       "name": "Stimpak",
       "cost": "1kcr",
       "description": "Reduces stress, restores health, boosts rolls; overdose risk.",
-      "image": "/images/stimpak.png"
+      "image": "/images/stimpak.png",
+      "tags": ["medical", "consumable"]
     },
     {
       "id": "water_filtration_device",
       "name": "Water Filtration Device",
       "cost": "50cr",
       "description": "Filters 4L of water per hour.",
-      "image": "/images/water_filtration_device.png"
+      "image": "/images/water_filtration_device.png",
+      "tags": ["tools"]
     }
   ]
 }

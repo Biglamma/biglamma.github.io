@@ -9,7 +9,8 @@
       "shots": "N/A",
       "wound": "N/A",
       "special": "Per magazine / Per container.",
-      "image": "/images/ammo.png"
+      "image": "/images/ammo.png",
+      "tags": ["ammunition", "consumable"]
     },
     {
       "id": "boarding_axe",
@@ -20,7 +21,8 @@
       "shots": "N/A",
       "wound": "Gore [+]",
       "special": "",
-      "image": "/images/boarding_axe.png"
+      "image": "/images/boarding_axe.png",
+      "tags": ["melee"]
     },
     {
       "id": "combat_shotgun",
@@ -31,7 +33,8 @@
       "shots": "4",
       "wound": "Gunshot",
       "special": "Deals 1d10 damage at Long Range or greater.",
-      "image": "/images/combat_shotgun.png"
+      "image": "/images/combat_shotgun.png",
+      "tags": ["ranged", "heavy"]
     },
     {
       "id": "crowbar",
@@ -42,7 +45,8 @@
       "shots": "N/A",
       "wound": "Blunt Force [+]",
       "special": "Grants [+] on Strength checks to force open or lift objects.",
-      "image": "/images/crowbar.png"
+      "image": "/images/crowbar.png",
+      "tags": ["melee"]
     },
     {
       "id": "flamethrower",
@@ -53,7 +57,8 @@
       "shots": "4",
       "wound": "Fire/Explosives [+]",
       "special": "Body Save or catch fire (2d10 damage per round).",
-      "image": "/images/flamethrower.png"
+      "image": "/images/flamethrower.png",
+      "tags": ["ranged", "heavy", "explosive"]
     },
     {
       "id": "flare_gun",
@@ -64,7 +69,8 @@
       "shots": "2",
       "wound": "Fire/Explosives [-]",
       "special": "High-intensity flare visible from Long Range.",
-      "image": "/images/flare_gun.png"
+      "image": "/images/flare_gun.png",
+      "tags": ["ranged", "utility"]
     },
     {
       "id": "foam_gun",
@@ -75,7 +81,8 @@
       "shots": "3",
       "wound": "Blunt Force",
       "special": "Body Save or stuck; Strength Check [-] to escape.",
-      "image": "/images/foam_gun.png"
+      "image": "/images/foam_gun.png",
+      "tags": ["ranged", "utility"]
     },
     {
       "id": "frag_grenade",
@@ -86,7 +93,8 @@
       "shots": "1",
       "wound": "Fire/Explosives",
       "special": "Damages all Adjacent targets.",
-      "image": "/images/frag_grenade.png"
+      "image": "/images/frag_grenade.png",
+      "tags": ["explosive", "throwable"]
     },
     {
       "id": "gpmg",
@@ -97,7 +105,8 @@
       "shots": "5",
       "wound": "Gunshot [+]",
       "special": "Two-handed, heavy; can fire around corners.",
-      "image": "/images/gpmg.png"
+      "image": "/images/gpmg.png",
+      "tags": ["ranged", "heavy"]
     },
     {
       "id": "hand_welder",
@@ -108,7 +117,8 @@
       "shots": "N/A",
       "wound": "Bleeding",
       "special": "Can cut through airlock doors.",
-      "image": "/images/hand_welder.png"
+      "image": "/images/hand_welder.png",
+      "tags": ["melee", "tool"]
     },
     {
       "id": "laser_cutter",
@@ -119,7 +129,8 @@
       "shots": "6",
       "wound": "Bleeding [+] or Gore [+]",
       "special": "Two-handed, heavy; 1 round recharge.",
-      "image": "/images/laser_cutter.png"
+      "image": "/images/laser_cutter.png",
+      "tags": ["ranged", "heavy", "energy"]
     },
     {
       "id": "nail_gun",
@@ -130,7 +141,8 @@
       "shots": "32",
       "wound": "Bleeding",
       "special": "",
-      "image": "/images/nail_gun.png"
+      "image": "/images/nail_gun.png",
+      "tags": ["ranged", "tool"]
     },
     {
       "id": "pulse_rifle",
@@ -141,7 +153,8 @@
       "shots": "5",
       "wound": "Gunshot",
       "special": "",
-      "image": "/images/pulse_rifle.png"
+      "image": "/images/pulse_rifle.png",
+      "tags": ["ranged", "energy"]
     },
     {
       "id": "revolver",
@@ -152,7 +165,8 @@
       "shots": "6",
       "wound": "Gunshot",
       "special": "",
-      "image": "/images/revolver.png"
+      "image": "/images/revolver.png",
+      "tags": ["ranged", "sidearm"]
     },
     {
       "id": "rigging_gun",
@@ -163,7 +177,8 @@
       "shots": "1",
       "wound": "Bleeding [+]",
       "special": "100m micro-filament; Body Save or entangled.",
-      "image": "/images/rigging_gun.png"
+      "image": "/images/rigging_gun.png",
+      "tags": ["ranged", "utility"]
     },
     {
       "id": "scalpel",
@@ -174,7 +189,8 @@
       "shots": "N/A",
       "wound": "Bleeding [+]",
       "special": "",
-      "image": "/images/scalpel.png"
+      "image": "/images/scalpel.png",
+      "tags": ["melee", "tool"]
     },
     {
       "id": "smart_rifle",
@@ -185,7 +201,8 @@
       "shots": "3",
       "wound": "Gunshot [+]",
       "special": "[-] to Combat Checks at Close Range.",
-      "image": "/images/smart_rifle.png"
+      "image": "/images/smart_rifle.png",
+      "tags": ["ranged", "heavy", "tech"]
     },
     {
       "id": "smg",
@@ -196,7 +213,8 @@
       "shots": "5",
       "wound": "Gunshot",
       "special": "Can be fired one-handed.",
-      "image": "/images/smg.png"
+      "image": "/images/smg.png",
+      "tags": ["ranged"]
     },
     {
       "id": "stun_baton",
@@ -207,7 +225,8 @@
       "shots": "N/A",
       "wound": "Blunt Force",
       "special": "Body Save or stunned 1 round.",
-      "image": "/images/stun_baton.png"
+      "image": "/images/stun_baton.png",
+      "tags": ["melee", "energy"]
     },
     {
       "id": "tranq_pistol",
@@ -218,7 +237,8 @@
       "shots": "6",
       "wound": "Blunt Force",
       "special": "If damage dealt: Body Save or unconscious 1d10 rounds.",
-      "image": "/images/tranq_pistol.png"
+      "image": "/images/tranq_pistol.png",
+      "tags": ["ranged", "sidearm", "utility"]
     },
     {
       "id": "vibechete",
@@ -229,7 +249,8 @@
       "shots": "N/A",
       "wound": "Bleeding + Gore",
       "special": "On Wound: roll both Bleeding and Gore tables.",
-      "image": "/images/vibechete.png"
+      "image": "/images/vibechete.png",
+      "tags": ["melee", "energy"]
     }
   ]
 }

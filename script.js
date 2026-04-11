@@ -1,4 +1,33 @@
 // ------------------------------------------------------------
+// TAG DEFINITIONS
+// ------------------------------------------------------------
+
+const TAGS = {
+  // Equipment tags
+  "tools":       { label: 'Tools',       icon: '🔧', color: '#95a5a6' },
+  "medical":     { label: 'Medical',     icon: '💊', color: '#27ae60' },
+  "tech":        { label: 'Tech',        icon: '⚡', color: '#f39c12' },
+  "material":    { label: 'Materials',   icon: '📦', color: '#7f8c8d' },
+  "consumable":  { label: 'Consumable',  icon: '⚗️', color: '#e74c3c' },
+  "apparel":     { label: 'Apparel',     icon: '👔', color: '#3498db' },
+  
+  // Weapon tags
+  "melee":       { label: 'Melee',       icon: '⚔️', color: '#e74c3c' },
+  "ranged":      { label: 'Ranged',      icon: '🎯', color: '#e67e22' },
+  "sidearm":     { label: 'Sidearm',     icon: '🔫', color: '#c0392b' },
+  "heavy":       { label: 'Heavy',       icon: '💣', color: '#8b0000' },
+  "explosive":   { label: 'Explosive',   icon: '💥', color: '#d32f2f' },
+  "throwable":   { label: 'Throwable',   icon: '🎲', color: '#f44336' },
+  "energy":      { label: 'Energy',      icon: '⚛️', color: '#ffd700' },
+  "utility":     { label: 'Utility',     icon: '🛠️', color: '#90ee90' },
+  "ammunition":  { label: 'Ammunition',  icon: '🔫', color: '#ffcc00' },
+  "tool":        { label: 'Tool',        icon: '🔧', color: '#4caf50' },
+  
+  // Armor tags
+  "combat":      { label: 'Combat',      icon: '🛡️', color: '#1565c0' }
+};
+
+// ------------------------------------------------------------
 // RARITIES
 // ------------------------------------------------------------
 
@@ -73,6 +102,9 @@ function autoAssignRarities(items) {
     else if (p < 0.60) item.rarity = "rare";
     else if (p < 0.80) item.rarity = "epic";
     else item.rarity = "legendary";
+
+    // Ensure tags exist
+    if (!item.tags) item.tags = [];
   });
 
   return sorted;
@@ -154,7 +186,7 @@ document.querySelectorAll('.menu-item').forEach(btn => {
 });
 
 // ------------------------------------------------------------
-// LOOT PANEL
+// LOOT PANEL (organized by rarity → tags)
 // ------------------------------------------------------------
 
 function renderLootPanel() {
@@ -163,18 +195,46 @@ function renderLootPanel() {
 
   let html = '';
 
-  Object.entries(RARITIES).forEach(([key, rar]) => {
-    const items = ITEMS.filter(i => i.rarity === key);
-    html += `
-      <div class="loot-group">
-        <div class="loot-group-title">
-          <div class="loot-group-col" style="background:${rar.color}"></div>
-          ${rar.label}
-        </div>
-        <div class="loot-items">
-          ${items.map(i => `<div class="loot-item">${imgOrEmoji(i)} ${i.name}</div>`).join('')}
-        </div>
+  Object.entries(RARITIES).forEach(([rarityKey, rar]) => {
+    const itemsByRarity = ITEMS.filter(i => i.rarity === rarityKey);
+    
+    if (!itemsByRarity.length) return;
+
+    html += `<div class="loot-rarity-section">
+      <div class="loot-rarity-header" style="background:${rar.color}">
+        ${rar.icon} ${rar.label}
       </div>`;
+
+    // Collect all unique tags for this rarity
+    const tagsInRarity = new Set();
+    itemsByRarity.forEach(item => {
+      if (item.tags && item.tags.length > 0) {
+        item.tags.forEach(tag => tagsInRarity.add(tag));
+      }
+    });
+
+    // Sort tags and display items grouped by tag
+    Array.from(tagsInRarity).sort().forEach(tagKey => {
+      const tag = TAGS[tagKey];
+      if (!tag) return;
+      
+      const itemsByTag = itemsByRarity.filter(i => i.tags && i.tags.includes(tagKey));
+      
+      if (!itemsByTag.length) return;
+
+      html += `
+        <div class="loot-tag-section">
+          <div class="loot-tag-header">
+            <span class="loot-tag-icon">${tag.icon}</span>
+            <span>${tag.label}</span>
+          </div>
+          <div class="loot-items">
+            ${itemsByTag.map(i => `<div class="loot-item">${imgOrEmoji(i)} ${i.name}</div>`).join('')}
+          </div>
+        </div>`;
+    });
+
+    html += `</div>`;
   });
 
   content.innerHTML = html;
@@ -212,43 +272,10 @@ function selectCase(id) {
 // ITEM PICKING
 // ------------------------------------------------------------
 
-const RARITY_WEIGHTS = {
-  common: 60,
-  uncommon: 25,
-  rare: 10,
-  epic: 4,
-  legendary: 1
-};
-
-function weightedRandomRarity(pool) {
-  // Build weighted list only from allowed rarities
-  const entries = pool.map(r => ({
-    rarity: r,
-    weight: RARITY_WEIGHTS[r]
-  }));
-
-  const total = entries.reduce((sum, e) => sum + e.weight, 0);
-  let roll = Math.random() * total;
-
-  for (const e of entries) {
-    if (roll < e.weight) return e.rarity;
-    roll -= e.weight;
-  }
-
-  return entries[entries.length - 1].rarity;
-}
-
-
 function pickItem(pool) {
-  // Step 1: choose rarity based on weights
-  const chosenRarity = weightedRandomRarity(pool);
-
-  // Step 2: pick a random item from that rarity
-  const candidates = ITEMS.filter(i => i.rarity === chosenRarity);
-
+  const candidates = ITEMS.filter(i => pool.includes(i.rarity));
   return candidates[Math.floor(Math.random() * candidates.length)];
 }
-
 
 function makeReelCell(item) {
   const rar = RARITIES[item.rarity];
@@ -276,7 +303,7 @@ function buildReel() {
 
   const cells = [];
 
-  for (let i = 0; i < 70; i++) {
+  for (let i = 0; i < 140; i++) {
     const item = pickItem(activeCase.pool);
     cells.push(item);
     track.appendChild(makeReelCell(item));
@@ -331,7 +358,7 @@ function spin() {
 
   void track.offsetWidth;
 
-  const dur = 10000 + Math.random() * 5000;
+  const dur = 6000 + Math.random() * 4000;
 
   track.style.transition = `transform ${dur}ms cubic-bezier(0.08, 0.92, 0.22, 1.0)`;
   track.style.transform = `translateX(${finalX}px)`;
@@ -387,7 +414,7 @@ function showResult(item) {
 }
 
 // ------------------------------------------------------------
-// INVENTORY
+// INVENTORY (organized by tags)
 // ------------------------------------------------------------
 
 function addToInventory(item) {
@@ -409,16 +436,47 @@ function updateInventory() {
     return;
   }
 
-  grid.innerHTML = inventory.map(item => {
-    const rar = RARITIES[item.rarity];
-    return `
-      <div class="inv-item" style="--rarity-col:${rar.color}" data-id="${item.id}">
-        <button class="delete-x">×</button>
-        <div class="inv-icon">${imgOrEmoji(item)}</div>
-        <div class="inv-name">${item.name}</div>
-        <div class="inv-rar">${rar.label}</div>
+  // Collect all unique tags from inventory
+  const allTags = new Set();
+  inventory.forEach(item => {
+    if (item.tags && item.tags.length > 0) {
+      item.tags.forEach(tag => allTags.add(tag));
+    }
+  });
+
+  // Group inventory by tags
+  let html = '';
+
+  Array.from(allTags).sort().forEach(tagKey => {
+    const tag = TAGS[tagKey];
+    if (!tag) return;
+
+    const itemsOfTag = inventory.filter(i => i.tags && i.tags.includes(tagKey));
+    
+    if (!itemsOfTag.length) return;
+
+    html += `
+      <div class="inv-tag-section">
+        <div class="inv-tag-header">
+          <span>${tag.icon}</span>
+          <span>${tag.label}</span>
+        </div>
+        <div class="inv-tag-items">
+          ${itemsOfTag.map(item => {
+            const rar = RARITIES[item.rarity];
+            return `
+              <div class="inv-item" style="--rarity-col:${rar.color}" data-id="${item.id}">
+                <button class="delete-x">×</button>
+                <div class="inv-icon">${imgOrEmoji(item)}</div>
+                <div class="inv-name">${item.name}</div>
+                <div class="inv-rar">${rar.label}</div>
+              </div>`;
+          }).join('')}
+        </div>
       </div>`;
-  }).join('');
+  });
+
+  grid.innerHTML = html;
 
   grid.querySelectorAll('.delete-x').forEach(btn => {
     btn.addEventListener('click', e => {
