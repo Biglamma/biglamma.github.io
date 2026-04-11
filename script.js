@@ -1,3 +1,12 @@
+/**
+ * SUPPLY DROP - Single File Version
+ * All modules consolidated into one file
+ */
+
+// ============================================================================
+// DATA & CONSTANTS
+// ============================================================================
+
 const RARITIES = {
   common:    { label: 'Common',    color: '#7a7f8a' },
   uncommon:  { label: 'Uncommon',  color: '#3fbf5a' },
@@ -6,7 +15,7 @@ const RARITIES = {
   legendary: { label: 'Legendary', color: '#e67e22' }
 };
 
-const RARITY_ORDER = ['common','uncommon','rare','epic','legendary'];
+const RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
 
 const ITEM_CATEGORIES = {
   weapons:   { label: 'Weapons' },
@@ -21,11 +30,50 @@ const CASES = [
   { id: 'c4', name: 'Black Budget',     color: '#e67e22', pool: ['rare','epic','legendary'] }
 ];
 
-let ITEMS = [];
-let activeCase = null;
-let activeRarityFilter = null;
-let spinning = false;
-let inventory = JSON.parse(localStorage.getItem("inventory") || "[]");
+// ============================================================================
+// STATE MANAGEMENT
+// ============================================================================
+
+class AppState {
+  constructor() {
+    this.items = [];
+    this.activeCase = null;
+    this.activeRarityFilter = null;
+    this.spinning = false;
+    this.inventory = JSON.parse(localStorage.getItem("inventory") || "[]");
+    this._observers = {
+      inventoryChanged: [],
+      caseChanged: [],
+      spinningChanged: [],
+      rarityFilterChanged: []
+    };
+  }
+
+  subscribe(event, callback) {
+    if (this._observers[event]) this._observers[event].push(callback);
+  }
+
+  _notify(event, data) {
+    if (this._observers[event]) {
+      this._observers[event].forEach(cb => cb(data));
+    }
+  }
+
+  setItems(items) { this.items = items; }
+  setActiveCase(caseObj) { this.activeCase = caseObj; this._notify('caseChanged', caseObj); }
+  toggleRarityFilter(rarity) { this.activeRarityFilter = this.activeRarityFilter === rarity ? null : rarity; this._notify('rarityFilterChanged', this.activeRarityFilter); }
+  setSpinning(value) { this.spinning = value; this._notify('spinningChanged', value); }
+  addToInventory(item) { this.inventory.push(item); this.saveInventory(); this._notify('inventoryChanged', this.inventory); }
+  removeFromInventory(index) { this.inventory.splice(index, 1); this.saveInventory(); this._notify('inventoryChanged', this.inventory); }
+  saveInventory() { localStorage.setItem("inventory", JSON.stringify(this.inventory)); }
+  clearInventory() { this.inventory = []; this.saveInventory(); this._notify('inventoryChanged', this.inventory); }
+}
+
+const state = new AppState();
+
+// ============================================================================
+// ITEMS MODULE
+// ============================================================================
 
 async function loadAllItems() {
   try {
@@ -34,7 +82,6 @@ async function loadAllItems() {
       fetch("./armor.json").then(r => r.json()),
       fetch("./equipment.json").then(r => r.json())
     ]);
-
     return [
       ...weapons.weapons.map(w => ({ ...w, category: 'weapons' })),
       ...armor.armor.map(a => ({ ...a, category: 'armor' })),
@@ -57,7 +104,6 @@ function parseCost(cost) {
 function autoAssignRarities(items) {
   const sorted = [...items].sort((a, b) => parseCost(a.cost) - parseCost(b.cost));
   const n = sorted.length;
-
   sorted.forEach((item, i) => {
     const p = i / n;
     if (p < 0.20) item.rarity = "common";
@@ -67,168 +113,24 @@ function autoAssignRarities(items) {
     else item.rarity = "legendary";
     if (!item.tags) item.tags = [];
   });
-
   return sorted;
 }
 
-async function initItems() {
-  const all = await loadAllItems();
-  if (!all.length) return;
+// ============================================================================
+// UI HELPERS
+// ============================================================================
 
-  ITEMS = autoAssignRarities(all);
+function querySelector(selector) { return document.querySelector(selector); }
+function querySelectorAll(selector) { return document.querySelectorAll(selector); }
+function hideElement(el) { el.style.display = 'none'; }
+function showElement(el, display = 'block') { el.style.display = display; }
+function toggleClass(el, className, force) { el.classList.toggle(className, force); }
 
-  renderCaseTiles();
-  renderCaseNav();
-  renderLootRarityTabs();
-  renderLootPanel();
-  updateInventory();
-  buildReel();
-}
-
-initItems();
-
-document.getElementById('menuBtn').addEventListener('click', () => {
-  document.getElementById('menuDropdown').classList.toggle('show');
-});
-
-document.addEventListener('click', (e) => {
-  if (!e.target.closest('#menuBtn') && !e.target.closest('.menu-dropdown')) {
-    document.getElementById('menuDropdown').classList.remove('show');
-  }
-});
-
-function switchTab(tab) {
-  document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById(tab + 'Panel').classList.add('active');
-
-  document.querySelectorAll('.menu-item').forEach(m => {
-    m.classList.toggle('active', m.dataset.tab === tab);
+function addEventDelegation(parent, eventType, selector, handler) {
+  parent.addEventListener(eventType, (e) => {
+    const target = e.target.closest(selector);
+    if (target) handler.call(target, e);
   });
-
-  if (tab === 'loot') {
-    renderLootPanel();
-    renderLootRarityTabs();
-  }
-}
-
-document.querySelectorAll('.menu-item').forEach(btn => {
-  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-});
-
-function renderCaseTiles() {
-  const grid = document.getElementById('caseSelectGrid');
-
-  grid.innerHTML = CASES.map(c => `
-    <div class="case-tile" data-case="${c.id}" style="border-color:${c.color}">
-      <div style="font-size:20px; margin-bottom:6px;">📦</div>
-      <div>${c.name}</div>
-    </div>
-  `).join('');
-
-  grid.querySelectorAll('.case-tile').forEach(tile => {
-    tile.addEventListener('click', () => {
-      const id = tile.dataset.case;
-      activeCase = CASES.find(c => c.id === id);
-      enterCaseOpening();
-    });
-  });
-}
-
-function enterCaseOpening() {
-  document.getElementById('caseSelectGrid').style.display = 'none';
-  document.getElementById('caseOpenArea').style.display = 'flex';
-
-  renderCaseNav();
-  buildReel();
-}
-
-document.getElementById('backBtn').addEventListener('click', () => {
-  document.getElementById('caseOpenArea').style.display = 'none';
-  document.getElementById('caseSelectGrid').style.display = 'grid';
-});
-
-function renderCaseNav() {
-  const nav = document.getElementById('caseNav');
-
-  nav.innerHTML = CASES.map(c => `
-    <button class="case-tab ${activeCase && c.id === activeCase.id ? 'active' : ''}"
-      style="--case-col:${c.color}"
-      data-case="${c.id}">
-      ${c.name}
-    </button>
-  `).join('');
-
-  nav.querySelectorAll('.case-tab').forEach(btn => {
-    btn.addEventListener('click', () => {
-      activeCase = CASES.find(c => c.id === btn.dataset.case);
-      renderCaseNav();
-      buildReel();
-    });
-  });
-}
-
-function renderLootRarityTabs() {
-  const container = document.querySelector('.rarity-tabs');
-
-  container.innerHTML = RARITY_ORDER.map(r => `
-    <div class="rarity-tab ${r} ${activeRarityFilter === r ? 'active' : ''}"
-         data-rarity="${r}">
-    </div>
-  `).join('');
-
-  container.querySelectorAll('.rarity-tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      const r = tab.dataset.rarity;
-      activeRarityFilter = activeRarityFilter === r ? null : r;
-      renderLootRarityTabs();
-      renderLootPanel();
-    });
-  });
-}
-
-function renderLootPanel() {
-  const content = document.getElementById('lootContent');
-  if (!ITEMS.length) return;
-
-  let html = '';
-
-  Object.entries(ITEM_CATEGORIES).forEach(([catKey, cat]) => {
-    let items = ITEMS.filter(i => i.category === catKey);
-
-    if (activeRarityFilter) {
-      items = items.filter(i => i.rarity === activeRarityFilter);
-    }
-
-    if (!items.length) return;
-
-    items = items.sort((a, b) => {
-      return RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity);
-    });
-
-    html += `
-      <div class="loot-category-section">
-        <div class="loot-category-header">${cat.label}</div>
-        <div class="loot-items-list">
-          ${items.map(i => {
-            const rar = RARITIES[i.rarity];
-            return `
-              <div class="loot-item" style="border-left: 4px solid ${rar.color}">
-                <div class="loot-item-icon">${imgOrEmoji(i)}</div>
-                <div class="loot-item-name">${i.name}</div>
-                <div class="loot-item-rarity">${rar.label}</div>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      </div>
-    `;
-  });
-
-  if (!html) {
-    html = '<div class="loot-empty">No items found</div>';
-  }
-
-  content.innerHTML = html;
 }
 
 function imgOrEmoji(item) {
@@ -247,8 +149,35 @@ function getCellWidth() {
   return w;
 }
 
+// ============================================================================
+// REEL/SPINNING
+// ============================================================================
+
+const SPIN_CONFIG = {
+  minDuration: 6000,
+  maxDuration: 10000,
+  easing: 'cubic-bezier(0.08, 0.92, 0.22, 1.0)',
+  cellCount: 140,
+  winWindow: 20
+};
+
+function buildReel() {
+  if (!state.items.length) return;
+  const track = querySelector('#reelTrack');
+  track.style.transition = 'none';
+  track.style.transform = 'translateX(0)';
+  track.innerHTML = '';
+  const cells = [];
+  for (let i = 0; i < SPIN_CONFIG.cellCount; i++) {
+    const item = pickItem(state.activeCase.pool);
+    cells.push(item);
+    track.appendChild(makeReelCell(item));
+  }
+  track._cells = cells;
+}
+
 function pickItem(pool) {
-  const candidates = ITEMS.filter(i => pool.includes(i.rarity));
+  const candidates = state.items.filter(i => pool.includes(i.rarity));
   return candidates[Math.floor(Math.random() * candidates.length)];
 }
 
@@ -257,132 +186,205 @@ function makeReelCell(item) {
   const div = document.createElement('div');
   div.className = 'rc';
   div.style.setProperty('--rc-col', rar.color);
-  div.innerHTML = `
-    <div class="rc-icon">${imgOrEmoji(item)}</div>
-    <div class="rc-name">${item.name}</div>
-    <div class="rc-bar"></div>`;
+  div.innerHTML = `<div class="rc-icon">${imgOrEmoji(item)}</div><div class="rc-name">${item.name}</div><div class="rc-bar"></div>`;
   return div;
 }
 
-function buildReel() {
-  if (!ITEMS.length) return;
-
-  const track = document.getElementById('reelTrack');
-  track.style.transition = 'none';
-  track.style.transform = 'translateX(0)';
-  track.innerHTML = '';
-
-  const cells = [];
-
-  for (let i = 0; i < 140; i++) {
-    const item = pickItem(activeCase.pool);
-    cells.push(item);
-    track.appendChild(makeReelCell(item));
-  }
-
-  track._cells = cells;
-}
-
-document.getElementById('openBtn').addEventListener('click', openBox);
-
-function openBox() {
-  if (spinning || !ITEMS.length) return;
-
-  const openBtn = document.getElementById('openBtn');
-  const reelWrap = document.getElementById('reelWrap');
-  const resultPanel = document.getElementById('resultPanel');
-
-  openBtn.style.display = 'none';
-  resultPanel.style.display = 'none';
-  resultPanel.classList.remove('show');
-
-  reelWrap.style.display = 'block';
-  reelWrap.classList.add('show');
-
-  setTimeout(spin, 500);
-}
-
 function spin() {
-  spinning = true;
-
-  const reelWrap = document.getElementById('reelWrap');
-  const track = document.getElementById('reelTrack');
-
+  state.setSpinning(true);
+  const reelWrap = querySelector('#reelWrap');
+  const track = querySelector('#reelTrack');
   buildReel();
-
   const cells = track._cells;
   const CELL_W = getCellWidth();
   const wrapW = reelWrap.offsetWidth;
   const center = wrapW / 2;
-
-  const targetIdx = 40 + Math.floor(Math.random() * 20);
+  const centerIdx = Math.floor(cells.length / 2);
+  const offset = Math.floor(SPIN_CONFIG.winWindow / 2);
+  const targetIdx = centerIdx - offset + Math.floor(Math.random() * SPIN_CONFIG.winWindow);
   const targetCenter = targetIdx * CELL_W + CELL_W / 2;
   const finalX = -(targetCenter - center);
-
   void track.offsetWidth;
-
-  const dur = 6000 + Math.random() * 4000;
-
-  track.style.transition = `transform ${dur}ms cubic-bezier(0.08, 0.92, 0.22, 1.0)`;
+  const dur = SPIN_CONFIG.minDuration + Math.random() * (SPIN_CONFIG.maxDuration - SPIN_CONFIG.minDuration);
+  track.style.transition = `transform ${dur}ms ${SPIN_CONFIG.easing}`;
   track.style.transform = `translateX(${finalX}px)`;
-
   setTimeout(() => {
     const won = cells[targetIdx];
     showResult(won);
-    addToInventory(won);
-    spinning = false;
+    state.addToInventory(won);
+    state.setSpinning(false);
   }, dur + 200);
 }
 
 function showResult(item) {
   const rar = RARITIES[item.rarity];
-  const panel = document.getElementById('resultPanel');
-
+  const panel = querySelector('#resultPanel');
   panel.querySelector('.result-stripe').style.background = rar.color;
   panel.querySelector('.result-img-glow').style.setProperty('--rarity-col', rar.color);
   panel.querySelector('.result-rarity').style.color = rar.color;
-
   panel.querySelector('.result-icon').innerHTML = imgOrEmoji(item);
   panel.querySelector('.result-name').textContent = item.name;
   panel.querySelector('.result-desc').textContent = item.description || '';
-
   panel.style.display = 'block';
   panel.classList.add('show');
-
-  document.getElementById('openBtn').style.display = 'block';
+  showElement(querySelector('#openBtn'));
 }
 
-function addToInventory(item) {
-  inventory.push(item);
-  localStorage.setItem("inventory", JSON.stringify(inventory));
-  updateInventory();
-}
+// ============================================================================
+// INVENTORY
+// ============================================================================
 
 function updateInventory() {
-  const grid = document.getElementById('invGrid');
-  if (!inventory.length) {
+  const grid = querySelector('#invGrid');
+  if (!state.inventory.length) {
     grid.innerHTML = '<div class="inv-empty">No items yet</div>';
+    updateInventoryCount();
     return;
   }
-
-  grid.innerHTML = inventory.map((i, idx) => {
+  grid.innerHTML = state.inventory.map((i, idx) => {
     const rar = RARITIES[i.rarity];
-    return `
-      <div class="inv-item" style="--rarity-col:${rar.color}">
-        <button class="delete-x" data-index="${idx}">×</button>
-        <div class="inv-icon">${imgOrEmoji(i)}</div>
-        <div class="inv-name">${i.name}</div>
-        <div class="inv-rar">${rar.label}</div>
-      </div>
-    `;
+    return `<div class="inv-item" style="--rarity-col:${rar.color}"><button class="delete-x" data-index="${idx}">×</button><div class="inv-icon">${imgOrEmoji(i)}</div><div class="inv-name">${i.name}</div><div class="inv-rar">${rar.label}</div></div>`;
   }).join('');
-
-  grid.querySelectorAll('.delete-x').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const idx = btn.dataset.index;
-      inventory.splice(idx, 1);
-      localStorage.setItem("inventory", JSON.stringify(inventory));
-      updateInventory();
-    });
+  addEventDelegation(grid, 'click', '.delete-x', function() {
+    state.removeFromInventory(this.dataset.index);
+    updateInventory();
   });
+  updateInventoryCount();
+}
+
+function updateInventoryCount() {
+  const count = querySelector('#invCount');
+  if (count) count.textContent = state.inventory.length;
+}
+
+// ============================================================================
+// CASES
+// ============================================================================
+
+function renderCaseTiles() {
+  const grid = querySelector('#caseSelectGrid');
+  grid.innerHTML = CASES.map(c => `<div class="case-tile" data-case="${c.id}" style="border-color:${c.color}"><div style="font-size:20px; margin-bottom:6px;">📦</div><div>${c.name}</div></div>`).join('');
+  addEventDelegation(grid, 'click', '.case-tile', function() {
+    const id = this.dataset.case;
+    state.setActiveCase(CASES.find(c => c.id === id));
+    enterCaseOpening();
+  });
+}
+
+function enterCaseOpening() {
+  hideElement(querySelector('#caseSelectGrid'));
+  showElement(querySelector('#caseOpenArea'), 'flex');
+  buildReel();
+}
+
+function exitCaseOpening() {
+  showElement(querySelector('#caseSelectGrid'), 'grid');
+  hideElement(querySelector('#caseOpenArea'));
+}
+
+// ============================================================================
+// LOOT TABLE
+// ============================================================================
+
+function renderLootRarityTabs() {
+  const container = querySelector('.rarity-tabs');
+  container.innerHTML = RARITY_ORDER.map(r => `<div class="rarity-tab ${r} ${state.activeRarityFilter === r ? 'active' : ''}" data-rarity="${r}"></div>`).join('');
+  addEventDelegation(container, 'click', '.rarity-tab', function() {
+    state.toggleRarityFilter(this.dataset.rarity);
+    renderLootRarityTabs();
+    renderLootPanel();
+  });
+}
+
+function renderLootPanel() {
+  const content = querySelector('#lootContent');
+  if (!state.items.length) return;
+  let html = '';
+  Object.entries(ITEM_CATEGORIES).forEach(([catKey, cat]) => {
+    let items = state.items.filter(i => i.category === catKey);
+    if (state.activeRarityFilter) {
+      items = items.filter(i => i.rarity === state.activeRarityFilter);
+    }
+    if (!items.length) return;
+    items = items.sort((a, b) => RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity));
+    html += `<div class="loot-category-section"><div class="loot-category-header">${cat.label}</div><div class="loot-items-list">${items.map(i => {
+      const rar = RARITIES[i.rarity];
+      return `<div class="loot-item" style="border-left: 4px solid ${rar.color}"><div class="loot-item-icon">${imgOrEmoji(i)}</div><div class="loot-item-name">${i.name}</div><div class="loot-item-rarity">${rar.label}</div></div>`;
+    }).join('')}</div></div>`;
+  });
+  if (!html) html = '<div class="loot-empty">No items found</div>';
+  content.innerHTML = html;
+}
+
+// ============================================================================
+// NAVIGATION
+// ============================================================================
+
+function switchTab(tab) {
+  querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
+  querySelector(tab + 'Panel').classList.add('active');
+  querySelectorAll('.menu-item').forEach(m => m.classList.toggle('active', m.dataset.tab === tab));
+  if (tab === 'loot') {
+    renderLootPanel();
+    renderLootRarityTabs();
+  }
+  hideElement(querySelector('#menuDropdown'));
+}
+
+function setupMenu() {
+  querySelector('#menuBtn').addEventListener('click', () => {
+    toggleClass(querySelector('#menuDropdown'), 'show');
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#menuBtn') && !e.target.closest('.menu-dropdown')) {
+      querySelector('#menuDropdown').classList.remove('show');
+    }
+  });
+  addEventDelegation(querySelector('.menu-dropdown'), 'click', '.menu-item', function() {
+    switchTab(this.dataset.tab);
+  });
+}
+
+// ============================================================================
+// INITIALIZATION
+// ============================================================================
+
+async function initApp() {
+  const all = await loadAllItems();
+  if (!all.length) {
+    console.warn("No items loaded");
+    return;
+  }
+  const items = autoAssignRarities(all);
+  state.setItems(items);
+  renderCaseTiles();
+  updateInventory();
+  renderLootPanel();
+  renderLootRarityTabs();
+  setupMenu();
+  setupEventHandlers();
+}
+
+function setupEventHandlers() {
+  querySelector('#openBtn').addEventListener('click', handleOpenCase);
+  querySelector('#backBtn').addEventListener('click', exitCaseOpening);
+}
+
+function handleOpenCase() {
+  if (state.spinning || !state.items.length) return;
+  const openBtn = querySelector('#openBtn');
+  const reelWrap = querySelector('#reelWrap');
+  const resultPanel = querySelector('#resultPanel');
+  hideElement(openBtn);
+  hideElement(resultPanel);
+  resultPanel.classList.remove('show');
+  showElement(reelWrap, 'block');
+  reelWrap.classList.add('show');
+  setTimeout(spin, 500);
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
 }
