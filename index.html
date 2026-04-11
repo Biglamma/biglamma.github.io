@@ -28,43 +28,46 @@
 
   <!-- MAIN PANEL -->
   <div class="content-panel active" id="mainPanel">
-    <div class="main-layout">
 
-      <!-- VERTICAL CASE NAV -->
+    <!-- CASE SELECTION GRID -->
+    <div class="case-select-grid" id="caseSelectGrid"></div>
+
+    <!-- CASE OPENING AREA -->
+    <div class="case-open-area" id="caseOpenArea" style="display:none;">
+
+      <!-- Vertical case nav -->
       <nav class="cases" id="caseNav"></nav>
 
-      <div id="mainContent">
-        <div class="reel-section">
-          <button class="open-btn" id="openBtn">
-            <div class="open-btn-text">OPEN CASE</div>
-          </button>
+      <div class="reel-section">
+        <button class="open-btn" id="openBtn">
+          <div class="open-btn-text">OPEN CASE</div>
+        </button>
 
-          <div class="reel-wrap" id="reelWrap">
-            <div class="reel-marker"></div>
-            <div class="reel-fade reel-fade-l"></div>
-            <div class="reel-fade reel-fade-r"></div>
-            <div class="reel-track" id="reelTrack"></div>
-          </div>
+        <div class="reel-wrap" id="reelWrap">
+          <div class="reel-marker"></div>
+          <div class="reel-fade reel-fade-l"></div>
+          <div class="reel-fade reel-fade-r"></div>
+          <div class="reel-track" id="reelTrack"></div>
+        </div>
 
-          <div class="result-panel" id="resultPanel">
-            <div class="result-stripe" id="resultStripe"></div>
-            <div class="result-body">
-              <div class="result-img-wrap" id="resultImgWrap">
-                <div class="result-img-glow" id="resultGlow"></div>
-                <div class="result-icon" id="resultIcon"></div>
-              </div>
+        <div class="result-panel" id="resultPanel">
+          <div class="result-stripe" id="resultStripe"></div>
+          <div class="result-body">
+            <div class="result-img-wrap" id="resultImgWrap">
+              <div class="result-img-glow" id="resultGlow"></div>
+              <div class="result-icon" id="resultIcon"></div>
+            </div>
 
-              <div class="result-info">
-                <div class="result-rarity" id="resultRarity"></div>
-                <div class="result-name" id="resultName"></div>
-                <div class="result-desc" id="resultDesc"></div>
-              </div>
+            <div class="result-info">
+              <div class="result-rarity" id="resultRarity"></div>
+              <div class="result-name" id="resultName"></div>
+              <div class="result-desc" id="resultDesc"></div>
             </div>
           </div>
-
         </div>
-      </div>
 
+        <button class="back-btn" id="backBtn">← Back to Crates</button>
+      </div>
     </div>
   </div>
 
@@ -87,8 +90,14 @@
     <div class="loot-section">
       <div class="loot-label">// Drop Pools</div>
 
-      <!-- MOVED HERE: RARITY FILTER -->
-      <div id="rarityFilter"></div>
+      <!-- RARITY TABS -->
+      <div class="rarity-tabs">
+        <div class="rarity-tab common"></div>
+        <div class="rarity-tab uncommon"></div>
+        <div class="rarity-tab rare"></div>
+        <div class="rarity-tab epic"></div>
+        <div class="rarity-tab legendary"></div>
+      </div>
 
       <div id="lootContent"></div>
     </div>
