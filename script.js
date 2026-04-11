@@ -1,7 +1,3 @@
-// ------------------------------------------------------------
-// RARITIES
-// ------------------------------------------------------------
-
 const RARITIES = {
   common:    { label: 'Common',    color: '#7a7f8a' },
   uncommon:  { label: 'Uncommon',  color: '#3fbf5a' },
@@ -10,26 +6,19 @@ const RARITIES = {
   legendary: { label: 'Legendary', color: '#e67e22' }
 };
 
-// Display order for rarities (low to high)
 const RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
 
-// Item categories (main display organization)
 const ITEM_CATEGORIES = {
   weapons:   { label: 'Weapons' },
   armor:     { label: 'Armor' },
   equipment: { label: 'Equipment' }
 };
 
-// Tags are internal only - used for organizing drop pools, not displayed
 const TAGS = {
   "tools": true, "medical": true, "tech": true, "material": true, "consumable": true, "apparel": true,
   "melee": true, "ranged": true, "sidearm": true, "heavy": true, "explosive": true, "throwable": true,
   "energy": true, "utility": true, "ammunition": true, "tool": true, "combat": true
 };
-
-// ------------------------------------------------------------
-// CASES
-// ------------------------------------------------------------
 
 const CASES = [
   { id: 'c1', name: 'Teamster Cache',   color: '#7a7f8a', pool: ['common','uncommon'] },
@@ -38,19 +27,11 @@ const CASES = [
   { id: 'c4', name: 'Black Budget',     color: '#e67e22', pool: ['rare','epic','legendary'] }
 ];
 
-// ------------------------------------------------------------
-// GLOBALS
-// ------------------------------------------------------------
-
 let ITEMS = [];
 let activeCase = CASES[0];
 let activeRarityFilter = null; // null means show all
 let spinning = false;
 let inventory = JSON.parse(localStorage.getItem("inventory") || "[]");
-
-// ------------------------------------------------------------
-// JSON LOADING + COST PARSING + AUTO RARITY + CATEGORY ASSIGNMENT
-// ------------------------------------------------------------
 
 async function loadAllItems() {
   try {
@@ -91,8 +72,6 @@ function autoAssignRarities(items) {
     else if (p < 0.60) item.rarity = "rare";
     else if (p < 0.80) item.rarity = "epic";
     else item.rarity = "legendary";
-
-    // Ensure tags exist (internal use only)
     if (!item.tags) item.tags = [];
   });
 
@@ -116,20 +95,12 @@ async function initItems() {
   updateInventory();
 }
 
-// ------------------------------------------------------------
-// IMAGE FALLBACK
-// ------------------------------------------------------------
-
 function imgOrEmoji(item) {
   const rar = RARITIES[item.rarity];
   if (!item.image) return '';
 
   return `<img src="${item.image}" alt="" onerror="this.onerror=null; this.replaceWith('')">`;
 }
-
-// ------------------------------------------------------------
-// AUTO-DETECT CELL WIDTH
-// ------------------------------------------------------------
 
 function getCellWidth() {
   const temp = document.createElement('div');
@@ -142,10 +113,6 @@ function getCellWidth() {
   return w;
 }
 
-// ------------------------------------------------------------
-// MENU
-// ------------------------------------------------------------
-
 document.getElementById('menuBtn').addEventListener('click', () => {
   document.getElementById('menuDropdown').classList.toggle('show');
 });
@@ -155,10 +122,6 @@ document.addEventListener('click', (e) => {
     document.getElementById('menuDropdown').classList.remove('show');
   }
 });
-
-// ------------------------------------------------------------
-// TABS
-// ------------------------------------------------------------
 
 function switchTab(tab) {
   document.querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
@@ -174,10 +137,6 @@ function switchTab(tab) {
 document.querySelectorAll('.menu-item').forEach(btn => {
   btn.addEventListener('click', () => switchTab(btn.dataset.tab));
 });
-
-// ------------------------------------------------------------
-// RARITY FILTER (Vertical Tabs)
-// ------------------------------------------------------------
 
 function renderRarityFilter() {
   const filterContainer = document.getElementById('rarityFilter');
@@ -203,23 +162,17 @@ function renderRarityFilter() {
   });
 }
 
-// ------------------------------------------------------------
-// LOOT PANEL (organized by category, filtered by rarity, sorted by rarity asc)
-// ------------------------------------------------------------
-
 function renderLootPanel() {
   const content = document.getElementById('lootContent');
   if (!ITEMS.length) return;
 
   let html = '';
 
-  // Group items by category
   Object.entries(ITEM_CATEGORIES).forEach(([catKey, cat]) => {
     const itemsInCategory = ITEMS.filter(i => i.category === catKey);
     
     if (!itemsInCategory.length) return;
 
-    // Filter by active rarity if selected
     let displayItems = itemsInCategory;
     if (activeRarityFilter) {
       displayItems = itemsInCategory.filter(i => i.rarity === activeRarityFilter);
@@ -227,7 +180,6 @@ function renderLootPanel() {
 
     if (!displayItems.length) return;
 
-    // Sort by rarity (low to high)
     displayItems = displayItems.sort((a, b) => {
       return RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity);
     });
@@ -255,10 +207,6 @@ function renderLootPanel() {
   content.innerHTML = html;
 }
 
-// ------------------------------------------------------------
-// CASE NAV
-// ------------------------------------------------------------
-
 function renderCaseNav() {
   const nav = document.getElementById('caseNav');
 
@@ -281,10 +229,6 @@ function selectCase(id) {
   buildReel();
 }
 
-// ------------------------------------------------------------
-// ITEM PICKING (from pool)
-// ------------------------------------------------------------
-
 function pickItem(pool) {
   const candidates = ITEMS.filter(i => pool.includes(i.rarity));
   return candidates[Math.floor(Math.random() * candidates.length)];
@@ -301,10 +245,6 @@ function makeReelCell(item) {
     <div class="rc-bar"></div>`;
   return div;
 }
-
-// ------------------------------------------------------------
-// REEL
-// ------------------------------------------------------------
 
 function buildReel() {
   if (!ITEMS.length) return;
@@ -324,10 +264,6 @@ function buildReel() {
 
   track._cells = cells;
 }
-
-// ------------------------------------------------------------
-// OPENING FLOW
-// ------------------------------------------------------------
 
 document.getElementById('openBtn').addEventListener('click', openBox);
 
@@ -349,10 +285,6 @@ function openBox() {
 
   setTimeout(spin, 500);
 }
-
-// ------------------------------------------------------------
-// SPIN
-// ------------------------------------------------------------
 
 function spin() {
   spinning = true;
@@ -385,10 +317,6 @@ function spin() {
     spinning = false;
   }, dur + 200);
 }
-
-// ------------------------------------------------------------
-// RESULT PANEL
-// ------------------------------------------------------------
 
 function showResult(item) {
   const rar = RARITIES[item.rarity];
@@ -431,10 +359,6 @@ function showResult(item) {
   }, delay);
 }
 
-// ------------------------------------------------------------
-// INVENTORY (by category only, no emoticons)
-// ------------------------------------------------------------
-
 function addToInventory(item) {
   const invItem = { ...item, id: Date.now() + Math.random() };
   inventory.unshift(invItem);
@@ -456,7 +380,6 @@ function updateInventory() {
 
   let html = '';
 
-  // Group inventory by category
   Object.entries(ITEM_CATEGORIES).forEach(([catKey, cat]) => {
     const itemsOfCategory = inventory.filter(i => i.category === catKey);
     
@@ -495,16 +418,3 @@ function removeFromInventory(id) {
   saveInventory();
   updateInventory();
 }
-
-// ------------------------------------------------------------
-// INIT
-// ------------------------------------------------------------
-
-window.addEventListener("DOMContentLoaded", async () => {
-  console.log("DOM ready — loading items...");
-
-  await initItems();
-  switchTab('main');
-
-  console.log("Initialization complete.");
-});
