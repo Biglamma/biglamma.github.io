@@ -16,16 +16,7 @@
   --rare: #2196f3;
   --epic: #9c27b0;
   --legendary: #ff9800;
-
-  /* Animation durations */
-  --duration-fast: 150ms;
-  --duration-normal: 300ms;
-  --duration-slow: 500ms;
-  
-  /* Timing functions */
-  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-out: cubic-bezier(0.0, 0, 0.2, 1);
-  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --mythical: #ff0000;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -45,7 +36,7 @@ body::before {
   background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
 }
 
-.page { width: 100%; max-width: 680px; margin: 0 auto; padding-bottom: 60px; }
+.page { width: 100%; max-width: 1400px; margin: 0 auto; padding: 20px; }
 
 /* HEADER */
 .hdr {
@@ -54,6 +45,8 @@ body::before {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
+  position: relative;
+  z-index: 10000;
 }
 
 .hdr-left { display: flex; gap: 12px; align-items: baseline; }
@@ -73,6 +66,7 @@ body::before {
   text-transform: uppercase;
 }
 
+/* MENU */
 .menu-btn {
   background: none;
   border: 1px solid var(--border);
@@ -81,6 +75,8 @@ body::before {
   padding: 6px 10px;
   cursor: pointer;
   transition: .2s;
+  position: relative;
+  z-index: 10001;
 }
 
 .menu-btn:hover { border-color: var(--acc); color: var(--bright); }
@@ -93,9 +89,11 @@ body::before {
   border: 1px solid var(--border);
   min-width: 180px;
   display: none;
+  z-index: 10002;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.5);
 }
 
-.menu-dropdown.show { display: block; animation: slideDown var(--duration-fast) ease; }
+.menu-dropdown.show { display: block; animation: slideDown .2s ease; }
 
 @keyframes slideDown {
   from { opacity: 0; transform: translateY(-8px); }
@@ -113,7 +111,7 @@ body::before {
   cursor: pointer;
   width: 100%;
   text-align: left;
-  transition: var(--duration-fast) var(--ease-in-out);
+  transition: .15s;
 }
 
 .menu-item:last-child { border-bottom: none; }
@@ -124,12 +122,12 @@ body::before {
 .content-panel { display: none; }
 .content-panel.active { display: block; }
 
-/* MAIN — CASE SELECTION GRID */
+/* CASE SELECTION GRID */
 .case-select-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 16px;
-  padding: 20px;
+  padding: 20px 0;
 }
 
 .case-tile {
@@ -147,43 +145,81 @@ body::before {
   border-color: var(--acc);
 }
 
-/* CASE OPENING AREA */
-.case-open-area {
+/* CASE OPENING */
+.case-open-container {
   display: none;
-  padding: 16px;
-  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
 }
 
-/* REEL */
-.reel-section { width: 100%; max-width: 500px; margin: 0 auto; }
+.case-open-container.active {
+  display: flex;
+}
+
+.reel-controls {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
 
 .open-btn {
-  width: 100%;
-  max-width: 200px;
-  margin: 0 auto 20px;
-  aspect-ratio: 1;
+  width: 140px;
+  height: 140px;
   padding: 20px;
   background: rgba(224,82,40,0.1);
   border: 2px solid var(--acc);
   color: var(--acc);
   font-family: var(--disp);
-  font-size: 32px;
+  font-size: 18px;
   letter-spacing: 2px;
   cursor: pointer;
   transition: .2s;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
-.open-btn:hover:not(:disabled) { transform: scale(1.02); box-shadow: 0 0 30px rgba(224,82,40,0.2); }
+.open-btn:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 0 30px rgba(224,82,40,0.2); }
 .open-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+.back-btn {
+  width: 140px;
+  height: 140px;
+  padding: 20px;
+  background: rgba(100,100,100,0.1);
+  border: 2px solid var(--dim);
+  color: var(--text);
+  font-family: var(--disp);
+  font-size: 16px;
+  cursor: pointer;
+  transition: .2s;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.back-btn:hover { border-color: var(--acc); color: var(--acc); }
+
+.reel-section {
+  width: 80%;
+  margin: 0 auto;
+}
 
 .reel-wrap {
   width: 100%;
-  height: 40vh;
+  display: none;
   background: #050608;
   border: 1px solid var(--border);
   overflow: hidden;
-  margin-bottom: 16px;
-  display: none;
+  border-radius: 8px;
+  height: 120px;
 }
 
 .reel-wrap.show { display: block; animation: slideUp .3s ease; }
@@ -200,8 +236,8 @@ body::before {
 }
 
 .rc {
-  width: 140px;
-  height: 100%;
+  width: 120px;
+  height: 120px;
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
@@ -209,11 +245,13 @@ body::before {
   justify-content: center;
   gap: 6px;
   padding: 6px;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.01);
 }
 
 .rc-icon {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
 }
 
 .rc-icon img {
@@ -223,121 +261,215 @@ body::before {
 }
 
 .rc-name {
-  font-size: 10px;
+  font-size: 9px;
   color: var(--rc-col, var(--dim));
   text-transform: uppercase;
   text-align: center;
   white-space: nowrap;
+  max-width: 110px;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
-.rc-bar {
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 3px;
-  background: var(--rc-col, transparent);
-}
-
-/* RESULT PANEL */
-.result-panel {
-  margin: 16px 0;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  display: none;
-}
-
-.result-panel.show { display: block; animation: slideUp var(--duration-normal) ease; }
-
-.result-stripe { height: 3px; }
-
-.result-body {
-  display: flex;
-  gap: 16px;
-  padding: 16px;
-}
-
-.result-img-wrap {
-  width: 90px;
-  height: 90px;
-  border: 1px solid var(--border);
-  background: #050608;
+/* SPLASH OVERLAY */
+.splash-overlay {
+  position: fixed;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  border-radius: 4px;
+  z-index: 9500;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: rgba(0,0,0,0.6);
 }
 
-.result-img-glow {
-  position: absolute;
-  inset: -8px;
-  background: radial-gradient(circle, var(--rarity-col, var(--acc)) 0%, transparent 70%);
-  opacity: 0.2;
-  border-radius: 4px;
-  z-index: -1;
+.splash-overlay.show {
+  opacity: 1;
 }
 
-.result-icon {
-  width: 56px;
-  height: 56px;
-  position: relative;
-  z-index: 1;
+.splash-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  background: rgba(0,0,0,0.8);
+  padding: 40px;
+  border-radius: 12px;
+  border: 4px solid currentColor;
+  box-shadow: 0 0 50px currentColor;
 }
 
-.result-icon img {
+.splash-icon {
+  width: 120px;
+  height: 120px;
+}
+
+.splash-icon img {
   width: 100%;
   height: 100%;
   object-fit: contain;
 }
 
-.result-info { flex: 1; }
-
-.result-rarity {
-  font-size: 9px;
-  letter-spacing: 3px;
-  text-transform: uppercase;
-}
-
-.result-name {
+.splash-name {
   font-family: var(--disp);
-  font-size: 28px;
+  font-size: 48px;
   color: var(--bright);
   text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
-.result-desc {
+.splash-rarity {
+  font-size: 18px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+/* INVENTORY */
+.inv-section {
+  padding: 20px 0;
+}
+
+.inv-label {
   font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--dim);
+  text-transform: uppercase;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+#invGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.inv-category {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.inv-category-header {
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--acc);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.inv-items-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.inv-tile {
+  background: var(--surface);
+  border: 2px solid;
+  border-radius: 6px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  transition: .15s;
+}
+
+.inv-tile:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.inv-tile-icon {
+  width: 48px;
+  height: 48px;
+}
+
+.inv-tile-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.inv-tile-name {
+  font-size: 10px;
+  text-align: center;
+  color: var(--bright);
+  font-weight: bold;
+}
+
+.inv-tile-rarity {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.inv-tile-delete {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  background: #c00;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.inv-tile:hover .inv-tile-delete {
+  opacity: 1;
+}
+
+.inv-empty {
+  padding: 40px;
+  text-align: center;
   color: var(--dim);
   font-style: italic;
 }
 
-/* BACK BUTTON */
-.back-btn {
-  margin-top: 20px;
-  width: 100%;
-  padding: 14px;
-  background: #222;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  color: var(--bright);
-  cursor: pointer;
-  transition: .15s;
+/* LOOT TABLE */
+.loot-section { padding: 20px 0; }
+
+.loot-label {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: var(--dim);
+  text-transform: uppercase;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 16px;
 }
 
-.back-btn:hover { border-color: var(--acc); color: var(--acc); }
-
-/* LOOT TABLE — RARITY TABS */
 .rarity-tabs {
   display: flex;
   gap: 8px;
   margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
 .rarity-tab {
   flex: 1;
+  min-width: 100px;
   height: 48px;
   border-radius: 6px;
   cursor: pointer;
   transition: .15s;
+  border: 2px solid transparent;
 }
 
 .rarity-tab:hover { transform: scale(1.05); }
@@ -347,34 +479,48 @@ body::before {
 .rarity-tab.rare { background: var(--rare); }
 .rarity-tab.epic { background: var(--epic); }
 .rarity-tab.legendary { background: var(--legendary); }
+.rarity-tab.mythical { background: var(--mythical); }
 
-/* LOOT LIST */
-.loot-section { padding: 16px; }
+.rarity-tab.active { border-color: var(--bright); }
 
-.loot-label {
-  font-size: 9px;
-  letter-spacing: 3px;
-  color: var(--dim);
+#lootContent {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.loot-category-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.loot-category-header {
+  font-size: 12px;
+  letter-spacing: 2px;
   text-transform: uppercase;
+  color: var(--acc);
   padding-bottom: 8px;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 12px;
 }
 
 .loot-items-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
 }
 
 .loot-item {
-  padding: 10px 12px;
+  padding: 12px;
   background: rgba(255,255,255,0.02);
   border: 1px solid var(--border);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   transition: .15s;
+  border-radius: 6px;
+  text-align: center;
 }
 
 .loot-item:hover {
@@ -383,8 +529,8 @@ body::before {
 }
 
 .loot-item-icon {
-  width: 24px;
-  height: 24px;
+  width: 40px;
+  height: 40px;
 }
 
 .loot-item-icon img {
@@ -393,76 +539,25 @@ body::before {
   object-fit: contain;
 }
 
-/* INVENTORY */
-.inv-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 14px;
-  padding: 16px;
-}
-
-.inv-item {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 14px 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  transition: .15s;
-  position: relative;
-}
-
-.inv-item:hover {
-  border-color: var(--rarity-col, var(--acc));
-  transform: translateY(-3px);
-}
-
-.inv-icon {
-  width: 40px;
-  height: 40px;
-}
-
-.inv-icon img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.inv-name {
-  font-size: 9px;
-  text-align: center;
+.loot-item-name {
+  font-size: 11px;
   color: var(--bright);
+  font-weight: bold;
 }
 
-.inv-rar {
-  font-size: 8px;
-  color: var(--rarity-col, var(--acc));
+.loot-item-rarity {
+  font-size: 9px;
   text-transform: uppercase;
+  letter-spacing: 1px;
 }
-
-.delete-x {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 18px;
-  height: 18px;
-  background: var(--acc);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 12px;
-  opacity: 0;
-  transition: .15s;
-}
-
-.inv-item:hover .delete-x { opacity: 1; }
 
 /* MOBILE */
-@media (max-width: 600px) {
-  .cases { width: 120px; }
-  .rarity-tab { height: 40px; }
-  .case-select-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+@media (max-width: 900px) {
+  .reel-section { width: 100%; }
+  .case-select-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .rarity-tab { min-width: 80px; height: 40px; }
+  .inv-items-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .loot-items-list { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .splash-name { font-size: 36px; }
+  .splash-content { padding: 30px; }
 }

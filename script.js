@@ -12,10 +12,11 @@ const RARITIES = {
   uncommon:  { label: 'Uncommon',  color: '#3fbf5a' },
   rare:      { label: 'Rare',      color: '#3a7ccf' },
   epic:      { label: 'Epic',      color: '#8a4faa' },
-  legendary: { label: 'Legendary', color: '#e67e22' }
+  legendary: { label: 'Legendary', color: '#e67e22' },
+  mythical:  { label: 'Mythical',  color: '#ff0000' }
 };
 
-const RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
+const RARITY_ORDER = ['common', 'uncommon', 'rare', 'epic', 'legendary', 'mythical'];
 
 const ITEM_CATEGORIES = {
   weapons:   { label: 'Weapons' },
@@ -154,8 +155,8 @@ function getCellWidth() {
 // ============================================================================
 
 const SPIN_CONFIG = {
-  minDuration: 6000,
-  maxDuration: 10000,
+  minDuration: 10000,    // 10 seconds
+  maxDuration: 15000,    // 15 seconds
   easing: 'cubic-bezier(0.08, 0.92, 0.22, 1.0)',
   cellCount: 140,
   winWindow: 20
@@ -186,48 +187,85 @@ function makeReelCell(item) {
   const div = document.createElement('div');
   div.className = 'rc';
   div.style.setProperty('--rc-col', rar.color);
-  div.innerHTML = `<div class="rc-icon">${imgOrEmoji(item)}</div><div class="rc-name">${item.name}</div><div class="rc-bar"></div>`;
+  const cellSize = 120; // Match CSS
+  div.style.width = cellSize + 'px';
+  div.style.height = cellSize + 'px';
+  div.innerHTML = `<div class="rc-icon">${imgOrEmoji(item)}</div><div class="rc-name">${item.name}</div>`;
   return div;
 }
 
 function spin() {
   state.setSpinning(true);
+  const openBtn = querySelector('#openBtn');
+  const backBtn = querySelector('#backBtn');
   const reelWrap = querySelector('#reelWrap');
   const track = querySelector('#reelTrack');
+  
+  // Hide buttons during spin
+  hideElement(openBtn);
+  hideElement(backBtn);
+  showElement(reelWrap, 'block');
+
   buildReel();
+
   const cells = track._cells;
-  const CELL_W = getCellWidth();
+  const CELL_W = 120; // Match CSS
   const wrapW = reelWrap.offsetWidth;
   const center = wrapW / 2;
+
   const centerIdx = Math.floor(cells.length / 2);
   const offset = Math.floor(SPIN_CONFIG.winWindow / 2);
   const targetIdx = centerIdx - offset + Math.floor(Math.random() * SPIN_CONFIG.winWindow);
+  
   const targetCenter = targetIdx * CELL_W + CELL_W / 2;
   const finalX = -(targetCenter - center);
+
   void track.offsetWidth;
+
   const dur = SPIN_CONFIG.minDuration + Math.random() * (SPIN_CONFIG.maxDuration - SPIN_CONFIG.minDuration);
+
   track.style.transition = `transform ${dur}ms ${SPIN_CONFIG.easing}`;
   track.style.transform = `translateX(${finalX}px)`;
+
   setTimeout(() => {
     const won = cells[targetIdx];
-    showResult(won);
+    showSplash(won);
     state.addToInventory(won);
     state.setSpinning(false);
   }, dur + 200);
 }
 
-function showResult(item) {
+function showSplash(item) {
   const rar = RARITIES[item.rarity];
-  const panel = querySelector('#resultPanel');
-  panel.querySelector('.result-stripe').style.background = rar.color;
-  panel.querySelector('.result-img-glow').style.setProperty('--rarity-col', rar.color);
-  panel.querySelector('.result-rarity').style.color = rar.color;
-  panel.querySelector('.result-icon').innerHTML = imgOrEmoji(item);
-  panel.querySelector('.result-name').textContent = item.name;
-  panel.querySelector('.result-desc').textContent = item.description || '';
-  panel.style.display = 'block';
-  panel.classList.add('show');
-  showElement(querySelector('#openBtn'));
+  
+  // Create splash overlay
+  const splash = document.createElement('div');
+  splash.className = 'splash-overlay';
+  splash.style.background = rar.color;
+  splash.innerHTML = `
+    <div class="splash-content">
+      <div class="splash-icon">${imgOrEmoji(item)}</div>
+      <div class="splash-name">${item.name}</div>
+      <div class="splash-rarity">${rar.label}</div>
+    </div>
+  `;
+  
+  document.body.appendChild(splash);
+  
+  // Animate in
+  setTimeout(() => splash.classList.add('show'), 10);
+  
+  // Remove after 5 seconds and show buttons again
+  setTimeout(() => {
+    splash.classList.remove('show');
+    setTimeout(() => {
+      splash.remove();
+      showElement(querySelector('#openBtn'));
+      showElement(querySelector('#backBtn'));
+      hideElement(querySelector('#reelWrap'));
+      updateInventory();
+    }, 300);
+  }, 5000);
 }
 
 // ============================================================================
@@ -236,25 +274,69 @@ function showResult(item) {
 
 function updateInventory() {
   const grid = querySelector('#invGrid');
+  const count = querySelector('#invCount');
+  
+  if (count) {
+    count.textContent = state.inventory.length + ' item' + (state.inventory.length !== 1 ? 's' : '');
+  }
+  
   if (!state.inventory.length) {
     grid.innerHTML = '<div class="inv-empty">No items yet</div>';
-    updateInventoryCount();
     return;
   }
-  grid.innerHTML = state.inventory.map((i, idx) => {
-    const rar = RARITIES[i.rarity];
-    return `<div class="inv-item" style="--rarity-col:${rar.color}"><button class="delete-x" data-index="${idx}">×</button><div class="inv-icon">${imgOrEmoji(i)}</div><div class="inv-name">${i.name}</div><div class="inv-rar">${rar.label}</div></div>`;
-  }).join('');
-  addEventDelegation(grid, 'click', '.delete-x', function() {
-    state.removeFromInventory(this.dataset.index);
+
+  let html = '';
+  
+  // Group inventory by category
+  const byCategory = {
+    weapons: [],
+    armor: [],
+    equipment: []
+  };
+  
+  state.inventory.forEach((item, idx) => {
+    item._invIndex = idx; // Store index for deletion
+    if (byCategory[item.category]) {
+      byCategory[item.category].push(item);
+    }
+  });
+
+  // Render each category
+  const ITEM_CATEGORIES = {
+    weapons:   { label: 'Weapons' },
+    armor:     { label: 'Armor' },
+    equipment: { label: 'Equipment' }
+  };
+
+  Object.entries(byCategory).forEach(([catKey, items]) => {
+    if (items.length === 0) return;
+    const cat = ITEM_CATEGORIES[catKey];
+    
+    html += `<div class="inv-category">
+      <div class="inv-category-header">${cat.label}</div>
+      <div class="inv-items-grid">`;
+    
+    items.forEach(item => {
+      const rar = RARITIES[item.rarity];
+      html += `<div class="inv-tile" style="border-color:${rar.color}">
+        <div class="inv-tile-icon">${imgOrEmoji(item)}</div>
+        <div class="inv-tile-name">${item.name}</div>
+        <div class="inv-tile-rarity" style="color:${rar.color}">${rar.label}</div>
+        <button class="inv-tile-delete" data-index="${item._invIndex}">×</button>
+      </div>`;
+    });
+    
+    html += `</div></div>`;
+  });
+
+  grid.innerHTML = html;
+  
+  // Attach delete handlers
+  addEventDelegation(grid, 'click', '.inv-tile-delete', function() {
+    const idx = parseInt(this.dataset.index);
+    state.removeFromInventory(idx);
     updateInventory();
   });
-  updateInventoryCount();
-}
-
-function updateInventoryCount() {
-  const count = querySelector('#invCount');
-  if (count) count.textContent = state.inventory.length;
 }
 
 // ============================================================================
@@ -273,13 +355,15 @@ function renderCaseTiles() {
 
 function enterCaseOpening() {
   hideElement(querySelector('#caseSelectGrid'));
-  showElement(querySelector('#caseOpenArea'), 'flex');
-  buildReel();
+  querySelector('#caseOpenContainer').classList.add('active');
+  showElement(querySelector('#openBtn'));
+  showElement(querySelector('#backBtn'));
+  hideElement(querySelector('#reelWrap'));
 }
 
 function exitCaseOpening() {
   showElement(querySelector('#caseSelectGrid'), 'grid');
-  hideElement(querySelector('#caseOpenArea'));
+  querySelector('#caseOpenContainer').classList.remove('active');
 }
 
 // ============================================================================
@@ -287,7 +371,7 @@ function exitCaseOpening() {
 // ============================================================================
 
 function renderLootRarityTabs() {
-  const container = querySelector('.rarity-tabs');
+  const container = querySelector('#rarityTabs');
   container.innerHTML = RARITY_ORDER.map(r => `<div class="rarity-tab ${r} ${state.activeRarityFilter === r ? 'active' : ''}" data-rarity="${r}"></div>`).join('');
   addEventDelegation(container, 'click', '.rarity-tab', function() {
     state.toggleRarityFilter(this.dataset.rarity);
@@ -300,6 +384,13 @@ function renderLootPanel() {
   const content = querySelector('#lootContent');
   if (!state.items.length) return;
   let html = '';
+  
+  const ITEM_CATEGORIES = {
+    weapons:   { label: 'Weapons' },
+    armor:     { label: 'Armor' },
+    equipment: { label: 'Equipment' }
+  };
+  
   Object.entries(ITEM_CATEGORIES).forEach(([catKey, cat]) => {
     let items = state.items.filter(i => i.category === catKey);
     if (state.activeRarityFilter) {
@@ -309,10 +400,10 @@ function renderLootPanel() {
     items = items.sort((a, b) => RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity));
     html += `<div class="loot-category-section"><div class="loot-category-header">${cat.label}</div><div class="loot-items-list">${items.map(i => {
       const rar = RARITIES[i.rarity];
-      return `<div class="loot-item" style="border-left: 4px solid ${rar.color}"><div class="loot-item-icon">${imgOrEmoji(i)}</div><div class="loot-item-name">${i.name}</div><div class="loot-item-rarity">${rar.label}</div></div>`;
+      return `<div class="loot-item"><div class="loot-item-icon">${imgOrEmoji(i)}</div><div class="loot-item-name">${i.name}</div><div class="loot-item-rarity" style="color:${rar.color}">${rar.label}</div></div>`;
     }).join('')}</div></div>`;
   });
-  if (!html) html = '<div class="loot-empty">No items found</div>';
+  if (!html) html = '<div style="padding:40px; text-align:center; color: var(--dim);">No items found</div>';
   content.innerHTML = html;
 }
 

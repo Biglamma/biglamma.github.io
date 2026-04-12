@@ -32,38 +32,17 @@
     <!-- CASE SELECTION GRID -->
     <div class="case-select-grid" id="caseSelectGrid"></div>
 
-    <!-- CASE OPENING AREA -->
-    <div class="case-open-area" id="caseOpenArea" style="display:none;">
+    <!-- CASE OPENING -->
+    <div class="case-open-container" id="caseOpenContainer">
+      <div class="reel-controls">
+        <button class="open-btn" id="openBtn">OPEN CASE</button>
+        <button class="back-btn" id="backBtn">← BACK</button>
+      </div>
 
       <div class="reel-section">
-        <button class="open-btn" id="openBtn">
-          <div class="open-btn-text">OPEN CASE</div>
-        </button>
-
         <div class="reel-wrap" id="reelWrap">
-          <div class="reel-marker"></div>
-          <div class="reel-fade reel-fade-l"></div>
-          <div class="reel-fade reel-fade-r"></div>
           <div class="reel-track" id="reelTrack"></div>
         </div>
-
-        <div class="result-panel" id="resultPanel">
-          <div class="result-stripe" id="resultStripe"></div>
-          <div class="result-body">
-            <div class="result-img-wrap" id="resultImgWrap">
-              <div class="result-img-glow" id="resultGlow"></div>
-              <div class="result-icon" id="resultIcon"></div>
-            </div>
-
-            <div class="result-info">
-              <div class="result-rarity" id="resultRarity"></div>
-              <div class="result-name" id="resultName"></div>
-              <div class="result-desc" id="resultDesc"></div>
-            </div>
-          </div>
-        </div>
-
-        <button class="back-btn" id="backBtn">← Back to Crates</button>
       </div>
     </div>
   </div>
@@ -73,10 +52,9 @@
     <div class="inv-section">
       <div class="inv-label">
         <span>// Inventory</span>
-        <span class="inv-count" id="invCount">0</span>
+        <span class="inv-count" id="invCount">0 items</span>
       </div>
-
-      <div class="inv-grid" id="invGrid">
+      <div id="invGrid">
         <div class="inv-empty">No items yet</div>
       </div>
     </div>
@@ -88,13 +66,7 @@
       <div class="loot-label">// Drop Pools</div>
 
       <!-- RARITY TABS -->
-      <div class="rarity-tabs">
-        <div class="rarity-tab common"></div>
-        <div class="rarity-tab uncommon"></div>
-        <div class="rarity-tab rare"></div>
-        <div class="rarity-tab epic"></div>
-        <div class="rarity-tab legendary"></div>
-      </div>
+      <div class="rarity-tabs" id="rarityTabs"></div>
 
       <div id="lootContent"></div>
     </div>
