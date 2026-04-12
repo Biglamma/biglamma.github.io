@@ -48,6 +48,7 @@ body::before {
 
 /* HEADER */
 .hdr {
+  width: 80%;
   padding: 20px 16px 14px;
   border-bottom: 1px solid var(--border);
   display: flex;
