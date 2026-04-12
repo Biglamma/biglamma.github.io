@@ -32,28 +32,6 @@ const SYSTEMS = {
     itemFiles: ['weapons.json', 'armor.json', 'equipment.json'],
     categories: { weapons: 'Weapons', armor: 'Armor', equipment: 'Equipment' }
   },
-  cairn: {
-    label: 'CAIRN',
-    theme: 'theme-cairn',
-    cases: [
-      { id: 'ca1', name: 'Peasant Bundle', color: '#7a7f8a', pool: ['common','uncommon'] },
-      { id: 'ca2', name: 'Dungeon Hoard',  color: '#3fbf5a', pool: ['uncommon','rare'] },
-      { id: 'ca3', name: 'Relic Vault',    color: '#e67e22', pool: ['rare','epic','legendary'] }
-    ],
-    itemFiles: ['cairn-weapons.json', 'cairn-armor.json', 'cairn-gear.json'],
-    categories: { weapons: 'Weapons', armor: 'Armor', equipment: 'Gear' }
-  },
-  bladerunner: {
-    label: 'BLADE RUNNER',
-    theme: 'theme-bladerunner',
-    cases: [
-      { id: 'br1', name: 'Street Cache',  color: '#7a7f8a', pool: ['common','uncommon'] },
-      { id: 'br2', name: 'Black Market',  color: '#3a7ccf', pool: ['uncommon','rare','epic'] },
-      { id: 'br3', name: 'Tyrell Vault',  color: '#e67e22', pool: ['rare','epic','legendary'] }
-    ],
-    itemFiles: ['br-weapons.json', 'br-armor.json', 'br-gear.json'],
-    categories: { weapons: 'Weapons', armor: 'Armor', equipment: 'Gear' }
-  },
   dnd: {
     label: 'D&D',
     theme: 'theme-dnd',
