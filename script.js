@@ -339,7 +339,14 @@ function renderLootRarityTabs() {
 
 function renderLootPanel() {
   const content = $('#lootContent');
-  if (!state.items.length) return;
+
+  // ── Always clear first — never let stale content survive ──
+  content.innerHTML = '';
+
+  if (!state.items.length) {
+    content.innerHTML = '<div style="padding:40px; text-align:center; color: var(--dim);">No items found</div>';
+    return;
+  }
 
   let html = '';
 
@@ -408,10 +415,8 @@ async function switchSystem(key) {
 
   activeSystemKey = key;
 
-  // Swap theme
+  // Swap theme + header immediately
   document.body.className = sys.theme;
-
-  // Update header
   $('#siteHeader').textContent = sys.label;
 
   // Swap cases
@@ -421,26 +426,31 @@ async function switchSystem(key) {
   // Exit case opening if open
   exitCaseOpening();
 
-  // Switch to this system's inventory
+  // Switch inventory
   state.switchInventory(key);
 
   // Reset rarity filter
   state.activeRarityFilter = null;
 
-  // Load this system's items
+  // ── CLEAR STALE ITEMS IMMEDIATELY before async load ──
+  state.setItems([]);
+  $('#lootContent').innerHTML = '<div style="padding:40px; text-align:center; color: var(--dim);">Loading...</div>';
+
+  // Re-render cases + inventory right away with cleared state
+  renderCaseTiles();
+  updateInventory();
+  renderLootRarityTabs();
+
+  // Now load this system's items
   const all = await loadAllItems(sys.itemFiles);
   if (all.length) {
     state.setItems(autoAssignRarities(all));
   } else {
-    state.setItems([]);
-    console.warn(`No items loaded for system: ${key}. Check that ${sys.itemFiles.join(', ')} exist.`);
+    console.warn(`No items loaded for system: ${key}. Check that ${sys.itemFiles.join(', ')} exist and are served correctly.`);
   }
 
-  // Re-render everything
-  renderCaseTiles();
-  updateInventory();
+  // Re-render with fresh data
   renderLootPanel();
-  renderLootRarityTabs();
 }
 
 // MENU & TABS
