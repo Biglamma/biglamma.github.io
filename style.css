@@ -1,5 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Cinzel:wght@400;700&family=Crimson+Text:ital,wght@0,400;0,600;1,400&display=swap');
 
+/* ─── BASE VARIABLES (Mothership default) ─── */
 :root {
   --bg: #07080b;
   --surface: #0e1017;
@@ -8,6 +9,8 @@
   --bright: #dce8f5;
   --dim: #3d4d60;
   --acc: #e05228;
+  --hover: rgba(224,82,40,0.1);
+  --panel: #0e1017;
   --mono: 'Share Tech Mono', monospace;
   --disp: 'Bebas Neue', sans-serif;
 
@@ -19,6 +22,144 @@
   --mythical: #ff0000;
 }
 
+/* ─── MOTHERSHIP THEME ─── */
+body.theme-mothership {
+  --bg: #07080b;
+  --surface: #0e1017;
+  --border: #1a2030;
+  --text: #9aa8bc;
+  --bright: #dce8f5;
+  --dim: #3d4d60;
+  --acc: #e05228;
+  --hover: rgba(224,82,40,0.1);
+  --panel: #0e1017;
+  --mono: 'Share Tech Mono', monospace;
+  --disp: 'Bebas Neue', sans-serif;
+}
+
+/* ─── CAIRN THEME ─── */
+body.theme-cairn {
+  --bg: #0d100a;
+  --surface: #141a0f;
+  --border: #253020;
+  --text: #8fa882;
+  --bright: #d4e8c8;
+  --dim: #3a4d35;
+  --acc: #6daa4a;
+  --hover: rgba(109,170,74,0.1);
+  --panel: #141a0f;
+  --mono: 'Share Tech Mono', monospace;
+  --disp: 'Bebas Neue', sans-serif;
+}
+
+/* ─── BLADE RUNNER THEME ─── */
+body.theme-bladerunner {
+  --bg: #05040e;
+  --surface: #0a0818;
+  --border: #1a1035;
+  --text: #8a7faa;
+  --bright: #d8d0f5;
+  --dim: #3a2f60;
+  --acc: #c030d0;
+  --hover: rgba(192,48,208,0.1);
+  --panel: #0a0818;
+  --mono: 'Share Tech Mono', monospace;
+  --disp: 'Bebas Neue', sans-serif;
+}
+
+/* ─── D&D THEME ─── */
+body.theme-dnd {
+  --bg: #1a1208;
+  --surface: #231a0a;
+  --border: #5a3e1b;
+  --text: #c8a97a;
+  --bright: #f0ddb0;
+  --dim: #6b4e2a;
+  --acc: #c8922a;
+  --hover: rgba(200,146,42,0.15);
+  --panel: #231a0a;
+  --mono: 'Crimson Text', serif;
+  --disp: 'Cinzel', serif;
+}
+
+body.theme-dnd::before {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(90,62,27,0.04) 3px,
+    rgba(90,62,27,0.04) 6px
+  );
+}
+
+body.theme-dnd .hdr-logo {
+  text-shadow: 0 0 20px rgba(200,146,42,0.4), 2px 2px 0 rgba(0,0,0,0.6);
+  letter-spacing: 5px;
+}
+
+body.theme-dnd .open-btn,
+body.theme-dnd .back-btn {
+  font-family: 'Cinzel', serif;
+  border-radius: 4px;
+  font-size: 15px;
+}
+
+body.theme-dnd .open-btn {
+  background: rgba(200,146,42,0.12);
+  border-color: var(--acc);
+  color: var(--acc);
+  letter-spacing: 1px;
+}
+
+body.theme-dnd .case-tile {
+  border-radius: 4px;
+  background: rgba(35,26,10,0.9);
+  font-family: 'Cinzel', serif;
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: var(--bright);
+}
+
+body.theme-dnd .case-tile:hover {
+  border-color: var(--acc);
+  box-shadow: 0 0 16px rgba(200,146,42,0.2);
+}
+
+body.theme-dnd .menu-item,
+body.theme-dnd .system-menu-item {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 1.5px;
+  font-size: 12px;
+}
+
+body.theme-dnd .inv-category-header,
+body.theme-dnd .loot-category-header {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 3px;
+}
+
+body.theme-dnd .splash-name {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 3px;
+}
+
+body.theme-dnd .inv-label,
+body.theme-dnd .loot-label {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 2px;
+}
+
+body.theme-dnd .reel-wrap {
+  background: #100c04;
+  border-color: var(--border);
+}
+
+body.theme-dnd .reel-wrap::after {
+  background: var(--acc);
+  box-shadow: 0 0 10px var(--acc);
+}
+
+/* ─── RESET ─── */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -27,6 +168,7 @@ body {
   font-family: var(--mono);
   overflow-x: hidden;
   font-size: 14px;
+  transition: background 0.3s, color 0.3s;
 }
 
 body::before {
@@ -36,17 +178,17 @@ body::before {
   background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
 }
 
-.page { 
-  width: 100%; 
-  max-width: 1400px; 
-  margin: 0 auto; 
+.page {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
   padding: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-/* HEADER */
+/* ─── HEADER ─── */
 .hdr {
   width: 80%;
   padding: 20px 16px 14px;
@@ -58,7 +200,12 @@ body::before {
   z-index: 10000;
 }
 
-.hdr-left { display: flex; gap: 12px; align-items: baseline; }
+.hdr-left {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  position: relative;
+}
 
 .hdr-logo {
   font-family: var(--disp);
@@ -66,7 +213,12 @@ body::before {
   letter-spacing: 3px;
   color: var(--acc);
   text-shadow: 0 0 30px rgba(224,82,40,0.3);
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.3s, text-shadow 0.3s;
 }
+
+.hdr-logo:hover { opacity: 0.85; }
 
 .hdr-sub {
   font-size: 9px;
@@ -75,7 +227,41 @@ body::before {
   text-transform: uppercase;
 }
 
-/* MENU */
+/* ─── SYSTEM MENU ─── */
+.system-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  z-index: 10002;
+  min-width: 200px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  animation: slideDown .2s ease;
+}
+
+.system-menu.show { display: block; }
+
+.system-menu-item {
+  padding: 12px 20px;
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text);
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s, color 0.15s;
+}
+
+.system-menu-item:last-child { border-bottom: none; }
+.system-menu-item:hover { background: var(--hover); color: var(--bright); }
+.system-menu-item.active { color: var(--acc); }
+
+/* ─── NAV MENU ─── */
 .menu-btn {
   background: none;
   border: 1px solid var(--border);
@@ -106,7 +292,7 @@ body::before {
 
 @keyframes slideDown {
   from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .menu-item {
@@ -114,6 +300,7 @@ body::before {
   border-bottom: 1px solid var(--border);
   background: none;
   color: var(--text);
+  font-family: var(--mono);
   font-size: 11px;
   letter-spacing: 1.5px;
   text-transform: uppercase;
@@ -124,18 +311,18 @@ body::before {
 }
 
 .menu-item:last-child { border-bottom: none; }
-.menu-item:hover { background: rgba(224,82,40,0.15); color: var(--acc); }
+.menu-item:hover  { background: var(--hover); color: var(--acc); }
 .menu-item.active { background: rgba(224,82,40,0.25); color: var(--acc); }
 
-/* PANELS */
-.content-panel { 
+/* ─── PANELS ─── */
+.content-panel {
   display: none;
   width: 100%;
   max-width: 1200px;
 }
 .content-panel.active { display: block; }
 
-/* CASE SELECTION GRID */
+/* ─── CASE SELECTION ─── */
 .case-select-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -153,6 +340,8 @@ body::before {
   text-align: center;
   cursor: pointer;
   transition: .15s;
+  color: var(--text);
+  width: 100%;
 }
 
 .case-tile:hover {
@@ -160,16 +349,14 @@ body::before {
   border-color: var(--acc);
 }
 
-/* CASE OPENING */
+/* ─── CASE OPENING ─── */
 .case-open-container {
   display: none;
   flex-direction: column;
   gap: 20px;
 }
 
-.case-open-container.active {
-  display: flex;
-}
+.case-open-container.active { display: flex; }
 
 .reel-controls {
   display: flex;
@@ -242,8 +429,7 @@ body::before {
 .reel-wrap::after {
   content: '';
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: 0; bottom: 0;
   left: 50%;
   width: 2px;
   background-color: var(--acc);
@@ -251,16 +437,6 @@ body::before {
   transform: translateX(-50%);
   z-index: 10;
   pointer-events: none;
-}
-
-.reel-wrap.show { 
-  display: block; 
-  animation: slideUp .3s ease; 
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
 }
 
 .reel-track {
@@ -283,16 +459,8 @@ body::before {
   background: rgba(255,255,255,0.01);
 }
 
-.rc-icon {
-  width: 56px;
-  height: 56px;
-}
-
-.rc-icon img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
+.rc-icon { width: 56px; height: 56px; }
+.rc-icon img { width: 100%; height: 100%; object-fit: contain; }
 
 .rc-name {
   font-size: 9px;
@@ -305,6 +473,7 @@ body::before {
   overflow: hidden;
 }
 
+/* ─── SPLASH ─── */
 .splash-overlay {
   position: fixed;
   inset: 0;
@@ -315,34 +484,25 @@ body::before {
   opacity: 0;
   transition: opacity 0.3s ease;
   background: rgba(0,0,0,0.7);
+  cursor: pointer;
 }
 
-.splash-overlay.show {
-  opacity: 1;
-}
+.splash-overlay.show { opacity: 1; }
 
 .splash-content {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 20px;
-  background: rgba(0,0,0,0.8);
+  background: rgba(0,0,0,0.85);
   padding: 40px;
   border-radius: 12px;
   border: 4px solid currentColor;
   box-shadow: 0 0 50px currentColor;
 }
 
-.splash-icon {
-  width: 120px;
-  height: 120px;
-}
-
-.splash-icon img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
+.splash-icon { width: 120px; height: 120px; }
+.splash-icon img { width: 100%; height: 100%; object-fit: contain; }
 
 .splash-name {
   font-family: var(--disp);
@@ -359,11 +519,8 @@ body::before {
   font-weight: bold;
 }
 
-/* INVENTORY */
-.inv-section {
-  padding: 20px 0;
-  width: 100%;
-}
+/* ─── INVENTORY ─── */
+.inv-section { padding: 20px 0; width: 100%; }
 
 .inv-label {
   font-size: 11px;
@@ -377,17 +534,9 @@ body::before {
   justify-content: space-between;
 }
 
-#invGrid {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
+#invGrid { display: flex; flex-direction: column; gap: 24px; }
 
-.inv-category {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+.inv-category { display: flex; flex-direction: column; gap: 12px; }
 
 .inv-category-header {
   font-size: 12px;
@@ -417,41 +566,18 @@ body::before {
   transition: .15s;
 }
 
-.inv-tile:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
+.inv-tile:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
 
-.inv-tile-icon {
-  width: 48px;
-  height: 48px;
-}
+.inv-tile-icon { width: 48px; height: 48px; }
+.inv-tile-icon img { width: 100%; height: 100%; object-fit: contain; }
 
-.inv-tile-icon img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.inv-tile-name {
-  font-size: 10px;
-  text-align: center;
-  color: var(--bright);
-  font-weight: bold;
-}
-
-.inv-tile-rarity {
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
+.inv-tile-name { font-size: 10px; text-align: center; color: var(--bright); font-weight: bold; }
+.inv-tile-rarity { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; }
 
 .inv-tile-delete {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 24px;
-  height: 24px;
+  top: 4px; right: 4px;
+  width: 24px; height: 24px;
   background: #c00;
   color: white;
   border: none;
@@ -465,22 +591,12 @@ body::before {
   transition: opacity 0.15s;
 }
 
-.inv-tile:hover .inv-tile-delete {
-  opacity: 1;
-}
+.inv-tile:hover .inv-tile-delete { opacity: 1; }
 
-.inv-empty {
-  padding: 40px;
-  text-align: center;
-  color: var(--dim);
-  font-style: italic;
-}
+.inv-empty { padding: 40px; text-align: center; color: var(--dim); font-style: italic; }
 
-/* LOOT TABLE */
-.loot-section { 
-  padding: 20px 0;
-  width: 100%;
-}
+/* ─── LOOT TABLE ─── */
+.loot-section { padding: 20px 0; width: 100%; }
 
 .loot-label {
   font-size: 11px;
@@ -492,12 +608,7 @@ body::before {
   margin-bottom: 16px;
 }
 
-.rarity-tabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
+.rarity-tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
 
 .rarity-tab {
   flex: 1;
@@ -510,27 +621,17 @@ body::before {
 }
 
 .rarity-tab:hover { transform: scale(1.05); }
-
-.rarity-tab.common { background: var(--common); }
-.rarity-tab.uncommon { background: var(--uncommon); }
-.rarity-tab.rare { background: var(--rare); }
-.rarity-tab.epic { background: var(--epic); }
+.rarity-tab.common    { background: var(--common); }
+.rarity-tab.uncommon  { background: var(--uncommon); }
+.rarity-tab.rare      { background: var(--rare); }
+.rarity-tab.epic      { background: var(--epic); }
 .rarity-tab.legendary { background: var(--legendary); }
-.rarity-tab.mythical { background: var(--mythical); }
+.rarity-tab.mythical  { background: var(--mythical); }
+.rarity-tab.active    { border-color: var(--bright); }
 
-.rarity-tab.active { border-color: var(--bright); }
+#lootContent { display: flex; flex-direction: column; gap: 20px; }
 
-#lootContent {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.loot-category-section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+.loot-category-section { display: flex; flex-direction: column; gap: 12px; }
 
 .loot-category-header {
   font-size: 12px;
@@ -560,35 +661,14 @@ body::before {
   text-align: center;
 }
 
-.loot-item:hover {
-  background: rgba(255,255,255,0.05);
-  border-color: rgba(255,255,255,0.2);
-}
+.loot-item:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.2); }
 
-.loot-item-icon {
-  width: 40px;
-  height: 40px;
-}
+.loot-item-icon { width: 40px; height: 40px; }
+.loot-item-icon img { width: 100%; height: 100%; object-fit: contain; }
+.loot-item-name { font-size: 11px; color: var(--bright); font-weight: bold; }
+.loot-item-rarity { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; }
 
-.loot-item-icon img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.loot-item-name {
-  font-size: 11px;
-  color: var(--bright);
-  font-weight: bold;
-}
-
-.loot-item-rarity {
-  font-size: 9px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-/* MOBILE */
+/* ─── MOBILE ─── */
 @media (max-width: 900px) {
   .reel-section { width: 100%; }
   .case-select-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
@@ -597,4 +677,5 @@ body::before {
   .loot-items-list { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
   .splash-name { font-size: 36px; }
   .splash-content { padding: 30px; }
+  .hdr { width: 100%; }
 }
