@@ -17,12 +17,53 @@ const ITEM_CATEGORIES = {
   equipment: { label: 'Equipment' }
 };
 
-const CASES = [
-  { id: 'c1', name: 'Teamster Cache',   color: '#7a7f8a', pool: ['common','uncommon'] },
-  { id: 'c2', name: 'Corp Requisition', color: '#3fbf5a', pool: ['common','uncommon','rare'] },
-  { id: 'c3', name: 'Marine Armory',    color: '#3a7ccf', pool: ['uncommon','rare','epic'] },
-  { id: 'c4', name: 'Black Budget',     color: '#e67e22', pool: ['rare','epic','legendary'] }
-];
+// SYSTEMS
+
+const SYSTEMS = {
+  mothership: {
+    label: 'MOTHERSHIP',
+    theme: 'theme-mothership',
+    cases: [
+      { id: 'c1', name: 'Teamster Cache',   color: '#7a7f8a', pool: ['common','uncommon'] },
+      { id: 'c2', name: 'Corp Requisition', color: '#3fbf5a', pool: ['common','uncommon','rare'] },
+      { id: 'c3', name: 'Marine Armory',    color: '#3a7ccf', pool: ['uncommon','rare','epic'] },
+      { id: 'c4', name: 'Black Budget',     color: '#e67e22', pool: ['rare','epic','legendary'] }
+    ],
+    itemFiles: ['weapons.json', 'armor.json', 'equipment.json']
+  },
+  cairn: {
+    label: 'CAIRN',
+    theme: 'theme-cairn',
+    cases: [
+      { id: 'ca1', name: 'Peasant Bundle', color: '#7a7f8a', pool: ['common','uncommon'] },
+      { id: 'ca2', name: 'Dungeon Hoard',  color: '#3fbf5a', pool: ['uncommon','rare'] },
+      { id: 'ca3', name: 'Relic Vault',    color: '#e67e22', pool: ['rare','epic','legendary'] }
+    ],
+    itemFiles: ['cairn-weapons.json', 'cairn-armor.json', 'cairn-gear.json']
+  },
+  bladerunner: {
+    label: 'BLADE RUNNER',
+    theme: 'theme-bladerunner',
+    cases: [
+      { id: 'br1', name: 'Street Cache',   color: '#7a7f8a', pool: ['common','uncommon'] },
+      { id: 'br2', name: 'Black Market',   color: '#3a7ccf', pool: ['uncommon','rare','epic'] },
+      { id: 'br3', name: 'Tyrell Vault',   color: '#e67e22', pool: ['rare','epic','legendary'] }
+    ],
+    itemFiles: ['br-weapons.json', 'br-armor.json', 'br-gear.json']
+  },
+  dnd: {
+    label: 'D&D',
+    theme: 'theme-dnd',
+    cases: [
+      { id: 'd1', name: 'Adventurer\'s Pack', color: '#7a7f8a', pool: ['common','uncommon'] },
+      { id: 'd2', name: 'Merchant\'s Stock',  color: '#3fbf5a', pool: ['common','uncommon','rare'] },
+      { id: 'd3', name: 'Dragon\'s Hoard',    color: '#e67e22', pool: ['rare','epic','legendary'] }
+    ],
+    itemFiles: ['dnd-weapons.json', 'dnd-armor.json', 'dnd-gear.json']
+  }
+};
+
+let CASES = [...SYSTEMS.mothership.cases];
 
 // STATE
 
@@ -47,21 +88,19 @@ const state = new AppState();
 
 // LOAD ITEMS
 
-async function loadAllItems() {
+async function loadAllItems(files = ['weapons.json', 'armor.json', 'equipment.json']) {
   try {
-    const [weaponsData, armorData, equipmentData] = await Promise.all([
-      fetch("./weapons.json").then(r => r.json()).catch(() => ({ weapons: [] })),
-      fetch("./armor.json").then(r => r.json()).catch(() => ({ armor: [] })),
-      fetch("./equipment.json").then(r => r.json()).catch(() => ({ tools: [] }))
-    ]);
+    const [weaponsData, armorData, equipmentData] = await Promise.all(
+      files.map(f => fetch(`./${f}`).then(r => r.json()).catch(() => ({})))
+    );
 
-    const weapons = Array.isArray(weaponsData) ? weaponsData : (weaponsData.weapons || []);
-    const armor = Array.isArray(armorData) ? armorData : (armorData.armor || []);
-    const equipment = Array.isArray(equipmentData) ? equipmentData : (equipmentData.tools || equipmentData.equipment || []);
+    const weapons  = Array.isArray(weaponsData)   ? weaponsData   : (weaponsData.weapons   || []);
+    const armor    = Array.isArray(armorData)      ? armorData     : (armorData.armor       || []);
+    const equipment = Array.isArray(equipmentData) ? equipmentData : (equipmentData.tools   || equipmentData.equipment || []);
 
     return [
-      ...weapons.map(w => ({ ...w, category: 'weapons' })),
-      ...armor.map(a => ({ ...a, category: 'armor' })),
+      ...weapons.map(w  => ({ ...w,  category: 'weapons' })),
+      ...armor.map(a    => ({ ...a,  category: 'armor' })),
       ...equipment.map(e => ({ ...e, category: 'equipment' }))
     ];
   } catch (err) {
@@ -73,12 +112,10 @@ async function loadAllItems() {
 function parseCost(cost) {
   if (cost === undefined || cost === null) return 0;
   if (typeof cost === 'number') return cost;
-  
   const strCost = String(cost).trim().toLowerCase();
   if (strCost === "free") return 0;
   if (strCost.endsWith("kcr")) return parseFloat(strCost) * 1000;
   if (strCost.endsWith("cr")) return parseInt(strCost) || 0;
-  
   return parseFloat(strCost) || 0;
 }
 
@@ -87,12 +124,12 @@ function autoAssignRarities(items) {
   const n = sorted.length;
   sorted.forEach((item, i) => {
     const p = i / n;
-    if (p < 0.20) item.rarity = "common";
+    if (p < 0.20)      item.rarity = "common";
     else if (p < 0.40) item.rarity = "uncommon";
     else if (p < 0.60) item.rarity = "rare";
     else if (p < 0.80) item.rarity = "epic";
     else if (p < 0.95) item.rarity = "legendary";
-    else item.rarity = "mythical";
+    else               item.rarity = "mythical";
     if (!item.tags) item.tags = [];
   });
   return sorted;
@@ -114,7 +151,7 @@ function imgOrEmoji(item) {
 
 function renderCaseTiles() {
   const grid = $('#caseSelectGrid');
-  grid.innerHTML = CASES.map(c => 
+  grid.innerHTML = CASES.map(c =>
     `<div class="case-tile" data-case="${c.id}" style="border-color:${c.color}">
       <div style="font-size:20px; margin-bottom:6px;">📦</div>
       <div>${c.name}</div>
@@ -142,17 +179,16 @@ function buildReel() {
   track.style.transition = 'none';
   track.style.transform = 'translateX(0)';
   track.innerHTML = '';
-  
+
   const cells = [];
   for (let i = 0; i < 140; i++) {
     const pool = state.activeCase.pool;
     const candidates = state.items.filter(item => pool.includes(item.rarity));
-
     const fallbackCandidates = candidates.length > 0 ? candidates : state.items;
     const item = fallbackCandidates[Math.floor(Math.random() * fallbackCandidates.length)];
-    
+
     cells.push(item);
-    
+
     const rar = RARITIES[item.rarity];
     const div = document.createElement('div');
     div.className = 'rc';
@@ -168,12 +204,12 @@ function buildReel() {
 
 function spin() {
   state.setSpinning(true);
-  
-  const openBtn = $('#openBtn');
-  const backBtn = $('#backBtn');
+
+  const openBtn  = $('#openBtn');
+  const backBtn  = $('#backBtn');
   const reelWrap = $('#reelWrap');
-  const track = $('#reelTrack');
-  
+  const track    = $('#reelTrack');
+
   hide(openBtn);
   hide(backBtn);
   show(reelWrap, 'block');
@@ -182,20 +218,19 @@ function spin() {
 
   const cells = track._cells;
   const CELL_W = 120;
-  const wrapW = reelWrap.offsetWidth;
+  const wrapW  = reelWrap.offsetWidth;
   const center = wrapW / 2;
 
-  const centerIdx = Math.floor(cells.length / 2);
-  const targetIdx = centerIdx - 10 + Math.floor(Math.random() * 20);
+  const centerIdx   = Math.floor(cells.length / 2);
+  const targetIdx   = centerIdx - 10 + Math.floor(Math.random() * 20);
   const targetCenter = targetIdx * CELL_W + CELL_W / 2;
-  const finalX = -(targetCenter - center);
+  const finalX      = -(targetCenter - center);
 
   void track.offsetWidth;
 
   const dur = 10000 + Math.random() * 5000;
-
   track.style.transition = `transform ${dur}ms cubic-bezier(0.08, 0.92, 0.22, 1.0)`;
-  track.style.transform = `translateX(${finalX}px)`;
+  track.style.transform  = `translateX(${finalX}px)`;
 
   setTimeout(() => {
     const won = cells[targetIdx];
@@ -207,7 +242,7 @@ function spin() {
 
 function showSplash(item) {
   const rar = RARITIES[item.rarity];
-  
+
   const splash = document.createElement('div');
   splash.className = 'splash-overlay';
   splash.style.background = rar.color;
@@ -218,9 +253,8 @@ function showSplash(item) {
       <div class="splash-rarity">${rar.label}</div>
     </div>
   `;
-  
+
   document.body.appendChild(splash);
-  
   setTimeout(() => splash.classList.add('show'), 10);
 
   let closed = false;
@@ -244,36 +278,34 @@ function showSplash(item) {
 // INVENTORY
 
 function updateInventory() {
-  const grid = $('#invGrid');
+  const grid  = $('#invGrid');
   const count = $('#invCount');
-  
+
   if (count) {
     count.textContent = state.inventory.length + ' item' + (state.inventory.length !== 1 ? 's' : '');
   }
-  
+
   if (!state.inventory.length) {
     grid.innerHTML = '<div class="inv-empty">No items yet</div>';
     return;
   }
 
   const byCategory = { weapons: [], armor: [], equipment: [] };
-  
+
   state.inventory.forEach((item, idx) => {
     item._invIndex = idx;
-    if (byCategory[item.category]) {
-      byCategory[item.category].push(item);
-    }
+    if (byCategory[item.category]) byCategory[item.category].push(item);
   });
 
   let html = '';
   Object.entries(byCategory).forEach(([catKey, items]) => {
-    if (items.length === 0) return;
+    if (!items.length) return;
     const cat = ITEM_CATEGORIES[catKey];
-    
+
     html += `<div class="inv-category">
       <div class="inv-category-header">${cat.label}</div>
       <div class="inv-items-grid">`;
-    
+
     items.forEach(item => {
       const rar = RARITIES[item.rarity];
       html += `<div class="inv-tile" style="border-color:${rar.color}">
@@ -283,7 +315,7 @@ function updateInventory() {
         <button class="inv-tile-delete" data-index="${item._invIndex}">×</button>
       </div>`;
     });
-    
+
     html += `</div></div>`;
   });
 
@@ -294,7 +326,7 @@ function updateInventory() {
 
 function renderLootRarityTabs() {
   const container = $('#rarityTabs');
-  container.innerHTML = RARITY_ORDER.map(r => 
+  container.innerHTML = RARITY_ORDER.map(r =>
     `<div class="rarity-tab ${r} ${state.activeRarityFilter === r ? 'active' : ''}" data-rarity="${r}"></div>`
   ).join('');
 }
@@ -302,22 +334,20 @@ function renderLootRarityTabs() {
 function renderLootPanel() {
   const content = $('#lootContent');
   if (!state.items.length) return;
-  
+
   let html = '';
-  
+
   Object.entries(ITEM_CATEGORIES).forEach(([catKey, cat]) => {
     let items = state.items.filter(i => i.category === catKey);
-    if (state.activeRarityFilter) {
-      items = items.filter(i => i.rarity === state.activeRarityFilter);
-    }
+    if (state.activeRarityFilter) items = items.filter(i => i.rarity === state.activeRarityFilter);
     if (!items.length) return;
-    
+
     items = items.sort((a, b) => RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity));
-    
+
     html += `<div class="loot-category-section">
       <div class="loot-category-header">${cat.label}</div>
       <div class="loot-items-list">`;
-    
+
     items.forEach(i => {
       const rar = RARITIES[i.rarity];
       html += `<div class="loot-item">
@@ -326,31 +356,97 @@ function renderLootPanel() {
         <div class="loot-item-rarity" style="color:${rar.color}">${rar.label}</div>
       </div>`;
     });
-    
+
     html += `</div></div>`;
   });
-  
+
   if (!html) html = '<div style="padding:40px; text-align:center; color: var(--dim);">No items found</div>';
   content.innerHTML = html;
+}
+
+// SYSTEM SWITCHER
+
+function setupSystemMenu() {
+  const header = $('#siteHeader');
+  const menu   = $('#systemMenu');
+
+  header.addEventListener('click', (e) => {
+    e.stopPropagation();
+    menu.classList.toggle('show');
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('#siteHeader') && !e.target.closest('#systemMenu')) {
+      menu.classList.remove('show');
+    }
+  });
+
+  menu.addEventListener('click', async (e) => {
+    const item = e.target.closest('.system-menu-item');
+    if (!item) return;
+
+    const key = item.dataset.system;
+    await switchSystem(key);
+
+    $$('.system-menu-item').forEach(el => el.classList.remove('active'));
+    item.classList.add('active');
+    menu.classList.remove('show');
+  });
+}
+
+async function switchSystem(key) {
+  const sys = SYSTEMS[key];
+  if (!sys) return;
+
+  // Swap theme class on body
+  document.body.className = sys.theme;
+
+  // Update header label
+  $('#siteHeader').textContent = sys.label;
+
+  // Swap cases
+  CASES.length = 0;
+  sys.cases.forEach(c => CASES.push(c));
+
+  // Exit case opening if open
+  exitCaseOpening();
+
+  // Re-render cases
+  renderCaseTiles();
+
+  // Reload items
+  const all = await loadAllItems(sys.itemFiles);
+  if (all.length) {
+    const items = autoAssignRarities(all);
+    state.setItems(items);
+  } else {
+    state.setItems([]);
+  }
+
+  // Re-render panels
+  state.activeRarityFilter = null;
+  renderLootPanel();
+  renderLootRarityTabs();
+  updateInventory();
 }
 
 // MENU & TABS
 
 function setupMenu() {
-  const menuBtn = $('#menuBtn');
+  const menuBtn      = $('#menuBtn');
   const menuDropdown = $('#menuDropdown');
-  
+
   menuBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     menuDropdown.classList.toggle('show');
   });
-  
+
   document.addEventListener('click', (e) => {
     if (!e.target.closest('#menuBtn') && !e.target.closest('#menuDropdown')) {
       menuDropdown.classList.remove('show');
     }
   });
-  
+
   $$('.menu-item').forEach(item => {
     item.addEventListener('click', () => {
       switchTab(item.dataset.tab);
@@ -362,7 +458,7 @@ function setupMenu() {
 function switchTab(tab) {
   $$('.content-panel').forEach(p => p.classList.remove('active'));
   $(`#${tab}Panel`).classList.add('active');
-  
+
   $$('.menu-item').forEach(m => {
     m.classList.toggle('active', m.dataset.tab === tab);
   });
@@ -371,17 +467,15 @@ function switchTab(tab) {
 // EVENT HANDLERS
 
 function setupEventHandlers() {
-  // Case Opening Controls
   $('#openBtn').addEventListener('click', () => {
     if (state.spinning || !state.items.length) return;
     spin();
   });
-  
+
   $('#backBtn').addEventListener('click', () => {
     exitCaseOpening();
   });
 
-  // Case Selection Grid
   $('#caseSelectGrid').addEventListener('click', (e) => {
     const tile = e.target.closest('.case-tile');
     if (tile) {
@@ -391,7 +485,6 @@ function setupEventHandlers() {
     }
   });
 
-  // Inventory Deletion
   $('#invGrid').addEventListener('click', (e) => {
     const btn = e.target.closest('.inv-tile-delete');
     if (btn) {
@@ -401,7 +494,6 @@ function setupEventHandlers() {
     }
   });
 
-  // Loot Rarity Filtering Tabs
   $('#rarityTabs').addEventListener('click', (e) => {
     const tab = e.target.closest('.rarity-tab');
     if (tab) {
@@ -415,20 +507,21 @@ function setupEventHandlers() {
 // INIT
 
 async function init() {
-  const all = await loadAllItems();
+  const all = await loadAllItems(SYSTEMS.mothership.itemFiles);
   if (!all.length) {
     console.warn("No items loaded - verify your JSON files exist and are being served via a local web server (CORS).");
     return;
   }
-  
+
   const items = autoAssignRarities(all);
   state.setItems(items);
-  
+
   renderCaseTiles();
   updateInventory();
   renderLootPanel();
   renderLootRarityTabs();
   setupMenu();
+  setupSystemMenu();
   setupEventHandlers();
 }
 
