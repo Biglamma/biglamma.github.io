@@ -1,11 +1,4 @@
-/**
- * SUPPLY DROP - Supply Crate Opening Game
- * Clean version - fixed event listeners, resilient JSON loading, and safe cost parsing
- */
-
-// ============================================================================
 // CONSTANTS
-// ============================================================================
 
 const RARITIES = {
   common:    { label: 'Common',    color: '#7a7f8a' },
@@ -31,9 +24,7 @@ const CASES = [
   { id: 'c4', name: 'Black Budget',     color: '#e67e22', pool: ['rare','epic','legendary'] }
 ];
 
-// ============================================================================
 // STATE
-// ============================================================================
 
 class AppState {
   constructor() {
@@ -54,9 +45,7 @@ class AppState {
 
 const state = new AppState();
 
-// ============================================================================
 // LOAD ITEMS
-// ============================================================================
 
 async function loadAllItems() {
   try {
@@ -66,7 +55,6 @@ async function loadAllItems() {
       fetch("./equipment.json").then(r => r.json()).catch(() => ({ tools: [] }))
     ]);
 
-    // Resilient fallback in case the JSON is just an array or uses slightly different keys
     const weapons = Array.isArray(weaponsData) ? weaponsData : (weaponsData.weapons || []);
     const armor = Array.isArray(armorData) ? armorData : (armorData.armor || []);
     const equipment = Array.isArray(equipmentData) ? equipmentData : (equipmentData.tools || equipmentData.equipment || []);
@@ -110,9 +98,7 @@ function autoAssignRarities(items) {
   return sorted;
 }
 
-// ============================================================================
 // DOM HELPERS
-// ============================================================================
 
 const $ = (sel) => document.querySelector(sel);
 const $$ = (sel) => document.querySelectorAll(sel);
@@ -124,9 +110,7 @@ function imgOrEmoji(item) {
   return `<img src="${item.image}" alt="" onerror="this.onerror=null; this.replaceWith('')">`;
 }
 
-// ============================================================================
 // RENDER CASES
-// ============================================================================
 
 function renderCaseTiles() {
   const grid = $('#caseSelectGrid');
@@ -151,9 +135,7 @@ function exitCaseOpening() {
   $('#caseOpenContainer').classList.remove('active');
 }
 
-// ============================================================================
 // REEL / SPINNING
-// ============================================================================
 
 function buildReel() {
   const track = $('#reelTrack');
@@ -165,7 +147,7 @@ function buildReel() {
   for (let i = 0; i < 140; i++) {
     const pool = state.activeCase.pool;
     const candidates = state.items.filter(item => pool.includes(item.rarity));
-    // Fallback if the pool filtering leaves no candidates
+
     const fallbackCandidates = candidates.length > 0 ? candidates : state.items;
     const item = fallbackCandidates[Math.floor(Math.random() * fallbackCandidates.length)];
     
@@ -253,9 +235,7 @@ function showSplash(item) {
   }, 5000);
 }
 
-// ============================================================================
 // INVENTORY
-// ============================================================================
 
 function updateInventory() {
   const grid = $('#invGrid');
@@ -304,9 +284,7 @@ function updateInventory() {
   grid.innerHTML = html;
 }
 
-// ============================================================================
 // LOOT TABLE
-// ============================================================================
 
 function renderLootRarityTabs() {
   const container = $('#rarityTabs');
@@ -350,9 +328,7 @@ function renderLootPanel() {
   content.innerHTML = html;
 }
 
-// ============================================================================
 // MENU & TABS
-// ============================================================================
 
 function setupMenu() {
   const menuBtn = $('#menuBtn');
@@ -386,9 +362,7 @@ function switchTab(tab) {
   });
 }
 
-// ============================================================================
-// EVENT HANDLERS (Consolidated to prevent memory leaks)
-// ============================================================================
+// EVENT HANDLERS
 
 function setupEventHandlers() {
   // Case Opening Controls
@@ -432,9 +406,7 @@ function setupEventHandlers() {
   });
 }
 
-// ============================================================================
 // INIT
-// ============================================================================
 
 async function init() {
   const all = await loadAllItems();
