@@ -222,8 +222,11 @@ function showSplash(item) {
   document.body.appendChild(splash);
   
   setTimeout(() => splash.classList.add('show'), 10);
-  
-  setTimeout(() => {
+
+  let closed = false;
+  function closeSplash() {
+    if (closed) return;
+    closed = true;
     splash.classList.remove('show');
     setTimeout(() => {
       splash.remove();
@@ -232,7 +235,10 @@ function showSplash(item) {
       hide($('#reelWrap'));
       updateInventory();
     }, 300);
-  }, 3000);
+  }
+
+  splash.addEventListener('click', closeSplash, { once: true });
+  setTimeout(closeSplash, 2000);
 }
 
 // INVENTORY
