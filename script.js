@@ -24,6 +24,12 @@ const ITEM_CATEGORIES = {
   equipment: { label: 'Equipment' }
 };
 
+const ITEM_CATEGORIES = {
+  weapons:   { label: 'Weapons' },
+  armor:     { label: 'Armor' },
+  equipment: { label: 'Equipment' }
+};
+
 const CASES = [
   { id: 'c1', name: 'Teamster Cache',   color: '#7a7f8a', pool: ['common','uncommon'] },
   { id: 'c2', name: 'Corp Requisition', color: '#3fbf5a', pool: ['common','uncommon','rare'] },
@@ -301,13 +307,6 @@ function updateInventory() {
     }
   });
 
-  // Render each category
-  const ITEM_CATEGORIES = {
-    weapons:   { label: 'Weapons' },
-    armor:     { label: 'Armor' },
-    equipment: { label: 'Equipment' }
-  };
-
   Object.entries(byCategory).forEach(([catKey, items]) => {
     if (items.length === 0) return;
     const cat = ITEM_CATEGORIES[catKey];
@@ -385,12 +384,6 @@ function renderLootPanel() {
   if (!state.items.length) return;
   let html = '';
   
-  const ITEM_CATEGORIES = {
-    weapons:   { label: 'Weapons' },
-    armor:     { label: 'Armor' },
-    equipment: { label: 'Equipment' }
-  };
-  
   Object.entries(ITEM_CATEGORIES).forEach(([catKey, cat]) => {
     let items = state.items.filter(i => i.category === catKey);
     if (state.activeRarityFilter) {
@@ -423,16 +416,21 @@ function switchTab(tab) {
 }
 
 function setupMenu() {
-  querySelector('#menuBtn').addEventListener('click', () => {
+  querySelector('#menuBtn').addEventListener('click', (e) => {
+    e.stopPropagation();
     toggleClass(querySelector('#menuDropdown'), 'show');
   });
   document.addEventListener('click', (e) => {
-    if (!e.target.closest('#menuBtn') && !e.target.closest('.menu-dropdown')) {
+    if (!e.target.closest('#menuBtn') && !e.target.closest('#menuDropdown')) {
       querySelector('#menuDropdown').classList.remove('show');
     }
   });
-  addEventDelegation(querySelector('.menu-dropdown'), 'click', '.menu-item', function() {
-    switchTab(this.dataset.tab);
+  
+  querySelectorAll('.menu-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const tab = item.dataset.tab;
+      switchTab(tab);
+    });
   });
 }
 

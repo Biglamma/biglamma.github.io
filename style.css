@@ -36,7 +36,15 @@ body::before {
   background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
 }
 
-.page { width: 100%; max-width: 1400px; margin: 0 auto; padding: 20px; }
+.page { 
+  width: 100%; 
+  max-width: 1400px; 
+  margin: 0 auto; 
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
 /* HEADER */
 .hdr {
@@ -119,15 +127,21 @@ body::before {
 .menu-item.active { background: rgba(224,82,40,0.25); color: var(--acc); }
 
 /* PANELS */
-.content-panel { display: none; }
+.content-panel { 
+  display: none;
+  width: 100%;
+  max-width: 1200px;
+}
 .content-panel.active { display: block; }
 
 /* CASE SELECTION GRID */
 .case-select-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 16px;
   padding: 20px 0;
+  width: 100%;
+  justify-items: center;
 }
 
 .case-tile {
@@ -158,6 +172,7 @@ body::before {
 
 .reel-controls {
   display: flex;
+  flex-direction: column;
   gap: 20px;
   justify-content: center;
   align-items: center;
@@ -329,6 +344,7 @@ body::before {
 /* INVENTORY */
 .inv-section {
   padding: 20px 0;
+  width: 100%;
 }
 
 .inv-label {
@@ -443,7 +459,10 @@ body::before {
 }
 
 /* LOOT TABLE */
-.loot-section { padding: 20px 0; }
+.loot-section { 
+  padding: 20px 0;
+  width: 100%;
+}
 
 .loot-label {
   font-size: 11px;
