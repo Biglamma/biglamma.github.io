@@ -251,8 +251,12 @@ body::before {
   transform: translateX(-50%);
   z-index: 10;
   pointer-events: none;
+}
 
-.reel-wrap.show { display: block; animation: slideUp .3s ease; }
+.reel-wrap.show { 
+  display: block; 
+  animation: slideUp .3s ease; 
+}
 
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(20px); }
