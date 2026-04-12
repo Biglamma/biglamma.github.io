@@ -232,7 +232,7 @@ function showSplash(item) {
       hide($('#reelWrap'));
       updateInventory();
     }, 300);
-  }, 5000);
+  }, 3000);
 }
 
 // INVENTORY
