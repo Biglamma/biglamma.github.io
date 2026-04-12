@@ -29,7 +29,8 @@ const SYSTEMS = {
       { id: 'c3', name: 'Marine Armory',    color: '#3a7ccf', pool: ['uncommon','rare','epic'] },
       { id: 'c4', name: 'Black Budget',     color: '#e67e22', pool: ['rare','epic','legendary'] }
     ],
-    itemFiles: ['weapons.json', 'armor.json', 'equipment.json']
+    itemFiles: ['weapons.json', 'armor.json', 'equipment.json'],
+    categories: { weapons: 'Weapons', armor: 'Armor', equipment: 'Equipment' }
   },
   cairn: {
     label: 'CAIRN',
@@ -39,31 +40,35 @@ const SYSTEMS = {
       { id: 'ca2', name: 'Dungeon Hoard',  color: '#3fbf5a', pool: ['uncommon','rare'] },
       { id: 'ca3', name: 'Relic Vault',    color: '#e67e22', pool: ['rare','epic','legendary'] }
     ],
-    itemFiles: ['cairn-weapons.json', 'cairn-armor.json', 'cairn-gear.json']
+    itemFiles: ['cairn-weapons.json', 'cairn-armor.json', 'cairn-gear.json'],
+    categories: { weapons: 'Weapons', armor: 'Armor', equipment: 'Gear' }
   },
   bladerunner: {
     label: 'BLADE RUNNER',
     theme: 'theme-bladerunner',
     cases: [
-      { id: 'br1', name: 'Street Cache',   color: '#7a7f8a', pool: ['common','uncommon'] },
-      { id: 'br2', name: 'Black Market',   color: '#3a7ccf', pool: ['uncommon','rare','epic'] },
-      { id: 'br3', name: 'Tyrell Vault',   color: '#e67e22', pool: ['rare','epic','legendary'] }
+      { id: 'br1', name: 'Street Cache',  color: '#7a7f8a', pool: ['common','uncommon'] },
+      { id: 'br2', name: 'Black Market',  color: '#3a7ccf', pool: ['uncommon','rare','epic'] },
+      { id: 'br3', name: 'Tyrell Vault',  color: '#e67e22', pool: ['rare','epic','legendary'] }
     ],
-    itemFiles: ['br-weapons.json', 'br-armor.json', 'br-gear.json']
+    itemFiles: ['br-weapons.json', 'br-armor.json', 'br-gear.json'],
+    categories: { weapons: 'Weapons', armor: 'Armor', equipment: 'Gear' }
   },
   dnd: {
     label: 'D&D',
     theme: 'theme-dnd',
     cases: [
-      { id: 'd1', name: 'Adventurer\'s Pack', color: '#7a7f8a', pool: ['common','uncommon'] },
-      { id: 'd2', name: 'Merchant\'s Stock',  color: '#3fbf5a', pool: ['common','uncommon','rare'] },
-      { id: 'd3', name: 'Dragon\'s Hoard',    color: '#e67e22', pool: ['rare','epic','legendary'] }
+      { id: 'd1', name: "Adventurer's Pack", color: '#7a7f8a', pool: ['common','uncommon'] },
+      { id: 'd2', name: "Merchant's Stock",  color: '#3fbf5a', pool: ['common','uncommon','rare'] },
+      { id: 'd3', name: "Dragon's Hoard",    color: '#e67e22', pool: ['rare','epic','legendary'] }
     ],
-    itemFiles: ['dnd-weapons.json', 'dnd-armor.json', 'dnd-gear.json']
+    itemFiles: ['dnd-weapons.json', 'dnd-armor.json', 'dnd-gear.json'],
+    categories: { weapons: 'Weapons', armor: 'Armour', equipment: 'Items' }
   }
 };
 
 let CASES = [...SYSTEMS.mothership.cases];
+let activeSystemKey = 'mothership';
 
 // STATE
 
@@ -73,15 +78,35 @@ class AppState {
     this.activeCase = null;
     this.activeRarityFilter = null;
     this.spinning = false;
-    this.inventory = JSON.parse(localStorage.getItem("inventory") || "[]");
+    this.inventory = this.loadInventory('mothership');
+  }
+
+  loadInventory(systemKey) {
+    return JSON.parse(localStorage.getItem(`inventory_${systemKey}`) || '[]');
+  }
+
+  saveInventory(systemKey) {
+    localStorage.setItem(`inventory_${systemKey}`, JSON.stringify(this.inventory));
+  }
+
+  switchInventory(systemKey) {
+    this.inventory = this.loadInventory(systemKey);
   }
 
   setItems(items) { this.items = items; }
   setActiveCase(caseObj) { this.activeCase = caseObj; }
   toggleRarityFilter(rarity) { this.activeRarityFilter = this.activeRarityFilter === rarity ? null : rarity; }
   setSpinning(value) { this.spinning = value; }
-  addToInventory(item) { this.inventory.push(item); localStorage.setItem("inventory", JSON.stringify(this.inventory)); }
-  removeFromInventory(index) { this.inventory.splice(index, 1); localStorage.setItem("inventory", JSON.stringify(this.inventory)); }
+
+  addToInventory(item) {
+    this.inventory.push(item);
+    this.saveInventory(activeSystemKey);
+  }
+
+  removeFromInventory(index) {
+    this.inventory.splice(index, 1);
+    this.saveInventory(activeSystemKey);
+  }
 }
 
 const state = new AppState();
@@ -94,13 +119,13 @@ async function loadAllItems(files = ['weapons.json', 'armor.json', 'equipment.js
       files.map(f => fetch(`./${f}`).then(r => r.json()).catch(() => ({})))
     );
 
-    const weapons  = Array.isArray(weaponsData)   ? weaponsData   : (weaponsData.weapons   || []);
-    const armor    = Array.isArray(armorData)      ? armorData     : (armorData.armor       || []);
-    const equipment = Array.isArray(equipmentData) ? equipmentData : (equipmentData.tools   || equipmentData.equipment || []);
+    const weapons   = Array.isArray(weaponsData)   ? weaponsData   : (weaponsData.weapons   || []);
+    const armor     = Array.isArray(armorData)      ? armorData     : (armorData.armor       || []);
+    const equipment = Array.isArray(equipmentData)  ? equipmentData : (equipmentData.tools   || equipmentData.equipment || equipmentData.gear || []);
 
     return [
-      ...weapons.map(w  => ({ ...w,  category: 'weapons' })),
-      ...armor.map(a    => ({ ...a,  category: 'armor' })),
+      ...weapons.map(w  => ({ ...w, category: 'weapons' })),
+      ...armor.map(a    => ({ ...a, category: 'armor' })),
       ...equipment.map(e => ({ ...e, category: 'equipment' }))
     ];
   } catch (err) {
@@ -113,9 +138,9 @@ function parseCost(cost) {
   if (cost === undefined || cost === null) return 0;
   if (typeof cost === 'number') return cost;
   const strCost = String(cost).trim().toLowerCase();
-  if (strCost === "free") return 0;
-  if (strCost.endsWith("kcr")) return parseFloat(strCost) * 1000;
-  if (strCost.endsWith("cr")) return parseInt(strCost) || 0;
+  if (strCost === 'free') return 0;
+  if (strCost.endsWith('kcr')) return parseFloat(strCost) * 1000;
+  if (strCost.endsWith('cr')) return parseInt(strCost) || 0;
   return parseFloat(strCost) || 0;
 }
 
@@ -124,12 +149,12 @@ function autoAssignRarities(items) {
   const n = sorted.length;
   sorted.forEach((item, i) => {
     const p = i / n;
-    if (p < 0.20)      item.rarity = "common";
-    else if (p < 0.40) item.rarity = "uncommon";
-    else if (p < 0.60) item.rarity = "rare";
-    else if (p < 0.80) item.rarity = "epic";
-    else if (p < 0.95) item.rarity = "legendary";
-    else               item.rarity = "mythical";
+    if      (p < 0.20) item.rarity = 'common';
+    else if (p < 0.40) item.rarity = 'uncommon';
+    else if (p < 0.60) item.rarity = 'rare';
+    else if (p < 0.80) item.rarity = 'epic';
+    else if (p < 0.95) item.rarity = 'legendary';
+    else               item.rarity = 'mythical';
     if (!item.tags) item.tags = [];
   });
   return sorted;
@@ -145,6 +170,12 @@ const show = (el, display = 'block') => el.style.display = display;
 function imgOrEmoji(item) {
   if (!item.image) return '';
   return `<img src="${item.image}" alt="" onerror="this.onerror=null; this.replaceWith('')">`;
+}
+
+// Category labels are system-aware
+function getCategoryLabel(catKey) {
+  const sys = SYSTEMS[activeSystemKey];
+  return (sys.categories && sys.categories[catKey]) || catKey;
 }
 
 // RENDER CASES
@@ -184,8 +215,8 @@ function buildReel() {
   for (let i = 0; i < 140; i++) {
     const pool = state.activeCase.pool;
     const candidates = state.items.filter(item => pool.includes(item.rarity));
-    const fallbackCandidates = candidates.length > 0 ? candidates : state.items;
-    const item = fallbackCandidates[Math.floor(Math.random() * fallbackCandidates.length)];
+    const fallback = candidates.length > 0 ? candidates : state.items;
+    const item = fallback[Math.floor(Math.random() * fallback.length)];
 
     cells.push(item);
 
@@ -216,11 +247,9 @@ function spin() {
 
   buildReel();
 
-  const cells = track._cells;
-  const CELL_W = 120;
-  const wrapW  = reelWrap.offsetWidth;
-  const center = wrapW / 2;
-
+  const cells       = track._cells;
+  const CELL_W      = 120;
+  const center      = reelWrap.offsetWidth / 2;
   const centerIdx   = Math.floor(cells.length / 2);
   const targetIdx   = centerIdx - 10 + Math.floor(Math.random() * 20);
   const targetCenter = targetIdx * CELL_W + CELL_W / 2;
@@ -300,10 +329,9 @@ function updateInventory() {
   let html = '';
   Object.entries(byCategory).forEach(([catKey, items]) => {
     if (!items.length) return;
-    const cat = ITEM_CATEGORIES[catKey];
 
     html += `<div class="inv-category">
-      <div class="inv-category-header">${cat.label}</div>
+      <div class="inv-category-header">${getCategoryLabel(catKey)}</div>
       <div class="inv-items-grid">`;
 
     items.forEach(item => {
@@ -337,7 +365,7 @@ function renderLootPanel() {
 
   let html = '';
 
-  Object.entries(ITEM_CATEGORIES).forEach(([catKey, cat]) => {
+  Object.keys(ITEM_CATEGORIES).forEach(catKey => {
     let items = state.items.filter(i => i.category === catKey);
     if (state.activeRarityFilter) items = items.filter(i => i.rarity === state.activeRarityFilter);
     if (!items.length) return;
@@ -345,7 +373,7 @@ function renderLootPanel() {
     items = items.sort((a, b) => RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity));
 
     html += `<div class="loot-category-section">
-      <div class="loot-category-header">${cat.label}</div>
+      <div class="loot-category-header">${getCategoryLabel(catKey)}</div>
       <div class="loot-items-list">`;
 
     items.forEach(i => {
@@ -386,6 +414,8 @@ function setupSystemMenu() {
     if (!item) return;
 
     const key = item.dataset.system;
+    if (key === activeSystemKey) { menu.classList.remove('show'); return; }
+
     await switchSystem(key);
 
     $$('.system-menu-item').forEach(el => el.classList.remove('active'));
@@ -398,10 +428,12 @@ async function switchSystem(key) {
   const sys = SYSTEMS[key];
   if (!sys) return;
 
-  // Swap theme class on body
+  activeSystemKey = key;
+
+  // Swap theme
   document.body.className = sys.theme;
 
-  // Update header label
+  // Update header
   $('#siteHeader').textContent = sys.label;
 
   // Swap cases
@@ -411,23 +443,26 @@ async function switchSystem(key) {
   // Exit case opening if open
   exitCaseOpening();
 
-  // Re-render cases
-  renderCaseTiles();
+  // Switch to this system's inventory
+  state.switchInventory(key);
 
-  // Reload items
+  // Reset rarity filter
+  state.activeRarityFilter = null;
+
+  // Load this system's items
   const all = await loadAllItems(sys.itemFiles);
   if (all.length) {
-    const items = autoAssignRarities(all);
-    state.setItems(items);
+    state.setItems(autoAssignRarities(all));
   } else {
     state.setItems([]);
+    console.warn(`No items loaded for system: ${key}. Check that ${sys.itemFiles.join(', ')} exist.`);
   }
 
-  // Re-render panels
-  state.activeRarityFilter = null;
+  // Re-render everything
+  renderCaseTiles();
+  updateInventory();
   renderLootPanel();
   renderLootRarityTabs();
-  updateInventory();
 }
 
 // MENU & TABS
@@ -458,10 +493,7 @@ function setupMenu() {
 function switchTab(tab) {
   $$('.content-panel').forEach(p => p.classList.remove('active'));
   $(`#${tab}Panel`).classList.add('active');
-
-  $$('.menu-item').forEach(m => {
-    m.classList.toggle('active', m.dataset.tab === tab);
-  });
+  $$('.menu-item').forEach(m => m.classList.toggle('active', m.dataset.tab === tab));
 }
 
 // EVENT HANDLERS
@@ -472,15 +504,12 @@ function setupEventHandlers() {
     spin();
   });
 
-  $('#backBtn').addEventListener('click', () => {
-    exitCaseOpening();
-  });
+  $('#backBtn').addEventListener('click', () => exitCaseOpening());
 
   $('#caseSelectGrid').addEventListener('click', (e) => {
     const tile = e.target.closest('.case-tile');
     if (tile) {
-      const caseId = tile.dataset.case;
-      state.setActiveCase(CASES.find(c => c.id === caseId));
+      state.setActiveCase(CASES.find(c => c.id === tile.dataset.case));
       enterCaseOpening();
     }
   });
@@ -488,8 +517,7 @@ function setupEventHandlers() {
   $('#invGrid').addEventListener('click', (e) => {
     const btn = e.target.closest('.inv-tile-delete');
     if (btn) {
-      const idx = parseInt(btn.dataset.index);
-      state.removeFromInventory(idx);
+      state.removeFromInventory(parseInt(btn.dataset.index));
       updateInventory();
     }
   });
@@ -507,14 +535,15 @@ function setupEventHandlers() {
 // INIT
 
 async function init() {
-  const all = await loadAllItems(SYSTEMS.mothership.itemFiles);
-  if (!all.length) {
-    console.warn("No items loaded - verify your JSON files exist and are being served via a local web server (CORS).");
-    return;
-  }
+  const sys = SYSTEMS[activeSystemKey];
+  document.body.className = sys.theme;
 
-  const items = autoAssignRarities(all);
-  state.setItems(items);
+  const all = await loadAllItems(sys.itemFiles);
+  if (!all.length) {
+    console.warn("No items loaded — check that your JSON files exist and are served from a local web server.");
+  } else {
+    state.setItems(autoAssignRarities(all));
+  }
 
   renderCaseTiles();
   updateInventory();
