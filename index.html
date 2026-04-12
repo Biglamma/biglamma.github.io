@@ -6,15 +6,18 @@
   <title>SUPPLY DROP</title>
   <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-
 <div class="page">
   <header class="hdr">
-    <div class="hdr-left">
-      <div class="hdr-logo">SUPPLY DROP</div>
+    <div class="hdr-left" style="position: relative;">
+      <div class="hdr-logo" id="siteHeader">MOTHERSHIP</div>
+      <div class="system-menu" id="systemMenu">
+        <div class="system-menu-item active" data-system="mothership">⬡ Mothership</div>
+        <div class="system-menu-item" data-system="cairn">🌲 Cairn</div>
+        <div class="system-menu-item" data-system="bladerunner">🌆 Blade Runner</div>
+        <div class="system-menu-item" data-system="dnd">⚔️ D&D</div>
+      </div>
     </div>
-
     <div style="position: relative;">
       <button class="menu-btn" id="menuBtn">☰</button>
       <div class="menu-dropdown" id="menuDropdown">
@@ -24,20 +27,16 @@
       </div>
     </div>
   </header>
-
   <!-- MAIN PANEL -->
   <div class="content-panel active" id="mainPanel">
-
     <!-- CASE SELECTION GRID -->
     <div class="case-select-grid" id="caseSelectGrid"></div>
-
     <!-- CASE OPENING -->
     <div class="case-open-container" id="caseOpenContainer">
       <div class="reel-controls">
         <button class="open-btn" id="openBtn">OPEN CASE</button>
         <button class="back-btn" id="backBtn">← BACK</button>
       </div>
-
       <div class="reel-section">
         <div class="reel-wrap" id="reelWrap">
           <div class="reel-track" id="reelTrack"></div>
@@ -45,7 +44,6 @@
       </div>
     </div>
   </div>
-
   <!-- INVENTORY PANEL -->
   <div class="content-panel" id="inventoryPanel">
     <div class="inv-section">
@@ -58,22 +56,16 @@
       </div>
     </div>
   </div>
-
   <!-- LOOT TABLE PANEL -->
   <div class="content-panel" id="lootPanel">
     <div class="loot-section">
       <div class="loot-label">// Drop Pools</div>
-
       <!-- RARITY TABS -->
       <div class="rarity-tabs" id="rarityTabs"></div>
-
       <div id="lootContent"></div>
     </div>
   </div>
-
 </div>
-
 <script src="script.js"></script>
-
 </body>
 </html>
