@@ -1,10 +1,10 @@
 /**
- * SUPPLY DROP - Single File Version
- * All modules consolidated into one file
+ * SUPPLY DROP - Supply Crate Opening Game
+ * Clean version - fixed event listeners, resilient JSON loading, and safe cost parsing
  */
 
 // ============================================================================
-// DATA & CONSTANTS
+// CONSTANTS
 // ============================================================================
 
 const RARITIES = {
@@ -24,12 +24,6 @@ const ITEM_CATEGORIES = {
   equipment: { label: 'Equipment' }
 };
 
-const ITEM_CATEGORIES = {
-  weapons:   { label: 'Weapons' },
-  armor:     { label: 'Armor' },
-  equipment: { label: 'Equipment' }
-};
-
 const CASES = [
   { id: 'c1', name: 'Teamster Cache',   color: '#7a7f8a', pool: ['common','uncommon'] },
   { id: 'c2', name: 'Corp Requisition', color: '#3fbf5a', pool: ['common','uncommon','rare'] },
@@ -38,7 +32,7 @@ const CASES = [
 ];
 
 // ============================================================================
-// STATE MANAGEMENT
+// STATE
 // ============================================================================
 
 class AppState {
@@ -48,51 +42,39 @@ class AppState {
     this.activeRarityFilter = null;
     this.spinning = false;
     this.inventory = JSON.parse(localStorage.getItem("inventory") || "[]");
-    this._observers = {
-      inventoryChanged: [],
-      caseChanged: [],
-      spinningChanged: [],
-      rarityFilterChanged: []
-    };
-  }
-
-  subscribe(event, callback) {
-    if (this._observers[event]) this._observers[event].push(callback);
-  }
-
-  _notify(event, data) {
-    if (this._observers[event]) {
-      this._observers[event].forEach(cb => cb(data));
-    }
   }
 
   setItems(items) { this.items = items; }
-  setActiveCase(caseObj) { this.activeCase = caseObj; this._notify('caseChanged', caseObj); }
-  toggleRarityFilter(rarity) { this.activeRarityFilter = this.activeRarityFilter === rarity ? null : rarity; this._notify('rarityFilterChanged', this.activeRarityFilter); }
-  setSpinning(value) { this.spinning = value; this._notify('spinningChanged', value); }
-  addToInventory(item) { this.inventory.push(item); this.saveInventory(); this._notify('inventoryChanged', this.inventory); }
-  removeFromInventory(index) { this.inventory.splice(index, 1); this.saveInventory(); this._notify('inventoryChanged', this.inventory); }
-  saveInventory() { localStorage.setItem("inventory", JSON.stringify(this.inventory)); }
-  clearInventory() { this.inventory = []; this.saveInventory(); this._notify('inventoryChanged', this.inventory); }
+  setActiveCase(caseObj) { this.activeCase = caseObj; }
+  toggleRarityFilter(rarity) { this.activeRarityFilter = this.activeRarityFilter === rarity ? null : rarity; }
+  setSpinning(value) { this.spinning = value; }
+  addToInventory(item) { this.inventory.push(item); localStorage.setItem("inventory", JSON.stringify(this.inventory)); }
+  removeFromInventory(index) { this.inventory.splice(index, 1); localStorage.setItem("inventory", JSON.stringify(this.inventory)); }
 }
 
 const state = new AppState();
 
 // ============================================================================
-// ITEMS MODULE
+// LOAD ITEMS
 // ============================================================================
 
 async function loadAllItems() {
   try {
-    const [weapons, armor, equipment] = await Promise.all([
-      fetch("./weapons.json").then(r => r.json()),
-      fetch("./armor.json").then(r => r.json()),
-      fetch("./equipment.json").then(r => r.json())
+    const [weaponsData, armorData, equipmentData] = await Promise.all([
+      fetch("./weapons.json").then(r => r.json()).catch(() => ({ weapons: [] })),
+      fetch("./armor.json").then(r => r.json()).catch(() => ({ armor: [] })),
+      fetch("./equipment.json").then(r => r.json()).catch(() => ({ tools: [] }))
     ]);
+
+    // Resilient fallback in case the JSON is just an array or uses slightly different keys
+    const weapons = Array.isArray(weaponsData) ? weaponsData : (weaponsData.weapons || []);
+    const armor = Array.isArray(armorData) ? armorData : (armorData.armor || []);
+    const equipment = Array.isArray(equipmentData) ? equipmentData : (equipmentData.tools || equipmentData.equipment || []);
+
     return [
-      ...weapons.weapons.map(w => ({ ...w, category: 'weapons' })),
-      ...armor.armor.map(a => ({ ...a, category: 'armor' })),
-      ...equipment.tools.map(e => ({ ...e, category: 'equipment' }))
+      ...weapons.map(w => ({ ...w, category: 'weapons' })),
+      ...armor.map(a => ({ ...a, category: 'armor' })),
+      ...equipment.map(e => ({ ...e, category: 'equipment' }))
     ];
   } catch (err) {
     console.error("JSON load failed:", err);
@@ -101,11 +83,15 @@ async function loadAllItems() {
 }
 
 function parseCost(cost) {
-  if (!cost) return 0;
-  if (cost === "Free") return 0;
-  if (cost.endsWith("kcr")) return parseFloat(cost) * 1000;
-  if (cost.endsWith("cr")) return parseInt(cost);
-  return 0;
+  if (cost === undefined || cost === null) return 0;
+  if (typeof cost === 'number') return cost;
+  
+  const strCost = String(cost).trim().toLowerCase();
+  if (strCost === "free") return 0;
+  if (strCost.endsWith("kcr")) return parseFloat(strCost) * 1000;
+  if (strCost.endsWith("cr")) return parseInt(strCost) || 0;
+  
+  return parseFloat(strCost) || 0;
 }
 
 function autoAssignRarities(items) {
@@ -117,120 +103,116 @@ function autoAssignRarities(items) {
     else if (p < 0.40) item.rarity = "uncommon";
     else if (p < 0.60) item.rarity = "rare";
     else if (p < 0.80) item.rarity = "epic";
-    else item.rarity = "legendary";
+    else if (p < 0.95) item.rarity = "legendary";
+    else item.rarity = "mythical";
     if (!item.tags) item.tags = [];
   });
   return sorted;
 }
 
 // ============================================================================
-// UI HELPERS
+// DOM HELPERS
 // ============================================================================
 
-function querySelector(selector) { return document.querySelector(selector); }
-function querySelectorAll(selector) { return document.querySelectorAll(selector); }
-function hideElement(el) { el.style.display = 'none'; }
-function showElement(el, display = 'block') { el.style.display = display; }
-function toggleClass(el, className, force) { el.classList.toggle(className, force); }
-
-function addEventDelegation(parent, eventType, selector, handler) {
-  parent.addEventListener(eventType, (e) => {
-    const target = e.target.closest(selector);
-    if (target) handler.call(target, e);
-  });
-}
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => document.querySelectorAll(sel);
+const hide = (el) => el.style.display = 'none';
+const show = (el, display = 'block') => el.style.display = display;
 
 function imgOrEmoji(item) {
   if (!item.image) return '';
   return `<img src="${item.image}" alt="" onerror="this.onerror=null; this.replaceWith('')">`;
 }
 
-function getCellWidth() {
-  const temp = document.createElement('div');
-  temp.className = 'rc';
-  temp.style.visibility = 'hidden';
-  temp.innerHTML = '<div class="rc-icon">X</div>';
-  document.body.appendChild(temp);
-  const w = temp.getBoundingClientRect().width;
-  temp.remove();
-  return w;
+// ============================================================================
+// RENDER CASES
+// ============================================================================
+
+function renderCaseTiles() {
+  const grid = $('#caseSelectGrid');
+  grid.innerHTML = CASES.map(c => 
+    `<div class="case-tile" data-case="${c.id}" style="border-color:${c.color}">
+      <div style="font-size:20px; margin-bottom:6px;">📦</div>
+      <div>${c.name}</div>
+    </div>`
+  ).join('');
+}
+
+function enterCaseOpening() {
+  hide($('#caseSelectGrid'));
+  $('#caseOpenContainer').classList.add('active');
+  show($('#openBtn'));
+  show($('#backBtn'));
+  hide($('#reelWrap'));
+}
+
+function exitCaseOpening() {
+  show($('#caseSelectGrid'), 'grid');
+  $('#caseOpenContainer').classList.remove('active');
 }
 
 // ============================================================================
-// REEL/SPINNING
+// REEL / SPINNING
 // ============================================================================
 
-const SPIN_CONFIG = {
-  minDuration: 10000,    // 10 seconds
-  maxDuration: 15000,    // 15 seconds
-  easing: 'cubic-bezier(0.08, 0.92, 0.22, 1.0)',
-  cellCount: 140,
-  winWindow: 20
-};
-
 function buildReel() {
-  if (!state.items.length) return;
-  const track = querySelector('#reelTrack');
+  const track = $('#reelTrack');
   track.style.transition = 'none';
   track.style.transform = 'translateX(0)';
   track.innerHTML = '';
+  
   const cells = [];
-  for (let i = 0; i < SPIN_CONFIG.cellCount; i++) {
-    const item = pickItem(state.activeCase.pool);
+  for (let i = 0; i < 140; i++) {
+    const pool = state.activeCase.pool;
+    const candidates = state.items.filter(item => pool.includes(item.rarity));
+    // Fallback if the pool filtering leaves no candidates
+    const fallbackCandidates = candidates.length > 0 ? candidates : state.items;
+    const item = fallbackCandidates[Math.floor(Math.random() * fallbackCandidates.length)];
+    
     cells.push(item);
-    track.appendChild(makeReelCell(item));
+    
+    const rar = RARITIES[item.rarity];
+    const div = document.createElement('div');
+    div.className = 'rc';
+    div.style.setProperty('--rc-col', rar.color);
+    div.innerHTML = `
+      <div class="rc-icon">${imgOrEmoji(item)}</div>
+      <div class="rc-name">${item.name}</div>
+    `;
+    track.appendChild(div);
   }
   track._cells = cells;
 }
 
-function pickItem(pool) {
-  const candidates = state.items.filter(i => pool.includes(i.rarity));
-  return candidates[Math.floor(Math.random() * candidates.length)];
-}
-
-function makeReelCell(item) {
-  const rar = RARITIES[item.rarity];
-  const div = document.createElement('div');
-  div.className = 'rc';
-  div.style.setProperty('--rc-col', rar.color);
-  const cellSize = 120; // Match CSS
-  div.style.width = cellSize + 'px';
-  div.style.height = cellSize + 'px';
-  div.innerHTML = `<div class="rc-icon">${imgOrEmoji(item)}</div><div class="rc-name">${item.name}</div>`;
-  return div;
-}
-
 function spin() {
   state.setSpinning(true);
-  const openBtn = querySelector('#openBtn');
-  const backBtn = querySelector('#backBtn');
-  const reelWrap = querySelector('#reelWrap');
-  const track = querySelector('#reelTrack');
   
-  // Hide buttons during spin
-  hideElement(openBtn);
-  hideElement(backBtn);
-  showElement(reelWrap, 'block');
+  const openBtn = $('#openBtn');
+  const backBtn = $('#backBtn');
+  const reelWrap = $('#reelWrap');
+  const track = $('#reelTrack');
+  
+  hide(openBtn);
+  hide(backBtn);
+  show(reelWrap, 'block');
 
   buildReel();
 
   const cells = track._cells;
-  const CELL_W = 120; // Match CSS
+  const CELL_W = 120;
   const wrapW = reelWrap.offsetWidth;
   const center = wrapW / 2;
 
   const centerIdx = Math.floor(cells.length / 2);
-  const offset = Math.floor(SPIN_CONFIG.winWindow / 2);
-  const targetIdx = centerIdx - offset + Math.floor(Math.random() * SPIN_CONFIG.winWindow);
-  
+  const targetIdx = centerIdx - 10 + Math.floor(Math.random() * 20);
   const targetCenter = targetIdx * CELL_W + CELL_W / 2;
   const finalX = -(targetCenter - center);
 
   void track.offsetWidth;
 
-  const dur = SPIN_CONFIG.minDuration + Math.random() * (SPIN_CONFIG.maxDuration - SPIN_CONFIG.minDuration);
+  const dur = 10000 + Math.random() * 5000;
 
-  track.style.transition = `transform ${dur}ms ${SPIN_CONFIG.easing}`;
+  track.style.transition = `transform ${dur}ms cubic-bezier(0.08, 0.92, 0.22, 1.0)`;
   track.style.transform = `translateX(${finalX}px)`;
 
   setTimeout(() => {
@@ -244,7 +226,6 @@ function spin() {
 function showSplash(item) {
   const rar = RARITIES[item.rarity];
   
-  // Create splash overlay
   const splash = document.createElement('div');
   splash.className = 'splash-overlay';
   splash.style.background = rar.color;
@@ -258,17 +239,15 @@ function showSplash(item) {
   
   document.body.appendChild(splash);
   
-  // Animate in
   setTimeout(() => splash.classList.add('show'), 10);
   
-  // Remove after 5 seconds and show buttons again
   setTimeout(() => {
     splash.classList.remove('show');
     setTimeout(() => {
       splash.remove();
-      showElement(querySelector('#openBtn'));
-      showElement(querySelector('#backBtn'));
-      hideElement(querySelector('#reelWrap'));
+      show($('#openBtn'));
+      show($('#backBtn'));
+      hide($('#reelWrap'));
       updateInventory();
     }, 300);
   }, 5000);
@@ -279,8 +258,8 @@ function showSplash(item) {
 // ============================================================================
 
 function updateInventory() {
-  const grid = querySelector('#invGrid');
-  const count = querySelector('#invCount');
+  const grid = $('#invGrid');
+  const count = $('#invCount');
   
   if (count) {
     count.textContent = state.inventory.length + ' item' + (state.inventory.length !== 1 ? 's' : '');
@@ -291,22 +270,16 @@ function updateInventory() {
     return;
   }
 
-  let html = '';
-  
-  // Group inventory by category
-  const byCategory = {
-    weapons: [],
-    armor: [],
-    equipment: []
-  };
+  const byCategory = { weapons: [], armor: [], equipment: [] };
   
   state.inventory.forEach((item, idx) => {
-    item._invIndex = idx; // Store index for deletion
+    item._invIndex = idx;
     if (byCategory[item.category]) {
       byCategory[item.category].push(item);
     }
   });
 
+  let html = '';
   Object.entries(byCategory).forEach(([catKey, items]) => {
     if (items.length === 0) return;
     const cat = ITEM_CATEGORIES[catKey];
@@ -329,40 +302,6 @@ function updateInventory() {
   });
 
   grid.innerHTML = html;
-  
-  // Attach delete handlers
-  addEventDelegation(grid, 'click', '.inv-tile-delete', function() {
-    const idx = parseInt(this.dataset.index);
-    state.removeFromInventory(idx);
-    updateInventory();
-  });
-}
-
-// ============================================================================
-// CASES
-// ============================================================================
-
-function renderCaseTiles() {
-  const grid = querySelector('#caseSelectGrid');
-  grid.innerHTML = CASES.map(c => `<div class="case-tile" data-case="${c.id}" style="border-color:${c.color}"><div style="font-size:20px; margin-bottom:6px;">📦</div><div>${c.name}</div></div>`).join('');
-  addEventDelegation(grid, 'click', '.case-tile', function() {
-    const id = this.dataset.case;
-    state.setActiveCase(CASES.find(c => c.id === id));
-    enterCaseOpening();
-  });
-}
-
-function enterCaseOpening() {
-  hideElement(querySelector('#caseSelectGrid'));
-  querySelector('#caseOpenContainer').classList.add('active');
-  showElement(querySelector('#openBtn'));
-  showElement(querySelector('#backBtn'));
-  hideElement(querySelector('#reelWrap'));
-}
-
-function exitCaseOpening() {
-  showElement(querySelector('#caseSelectGrid'), 'grid');
-  querySelector('#caseOpenContainer').classList.remove('active');
 }
 
 // ============================================================================
@@ -370,18 +309,16 @@ function exitCaseOpening() {
 // ============================================================================
 
 function renderLootRarityTabs() {
-  const container = querySelector('#rarityTabs');
-  container.innerHTML = RARITY_ORDER.map(r => `<div class="rarity-tab ${r} ${state.activeRarityFilter === r ? 'active' : ''}" data-rarity="${r}"></div>`).join('');
-  addEventDelegation(container, 'click', '.rarity-tab', function() {
-    state.toggleRarityFilter(this.dataset.rarity);
-    renderLootRarityTabs();
-    renderLootPanel();
-  });
+  const container = $('#rarityTabs');
+  container.innerHTML = RARITY_ORDER.map(r => 
+    `<div class="rarity-tab ${r} ${state.activeRarityFilter === r ? 'active' : ''}" data-rarity="${r}"></div>`
+  ).join('');
 }
 
 function renderLootPanel() {
-  const content = querySelector('#lootContent');
+  const content = $('#lootContent');
   if (!state.items.length) return;
+  
   let html = '';
   
   Object.entries(ITEM_CATEGORIES).forEach(([catKey, cat]) => {
@@ -390,62 +327,125 @@ function renderLootPanel() {
       items = items.filter(i => i.rarity === state.activeRarityFilter);
     }
     if (!items.length) return;
+    
     items = items.sort((a, b) => RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity));
-    html += `<div class="loot-category-section"><div class="loot-category-header">${cat.label}</div><div class="loot-items-list">${items.map(i => {
+    
+    html += `<div class="loot-category-section">
+      <div class="loot-category-header">${cat.label}</div>
+      <div class="loot-items-list">`;
+    
+    items.forEach(i => {
       const rar = RARITIES[i.rarity];
-      return `<div class="loot-item"><div class="loot-item-icon">${imgOrEmoji(i)}</div><div class="loot-item-name">${i.name}</div><div class="loot-item-rarity" style="color:${rar.color}">${rar.label}</div></div>`;
-    }).join('')}</div></div>`;
+      html += `<div class="loot-item">
+        <div class="loot-item-icon">${imgOrEmoji(i)}</div>
+        <div class="loot-item-name">${i.name}</div>
+        <div class="loot-item-rarity" style="color:${rar.color}">${rar.label}</div>
+      </div>`;
+    });
+    
+    html += `</div></div>`;
   });
+  
   if (!html) html = '<div style="padding:40px; text-align:center; color: var(--dim);">No items found</div>';
   content.innerHTML = html;
 }
 
 // ============================================================================
-// NAVIGATION
+// MENU & TABS
 // ============================================================================
 
-function switchTab(tab) {
-  querySelectorAll('.content-panel').forEach(p => p.classList.remove('active'));
-  querySelector(tab + 'Panel').classList.add('active');
-  querySelectorAll('.menu-item').forEach(m => m.classList.toggle('active', m.dataset.tab === tab));
-  if (tab === 'loot') {
-    renderLootPanel();
-    renderLootRarityTabs();
-  }
-  hideElement(querySelector('#menuDropdown'));
-}
-
 function setupMenu() {
-  querySelector('#menuBtn').addEventListener('click', (e) => {
+  const menuBtn = $('#menuBtn');
+  const menuDropdown = $('#menuDropdown');
+  
+  menuBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    toggleClass(querySelector('#menuDropdown'), 'show');
+    menuDropdown.classList.toggle('show');
   });
+  
   document.addEventListener('click', (e) => {
     if (!e.target.closest('#menuBtn') && !e.target.closest('#menuDropdown')) {
-      querySelector('#menuDropdown').classList.remove('show');
+      menuDropdown.classList.remove('show');
     }
   });
   
-  querySelectorAll('.menu-item').forEach(item => {
+  $$('.menu-item').forEach(item => {
     item.addEventListener('click', () => {
-      const tab = item.dataset.tab;
-      switchTab(tab);
+      switchTab(item.dataset.tab);
+      menuDropdown.classList.remove('show');
     });
   });
 }
 
+function switchTab(tab) {
+  $$('.content-panel').forEach(p => p.classList.remove('active'));
+  $(`#${tab}Panel`).classList.add('active');
+  
+  $$('.menu-item').forEach(m => {
+    m.classList.toggle('active', m.dataset.tab === tab);
+  });
+}
+
 // ============================================================================
-// INITIALIZATION
+// EVENT HANDLERS (Consolidated to prevent memory leaks)
 // ============================================================================
 
-async function initApp() {
+function setupEventHandlers() {
+  // Case Opening Controls
+  $('#openBtn').addEventListener('click', () => {
+    if (state.spinning || !state.items.length) return;
+    spin();
+  });
+  
+  $('#backBtn').addEventListener('click', () => {
+    exitCaseOpening();
+  });
+
+  // Case Selection Grid
+  $('#caseSelectGrid').addEventListener('click', (e) => {
+    const tile = e.target.closest('.case-tile');
+    if (tile) {
+      const caseId = tile.dataset.case;
+      state.setActiveCase(CASES.find(c => c.id === caseId));
+      enterCaseOpening();
+    }
+  });
+
+  // Inventory Deletion
+  $('#invGrid').addEventListener('click', (e) => {
+    const btn = e.target.closest('.inv-tile-delete');
+    if (btn) {
+      const idx = parseInt(btn.dataset.index);
+      state.removeFromInventory(idx);
+      updateInventory();
+    }
+  });
+
+  // Loot Rarity Filtering Tabs
+  $('#rarityTabs').addEventListener('click', (e) => {
+    const tab = e.target.closest('.rarity-tab');
+    if (tab) {
+      state.toggleRarityFilter(tab.dataset.rarity);
+      renderLootRarityTabs();
+      renderLootPanel();
+    }
+  });
+}
+
+// ============================================================================
+// INIT
+// ============================================================================
+
+async function init() {
   const all = await loadAllItems();
   if (!all.length) {
-    console.warn("No items loaded");
+    console.warn("No items loaded - verify your JSON files exist and are being served via a local web server (CORS).");
     return;
   }
+  
   const items = autoAssignRarities(all);
   state.setItems(items);
+  
   renderCaseTiles();
   updateInventory();
   renderLootPanel();
@@ -454,26 +454,8 @@ async function initApp() {
   setupEventHandlers();
 }
 
-function setupEventHandlers() {
-  querySelector('#openBtn').addEventListener('click', handleOpenCase);
-  querySelector('#backBtn').addEventListener('click', exitCaseOpening);
-}
-
-function handleOpenCase() {
-  if (state.spinning || !state.items.length) return;
-  const openBtn = querySelector('#openBtn');
-  const reelWrap = querySelector('#reelWrap');
-  const resultPanel = querySelector('#resultPanel');
-  hideElement(openBtn);
-  hideElement(resultPanel);
-  resultPanel.classList.remove('show');
-  showElement(reelWrap, 'block');
-  reelWrap.classList.add('show');
-  setTimeout(spin, 500);
-}
-
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
+  document.addEventListener('DOMContentLoaded', init);
 } else {
-  initApp();
+  init();
 }
