@@ -1,1 +1,160 @@
-
+{
+  "armor": [
+    {
+      "id": "padded",
+      "name": "Padded",
+      "cost": 500,
+      "armor_class": "11 + Dex modifier",
+      "armor_type": "light",
+      "strength": null,
+      "stealth": "Disadvantage",
+      "weight": "8 lb",
+      "image": "/images/padded.png",
+      "tags": ["armor", "light"]
+    },
+    {
+      "id": "leather",
+      "name": "Leather",
+      "cost": 1000,
+      "armor_class": "11 + Dex modifier",
+      "armor_type": "light",
+      "strength": null,
+      "stealth": null,
+      "weight": "10 lb",
+      "image": "/images/leather.png",
+      "tags": ["armor", "light"]
+    },
+    {
+      "id": "studded_leather",
+      "name": "Studded Leather",
+      "cost": 4500,
+      "armor_class": "12 + Dex modifier",
+      "armor_type": "light",
+      "strength": null,
+      "stealth": null,
+      "weight": "13 lb",
+      "image": "/images/studded_leather.png",
+      "tags": ["armor", "light"]
+    },
+    {
+      "id": "hide",
+      "name": "Hide",
+      "cost": 1000,
+      "armor_class": "12 + Dex modifier (max 2)",
+      "armor_type": "medium",
+      "strength": null,
+      "stealth": null,
+      "weight": "12 lb",
+      "image": "/images/hide.png",
+      "tags": ["armor", "medium"]
+    },
+    {
+      "id": "chain_shirt",
+      "name": "Chain Shirt",
+      "cost": 5000,
+      "armor_class": "13 + Dex modifier (max 2)",
+      "armor_type": "medium",
+      "strength": null,
+      "stealth": null,
+      "weight": "20 lb",
+      "image": "/images/chain_shirt.png",
+      "tags": ["armor", "medium"]
+    },
+    {
+      "id": "scale_mail",
+      "name": "Scale Mail",
+      "cost": 5000,
+      "armor_class": "14 + Dex modifier (max 2)",
+      "armor_type": "medium",
+      "strength": null,
+      "stealth": "Disadvantage",
+      "weight": "45 lb",
+      "image": "/images/scale_mail.png",
+      "tags": ["armor", "medium"]
+    },
+    {
+      "id": "breastplate",
+      "name": "Breastplate",
+      "cost": 40000,
+      "armor_class": "14 + Dex modifier (max 2)",
+      "armor_type": "medium",
+      "strength": null,
+      "stealth": null,
+      "weight": "20 lb",
+      "image": "/images/breastplate.png",
+      "tags": ["armor", "medium"]
+    },
+    {
+      "id": "half_plate",
+      "name": "Half Plate",
+      "cost": 75000,
+      "armor_class": "15 + Dex modifier (max 2)",
+      "armor_type": "medium",
+      "strength": null,
+      "stealth": "Disadvantage",
+      "weight": "40 lb",
+      "image": "/images/half_plate.png",
+      "tags": ["armor", "medium"]
+    },
+    {
+      "id": "ring_mail",
+      "name": "Ring Mail",
+      "cost": 3000,
+      "armor_class": "14",
+      "armor_type": "heavy",
+      "strength": null,
+      "stealth": "Disadvantage",
+      "weight": "40 lb",
+      "image": "/images/ring_mail.png",
+      "tags": ["armor", "heavy"]
+    },
+    {
+      "id": "chain_mail",
+      "name": "Chain Mail",
+      "cost": 7500,
+      "armor_class": "16",
+      "armor_type": "heavy",
+      "strength": "13",
+      "stealth": "Disadvantage",
+      "weight": "55 lb",
+      "image": "/images/chain_mail.png",
+      "tags": ["armor", "heavy"]
+    },
+    {
+      "id": "splint",
+      "name": "Splint",
+      "cost": 20000,
+      "armor_class": "17",
+      "armor_type": "heavy",
+      "strength": "15",
+      "stealth": "Disadvantage",
+      "weight": "60 lb",
+      "image": "/images/splint.png",
+      "tags": ["armor", "heavy"]
+    },
+    {
+      "id": "plate",
+      "name": "Plate",
+      "cost": 150000,
+      "armor_class": "18",
+      "armor_type": "heavy",
+      "strength": "15",
+      "stealth": "Disadvantage",
+      "weight": "65 lb",
+      "image": "/images/plate.png",
+      "tags": ["armor", "heavy"]
+    },
+    {
+      "id": "shield",
+      "name": "Shield",
+      "cost": 1000,
+      "armor_class": "+2",
+      "armor_type": "shield",
+      "strength": null,
+      "stealth": null,
+      "weight": "6 lb",
+      "image": "/images/shield.png",
+      "tags": ["armor", "shield"]
+    }
+  ]
+}
