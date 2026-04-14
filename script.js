@@ -29,7 +29,7 @@ const SYSTEMS = {
       { id: 'c3', name: 'Marine Armory',    color: '#3a7ccf', pool: ['uncommon','rare','epic'] },
       { id: 'c4', name: 'Black Budget',     color: '#e67e22', pool: ['rare','epic','legendary'] }
     ],
-    itemFiles: ['weapons.json', 'armor.json', 'equipment.json'],
+    itemFiles: ['mosh-weapons.json', 'mosh-mosh-armor.json', 'mosh-mosh-equipment.json'],
     categories: { weapons: 'Weapons', armor: 'Armor', equipment: 'Equipment' }
   },
   dnd: {
@@ -40,7 +40,7 @@ const SYSTEMS = {
       { id: 'd2', name: "Merchant's Stock",  color: '#3fbf5a', pool: ['common','uncommon','rare'] },
       { id: 'd3', name: "Dragon's Hoard",    color: '#e67e22', pool: ['rare','epic','legendary'] }
     ],
-    itemFiles: ['dnd-weapons.json', 'dnd-armor.json', 'dnd-gear.json'],
+    itemFiles: ['dnd-mosh-weapons.json', 'dnd-mosh-armor.json', 'dnd-gear.json'],
     categories: { weapons: 'Weapons', armor: 'Armour', equipment: 'Items' }
   }
 };
@@ -91,7 +91,7 @@ const state = new AppState();
 
 // LOAD ITEMS
 
-async function loadAllItems(files = ['weapons.json', 'armor.json', 'equipment.json']) {
+async function loadAllItems(files = ['mosh-weapons.json', 'mosh-armor.json', 'mosh-equipment.json']) {
   try {
     const [weaponsData, armorData, equipmentData] = await Promise.all(
       files.map(f => fetch(`./${f}`).then(r => r.json()).catch(() => ({})))
