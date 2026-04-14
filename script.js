@@ -40,7 +40,7 @@ const SYSTEMS = {
       { id: 'd2', name: "Merchant's Stock",  color: '#3fbf5a', pool: ['common','uncommon','rare'] },
       { id: 'd3', name: "Dragon's Hoard",    color: '#e67e22', pool: ['rare','epic','legendary'] }
     ],
-    itemFiles: ['dnd-weapons.json', 'dnd-armor.json', 'dnd-equipment.json'],
+    itemFiles: ['dnd-weapons.json', 'dnd-armor.json', 'dnd-gear.json'],
     categories: { weapons: 'Weapons', armor: 'Armour', equipment: 'Items' }
   }
 };
