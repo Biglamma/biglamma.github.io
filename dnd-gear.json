@@ -1,1 +1,897 @@
+{
+  "gear": [
+    {
+      "id": "abacus",
+      "name": "Abacus",
+      "cost": 200,
+      "weight": "2 lb.",
+      "special": "",
+      "image": "/images/abacus.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "acid_vial",
+      "name": "Acid (vial)",
+      "cost": 2500,
+      "weight": "1 lb.",
+      "special": "",
+      "image": "/images/acid_vial.png",
+      "tags": ["equipment", "consumable"]
+    },
+    {
+      "id": "alchemists_fire",
+      "name": "Alchemist's Fire (flask)",
+      "cost": 5000,
+      "weight": "1 lb.",
+      "special": "",
+      "image": "/images/alchemists_fire.png",
+      "tags": ["equipment", "consumable"]
+    },
+    {
+      "id": "arrows",
+      "name": "Arrows (20)",
+      "cost": 100,
+      "weight": "1 lb.",
+      "special": "",
+      "image": "/images/arrows.png",
+      "tags": ["equipment", "ammunition"]
+    },
+    {
+      "id": "blowgun_needles",
+      "name": "Blowgun Needles (50)",
+      "cost": 100,
+      "weight": "1 lb.",
+      "special": "",
+      "image": "/images/blowgun_needles.png",
+      "tags": ["equipment", "ammunition"]
+    },
+    {
+      "id": "crossbow_bolts",
+      "name": "Crossbow Bolts (20)",
+      "cost": 100,
+      "weight": "1½ lb.",
+      "special": "",
+      "image": "/images/crossbow_bolts.png",
+      "tags": ["equipment", "ammunition"]
+    },
+    {
+      "id": "sling_bullets",
+      "name": "Sling Bullets (20)",
+      "cost": 4,
+      "weight": "1½ lb.",
+      "special": "",
+      "image": "/images/sling_bullets.png",
+      "tags": ["equipment", "ammunition"]
+    },
+    {
+      "id": "antitoxin",
+      "name": "Antitoxin (vial)",
+      "cost": 5000,
+      "weight": "—",
+      "special": "",
+      "image": "/images/antitoxin.png",
+      "tags": ["equipment", "consumable"]
+    },
+    {
+      "id": "arcane_focus_crystal",
+      "name": "Arcane Focus — Crystal",
+      "cost": 1000,
+      "weight": "1 lb.",
+      "special": "Arcane focus",
+      "image": "/images/arcane_focus_crystal.png",
+      "tags": ["equipment", "focus"]
+    },
+    {
+      "id": "arcane_focus_orb",
+      "name": "Arcane Focus — Orb",
+      "cost": 2000,
+      "weight": "3 lb.",
+      "special": "Arcane focus",
+      "image": "/images/arcane_focus_orb.png",
+      "tags": ["equipment", "focus"]
+    },
+    {
+      "id": "arcane_focus_rod",
+      "name": "Arcane Focus — Rod",
+      "cost": 1000,
+      "weight": "2 lb.",
+      "special": "Arcane focus",
+      "image": "/images/arcane_focus_rod.png",
+      "tags": ["equipment", "focus"]
+    },
+    {
+      "id": "arcane_focus_staff",
+      "name": "Arcane Focus — Staff",
+      "cost": 500,
+      "weight": "4 lb.",
+      "special": "Arcane focus",
+      "image": "/images/arcane_focus_staff.png",
+      "tags": ["equipment", "focus"]
+    },
+    {
+      "id": "arcane_focus_wand",
+      "name": "Arcane Focus — Wand",
+      "cost": 1000,
+      "weight": "1 lb.",
+      "special": "Arcane focus",
+      "image": "/images/arcane_focus_wand.png",
+      "tags": ["equipment", "focus"]
+    },
+    {
+      "id": "backpack",
+      "name": "Backpack",
+      "cost": 200,
+      "weight": "5 lb.",
+      "special": "",
+      "image": "/images/backpack.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "ball_bearings",
+      "name": "Ball Bearings (bag of 1,000)",
+      "cost": 100,
+      "weight": "2 lb.",
+      "special": "",
+      "image": "/images/ball_bearings.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "barrel",
+      "name": "Barrel",
+      "cost": 200,
+      "weight": "70 lb.",
+      "special": "",
+      "image": "/images/barrel.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "basket",
+      "name": "Basket",
+      "cost": 40,
+      "weight": "2 lb.",
+      "special": "",
+      "image": "/images/basket.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "bedroll",
+      "name": "Bedroll",
+      "cost": 100,
+      "weight": "7 lb.",
+      "special": "",
+      "image": "/images/bedroll.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "bell",
+      "name": "Bell",
+      "cost": 100,
+      "weight": "—",
+      "special": "",
+      "image": "/images/bell.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "blanket",
+      "name": "Blanket",
+      "cost": 50,
+      "weight": "3 lb.",
+      "special": "",
+      "image": "/images/blanket.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "block_and_tackle",
+      "name": "Block and Tackle",
+      "cost": 100,
+      "weight": "5 lb.",
+      "special": "",
+      "image": "/images/block_and_tackle.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "book",
+      "name": "Book",
+      "cost": 2500,
+      "weight": "5 lb.",
+      "special": "",
+      "image": "/images/book.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "bottle_glass",
+      "name": "Bottle, Glass",
+      "cost": 200,
+      "weight": "2 lb.",
+      "special": "",
+      "image": "/images/bottle_glass.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "bucket",
+      "name": "Bucket",
+      "cost": 5,
+      "weight": "2 lb.",
+      "special": "",
+      "image": "/images/bucket.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "caltrops",
+      "name": "Caltrops (bag of 20)",
+      "cost": 100,
+      "weight": "2 lb.",
+      "special": "",
+      "image": "/images/caltrops.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "candle",
+      "name": "Candle",
+      "cost": 1,
 
+      "weight": "—",
+      "special": "",
+      "image": "/images/candle.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "case_crossbow_bolt",
+      "name": "Case, Crossbow Bolt",
+      "cost": 100,
+      "weight": "1 lb.",
+      "special": "",
+      "image": "/images/case_crossbow_bolt.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "case_map_or_scroll",
+      "name": "Case, Map or Scroll",
+      "cost": 100,
+      "weight": "1 lb.",
+      "special": "",
+      "image": "/images/case_map_or_scroll.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "chain",
+      "name": "Chain (10 feet)",
+      "cost": 500,
+      "weight": "10 lb.",
+      "special": "",
+      "image": "/images/chain.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "chalk",
+      "name": "Chalk (1 piece)",
+      "cost": 1,
+
+      "weight": "—",
+      "special": "",
+      "image": "/images/chalk.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "chest",
+      "name": "Chest",
+      "cost": 500,
+      "weight": "25 lb.",
+      "special": "",
+      "image": "/images/chest.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "climbers_kit",
+      "name": "Climber's Kit",
+      "cost": 2500,
+      "weight": "12 lb.",
+      "special": "",
+      "image": "/images/climbers_kit.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "clothes_common",
+      "name": "Clothes, Common",
+      "cost": 50,
+      "weight": "3 lb.",
+      "special": "",
+      "image": "/images/clothes_common.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "clothes_costume",
+      "name": "Clothes, Costume",
+      "cost": 500,
+      "weight": "4 lb.",
+      "special": "",
+      "image": "/images/clothes_costume.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "clothes_fine",
+      "name": "Clothes, Fine",
+      "cost": 1500,
+      "weight": "6 lb.",
+      "special": "",
+      "image": "/images/clothes_fine.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "clothes_travelers",
+      "name": "Clothes, Traveler's",
+      "cost": 200,
+      "weight": "4 lb.",
+      "special": "",
+      "image": "/images/clothes_travelers.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "component_pouch",
+      "name": "Component Pouch",
+      "cost": 2500,
+      "weight": "2 lb.",
+      "special": "",
+      "image": "/images/component_pouch.png",
+      "tags": ["equipment", "focus"]
+    },
+    {
+      "id": "crowbar",
+      "name": "Crowbar",
+      "cost": 200,
+      "weight": "5 lb.",
+      "special": "",
+      "image": "/images/crowbar.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "druidic_focus_mistletoe",
+      "name": "Druidic Focus — Sprig of Mistletoe",
+      "cost": 100,
+      "weight": "—",
+      "special": "Druidic focus",
+      "image": "/images/druidic_focus_mistletoe.png",
+      "tags": ["equipment", "focus"]
+    },
+    {
+      "id": "druidic_focus_totem",
+      "name": "Druidic Focus — Totem",
+      "cost": 100,
+      "weight": "—",
+      "special": "Druidic focus",
+      "image": "/images/druidic_focus_totem.png",
+      "tags": ["equipment", "focus"]
+    },
+    {
+      "id": "druidic_focus_staff",
+      "name": "Druidic Focus — Wooden Staff",
+      "cost": 500,
+      "weight": "4 lb.",
+      "special": "Druidic focus",
+      "image": "/images/druidic_focus_staff.png",
+      "tags": ["equipment", "focus"]
+    },
+    {
+      "id": "druidic_focus_wand",
+      "name": "Druidic Focus — Yew Wand",
+      "cost": 1000,
+      "weight": "1 lb.",
+      "special": "Druidic focus",
+      "image": "/images/druidic_focus_wand.png",
+      "tags": ["equipment", "focus"]
+    },
+    {
+      "id": "fishing_tackle",
+      "name": "Fishing Tackle",
+      "cost": 100,
+      "weight": "4 lb.",
+      "special": "",
+      "image": "/images/fishing_tackle.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "flask_or_tankard",
+      "name": "Flask or Tankard",
+      "cost": 2,
+      "weight": "1 lb.",
+      "special": "",
+      "image": "/images/flask_or_tankard.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "grappling_hook",
+      "name": "Grappling Hook",
+      "cost": 200,
+      "weight": "4 lb.",
+      "special": "",
+      "image": "/images/grappling_hook.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "hammer",
+      "name": "Hammer",
+      "cost": 100,
+      "weight": "3 lb.",
+      "special": "",
+      "image": "/images/hammer.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "hammer_sledge",
+      "name": "Hammer, Sledge",
+      "cost": 200,
+      "weight": "10 lb.",
+      "special": "",
+      "image": "/images/hammer_sledge.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "healers_kit",
+      "name": "Healer's Kit",
+      "cost": 500,
+      "weight": "3 lb.",
+      "special": "",
+      "image": "/images/healers_kit.png",
+      "tags": ["equipment", "consumable"]
+    },
+    {
+      "id": "holy_symbol_amulet",
+      "name": "Holy Symbol — Amulet",
+      "cost": 500,
+      "weight": "1 lb.",
+      "special": "Holy symbol",
+      "image": "/images/holy_symbol_amulet.png",
+      "tags": ["equipment", "focus"]
+    },
+    {
+      "id": "holy_symbol_emblem",
+      "name": "Holy Symbol — Emblem",
+      "cost": 500,
+      "weight": "—",
+      "special": "Holy symbol",
+      "image": "/images/holy_symbol_emblem.png",
+      "tags": ["equipment", "focus"]
+    },
+    {
+      "id": "holy_symbol_reliquary",
+      "name": "Holy Symbol — Reliquary",
+      "cost": 500,
+      "weight": "2 lb.",
+      "special": "Holy symbol",
+      "image": "/images/holy_symbol_reliquary.png",
+      "tags": ["equipment", "focus"]
+    },
+    {
+      "id": "holy_water",
+      "name": "Holy Water (flask)",
+      "cost": 2500,
+      "weight": "1 lb.",
+      "special": "",
+      "image": "/images/holy_water.png",
+      "tags": ["equipment", "consumable"]
+    },
+    {
+      "id": "hourglass",
+      "name": "Hourglass",
+      "cost": 2500,
+      "weight": "1 lb.",
+      "special": "",
+      "image": "/images/hourglass.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "hunting_trap",
+      "name": "Hunting Trap",
+      "cost": 500,
+      "weight": "25 lb.",
+      "special": "",
+      "image": "/images/hunting_trap.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "ink",
+      "name": "Ink (1 ounce bottle)",
+      "cost": 1000,
+      "weight": "—",
+      "special": "",
+      "image": "/images/ink.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "ink_pen",
+      "name": "Ink Pen",
+      "cost": 2,
+      "weight": "—",
+      "special": "",
+      "image": "/images/ink_pen.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "jug_or_pitcher",
+      "name": "Jug or Pitcher",
+      "cost": 2,
+      "weight": "4 lb.",
+      "special": "",
+      "image": "/images/jug_or_pitcher.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "ladder",
+      "name": "Ladder (10-foot)",
+      "cost": 10,
+      "weight": "25 lb.",
+      "special": "",
+      "image": "/images/ladder.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "lamp",
+      "name": "Lamp",
+      "cost": 50,
+      "weight": "1 lb.",
+      "special": "",
+      "image": "/images/lamp.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "lantern_bullseye",
+      "name": "Lantern, Bullseye",
+      "cost": 1000,
+      "weight": "2 lb.",
+      "special": "",
+      "image": "/images/lantern_bullseye.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "lantern_hooded",
+      "name": "Lantern, Hooded",
+      "cost": 500,
+      "weight": "2 lb.",
+      "special": "",
+      "image": "/images/lantern_hooded.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "lock",
+      "name": "Lock",
+      "cost": 1000,
+      "weight": "1 lb.",
+      "special": "",
+      "image": "/images/lock.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "magnifying_glass",
+      "name": "Magnifying Glass",
+      "cost": 10000,
+      "weight": "—",
+      "special": "",
+      "image": "/images/magnifying_glass.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "manacles",
+      "name": "Manacles",
+      "cost": 200,
+      "weight": "6 lb.",
+      "special": "",
+      "image": "/images/manacles.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "mess_kit",
+      "name": "Mess Kit",
+      "cost": 20,
+      "weight": "1 lb.",
+      "special": "",
+      "image": "/images/mess_kit.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "mirror_steel",
+      "name": "Mirror, Steel",
+      "cost": 500,
+      "weight": "½ lb.",
+      "special": "",
+      "image": "/images/mirror_steel.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "oil_flask",
+      "name": "Oil (flask)",
+      "cost": 10,
+      "weight": "1 lb.",
+      "special": "",
+      "image": "/images/oil_flask.png",
+      "tags": ["equipment", "consumable"]
+    },
+    {
+      "id": "paper",
+      "name": "Paper (one sheet)",
+      "cost": 20,
+      "weight": "—",
+      "special": "",
+      "image": "/images/paper.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "parchment",
+      "name": "Parchment (one sheet)",
+      "cost": 10,
+      "weight": "—",
+      "special": "",
+      "image": "/images/parchment.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "perfume",
+      "name": "Perfume (vial)",
+      "cost": 500,
+      "weight": "—",
+      "special": "",
+      "image": "/images/perfume.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "pick_miners",
+      "name": "Pick, Miner's",
+      "cost": 200,
+      "weight": "10 lb.",
+      "special": "",
+      "image": "/images/pick_miners.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "piton",
+      "name": "Piton",
+      "cost": 5,
+      "weight": "¼ lb.",
+      "special": "",
+      "image": "/images/piton.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "poison_basic",
+      "name": "Poison, Basic (vial)",
+      "cost": 10000,
+      "weight": "—",
+      "special": "",
+      "image": "/images/poison_basic.png",
+      "tags": ["equipment", "consumable"]
+    },
+    {
+      "id": "pole",
+      "name": "Pole (10-foot)",
+      "cost": 5,
+      "weight": "7 lb.",
+      "special": "",
+      "image": "/images/pole.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "pot_iron",
+      "name": "Pot, Iron",
+      "cost": 200,
+      "weight": "10 lb.",
+      "special": "",
+      "image": "/images/pot_iron.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "potion_of_healing",
+      "name": "Potion of Healing",
+      "cost": 5000,
+      "weight": "½ lb.",
+      "special": "Regain 2d4+2 HP",
+      "image": "/images/potion_of_healing.png",
+      "tags": ["equipment", "consumable"]
+    },
+    {
+      "id": "pouch",
+      "name": "Pouch",
+      "cost": 50,
+      "weight": "1 lb.",
+      "special": "",
+      "image": "/images/pouch.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "quiver",
+      "name": "Quiver",
+      "cost": 100,
+      "weight": "1 lb.",
+      "special": "",
+      "image": "/images/quiver.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "ram_portable",
+      "name": "Ram, Portable",
+      "cost": 400,
+      "weight": "35 lb.",
+      "special": "",
+      "image": "/images/ram_portable.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "rations",
+      "name": "Rations (1 day)",
+      "cost": 50,
+      "weight": "2 lb.",
+      "special": "",
+      "image": "/images/rations.png",
+      "tags": ["equipment", "consumable"]
+    },
+    {
+      "id": "robes",
+      "name": "Robes",
+      "cost": 100,
+      "weight": "4 lb.",
+      "special": "",
+      "image": "/images/robes.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "rope_hempen",
+      "name": "Rope, Hempen (50 feet)",
+      "cost": 100,
+      "weight": "10 lb.",
+      "special": "",
+      "image": "/images/rope_hempen.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "rope_silk",
+      "name": "Rope, Silk (50 feet)",
+      "cost": 1000,
+      "weight": "5 lb.",
+      "special": "",
+      "image": "/images/rope_silk.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "sack",
+      "name": "Sack",
+      "cost": 1,
+      "weight": "½ lb.",
+      "special": "",
+      "image": "/images/sack.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "scale_merchants",
+      "name": "Scale, Merchant's",
+      "cost": 500,
+      "weight": "3 lb.",
+      "special": "",
+      "image": "/images/scale_merchants.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "sealing_wax",
+      "name": "Sealing Wax",
+      "cost": 50,
+      "weight": "—",
+      "special": "",
+      "image": "/images/sealing_wax.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "shovel",
+      "name": "Shovel",
+      "cost": 200,
+      "weight": "5 lb.",
+      "special": "",
+      "image": "/images/shovel.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "signal_whistle",
+      "name": "Signal Whistle",
+      "cost": 5,
+      "weight": "—",
+      "special": "",
+      "image": "/images/signal_whistle.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "signet_ring",
+      "name": "Signet Ring",
+      "cost": 500,
+      "weight": "—",
+      "special": "",
+      "image": "/images/signet_ring.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "soap",
+      "name": "Soap",
+      "cost": 2,
+      "weight": "—",
+      "special": "",
+      "image": "/images/soap.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "spellbook",
+      "name": "Spellbook",
+      "cost": 5000,
+      "weight": "3 lb.",
+      "special": "",
+      "image": "/images/spellbook.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "spikes_iron",
+      "name": "Spikes, Iron (10)",
+      "cost": 100,
+      "weight": "5 lb.",
+      "special": "",
+      "image": "/images/spikes_iron.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "spyglass",
+      "name": "Spyglass",
+      "cost": 100000,
+      "weight": "1 lb.",
+      "special": "",
+      "image": "/images/spyglass.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "tent_two_person",
+      "name": "Tent, Two-Person",
+      "cost": 200,
+      "weight": "20 lb.",
+      "special": "",
+      "image": "/images/tent_two_person.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "tinderbox",
+      "name": "Tinderbox",
+      "cost": 50,
+      "weight": "1 lb.",
+      "special": "",
+      "image": "/images/tinderbox.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "torch",
+      "name": "Torch",
+      "cost": 1,
+      "weight": "1 lb.",
+      "special": "",
+      "image": "/images/torch.png",
+      "tags": ["equipment", "consumable"]
+    },
+    {
+      "id": "vial",
+      "name": "Vial",
+      "cost": 100,
+      "weight": "—",
+      "special": "",
+      "image": "/images/vial.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "waterskin",
+      "name": "Waterskin",
+      "cost": 20,
+      "weight": "5 lb. (full)",
+      "special": "",
+      "image": "/images/waterskin.png",
+      "tags": ["equipment"]
+    },
+    {
+      "id": "whetstone",
+      "name": "Whetstone",
+      "cost": 1,
+      "weight": "1 lb.",
+      "special": "",
+      "image": "/images/whetstone.png",
+      "tags": ["equipment"]
+    }
+  ]
+}
