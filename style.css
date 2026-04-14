@@ -37,36 +37,6 @@ body.theme-mothership {
   --disp: 'Bebas Neue', sans-serif;
 }
 
-/* ─── CAIRN THEME ─── */
-body.theme-cairn {
-  --bg: #0d100a;
-  --surface: #141a0f;
-  --border: #253020;
-  --text: #8fa882;
-  --bright: #d4e8c8;
-  --dim: #3a4d35;
-  --acc: #6daa4a;
-  --hover: rgba(109,170,74,0.1);
-  --panel: #141a0f;
-  --mono: 'Share Tech Mono', monospace;
-  --disp: 'Bebas Neue', sans-serif;
-}
-
-/* ─── BLADE RUNNER THEME ─── */
-body.theme-bladerunner {
-  --bg: #05040e;
-  --surface: #0a0818;
-  --border: #1a1035;
-  --text: #8a7faa;
-  --bright: #d8d0f5;
-  --dim: #3a2f60;
-  --acc: #c030d0;
-  --hover: rgba(192,48,208,0.1);
-  --panel: #0a0818;
-  --mono: 'Share Tech Mono', monospace;
-  --disp: 'Bebas Neue', sans-serif;
-}
-
 /* ─── D&D THEME ─── */
 body.theme-dnd {
   --bg: #1a1208;
@@ -362,16 +332,21 @@ body::before {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
   margin-top: 20px;
   margin-bottom: 20px;
   flex-wrap: wrap;
+  height: 100vh; /* allows bottom alignment */
+  padding: 20px;
+  box-sizing: border-box;
+  position: relative;
 }
 
 .open-btn {
-  width: 280px;
-  height: 280px;
+  width: 50vw;             
+  aspect-ratio: 1 / 1;      
+  max-width: 400px;       
   padding: 20px;
   background: rgba(224,82,40,0.1);
   border: 2px solid var(--acc);
@@ -388,8 +363,15 @@ body::before {
   text-align: center;
 }
 
-.open-btn:hover:not(:disabled) { transform: scale(1.05); box-shadow: 0 0 30px rgba(224,82,40,0.2); }
-.open-btn:disabled { opacity: .35; cursor: not-allowed; }
+.open-btn:hover:not(:disabled) { 
+  transform: scale(1.05); 
+  box-shadow: 0 0 30px rgba(224,82,40,0.2); 
+}
+
+.open-btn:disabled { 
+  opacity: .35; 
+  cursor: not-allowed; 
+}
 
 .back-btn {
   width: 50%;
@@ -406,9 +388,17 @@ body::before {
   align-items: center;
   justify-content: center;
   text-align: center;
+
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
 }
 
-.back-btn:hover { border-color: var(--acc); color: var(--acc); }
+.back-btn:hover { 
+  border-color: var(--acc); 
+  color: var(--acc); 
+}
 
 .reel-section {
   width: 80%;
