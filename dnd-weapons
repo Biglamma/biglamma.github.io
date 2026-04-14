@@ -3,7 +3,7 @@
     {
       "id": "club",
       "name": "Club",
-      "cost": "10 cp",
+      "cost": 10,
       "range": "Adjacent",
       "damage": "1d4",
       "damage_type": "bludgeoning",
@@ -15,7 +15,7 @@
     {
       "id": "dagger",
       "name": "Dagger",
-      "cost": "200 cp",
+      "cost": 200,
       "range": "Adjacent",
       "damage": "1d4",
       "damage_type": "piercing",
@@ -27,7 +27,7 @@
     {
       "id": "greatclub",
       "name": "Greatclub",
-      "cost": "20 cp",
+      "cost": 20,
       "range": "Adjacent",
       "damage": "1d8",
       "damage_type": "bludgeoning",
@@ -39,7 +39,7 @@
     {
       "id": "handaxe",
       "name": "Handaxe",
-      "cost": "500 cp",
+      "cost": 500,
       "range": "Adjacent",
       "damage": "1d6",
       "damage_type": "slashing",
@@ -51,7 +51,7 @@
     {
       "id": "javelin",
       "name": "Javelin",
-      "cost": "50 cp",
+      "cost": 50,
       "range": "Adjacent",
       "damage": "1d6",
       "damage_type": "piercing",
@@ -63,7 +63,7 @@
     {
       "id": "light_hammer",
       "name": "Light Hammer",
-      "cost": "200 cp",
+      "cost": 200,
       "range": "Adjacent",
       "damage": "1d4",
       "damage_type": "bludgeoning",
@@ -75,7 +75,7 @@
     {
       "id": "mace",
       "name": "Mace",
-      "cost": "500 cp",
+      "cost": 500,
       "range": "Adjacent",
       "damage": "1d6",
       "damage_type": "bludgeoning",
@@ -87,7 +87,7 @@
     {
       "id": "quarterstaff",
       "name": "Quarterstaff",
-      "cost": "20 cp",
+      "cost": 20,
       "range": "Adjacent",
       "damage": "1d6",
       "damage_type": "bludgeoning",
@@ -99,7 +99,7 @@
     {
       "id": "sickle",
       "name": "Sickle",
-      "cost": "100 cp",
+      "cost": 100,
       "range": "Adjacent",
       "damage": "1d4",
       "damage_type": "slashing",
@@ -111,7 +111,7 @@
     {
       "id": "spear",
       "name": "Spear",
-      "cost": "100 cp",
+      "cost": 100,
       "range": "Adjacent",
       "damage": "1d6",
       "damage_type": "piercing",
@@ -123,7 +123,7 @@
     {
       "id": "unarmed_strike",
       "name": "Unarmed Strike",
-      "cost": "N/A",
+      "cost": N/A",
       "range": "Adjacent",
       "damage": "1",
       "damage_type": "bludgeoning",
@@ -135,7 +135,7 @@
     {
       "id": "crossbow_light",
       "name": "Crossbow, Light",
-      "cost": "2500 cp",
+      "cost": 2500,
       "range": "Close",
       "damage": "1d8",
       "damage_type": "piercing",
@@ -147,7 +147,7 @@
     {
       "id": "dart",
       "name": "Dart",
-      "cost": "5 cp",
+      "cost": 5,
       "range": "Close",
       "damage": "1d4",
       "damage_type": "piercing",
@@ -159,7 +159,7 @@
     {
       "id": "shortbow",
       "name": "Shortbow",
-      "cost": "2500 cp",
+      "cost": 2500,
       "range": "Long",
       "damage": "1d6",
       "damage_type": "piercing",
@@ -171,7 +171,7 @@
     {
       "id": "sling",
       "name": "Sling",
-      "cost": "10 cp",
+      "cost": 10,
       "range": "Close",
       "damage": "1d4",
       "damage_type": "bludgeoning",
@@ -183,7 +183,7 @@
     {
       "id": "battleaxe",
       "name": "Battleaxe",
-      "cost": "1000 cp",
+      "cost": 1000,
       "range": "Adjacent",
       "damage": "1d8",
       "damage_type": "slashing",
@@ -195,7 +195,7 @@
     {
       "id": "flail",
       "name": "Flail",
-      "cost": "1000 cp",
+      "cost": 1000,
       "range": "Adjacent",
       "damage": "1d8",
       "damage_type": "bludgeoning",
@@ -207,7 +207,7 @@
     {
       "id": "glaive",
       "name": "Glaive",
-      "cost": "2000 cp",
+      "cost": 2000,
       "range": "Reach",
       "damage": "1d10",
       "damage_type": "slashing",
@@ -219,7 +219,7 @@
     {
       "id": "greataxe",
       "name": "Greataxe",
-      "cost": "3000 cp",
+      "cost": 3000,
       "range": "Adjacent",
       "damage": "1d12",
       "damage_type": "slashing",
@@ -231,7 +231,7 @@
     {
       "id": "greatsword",
       "name": "Greatsword",
-      "cost": "5000 cp",
+      "cost": 5000,
       "range": "Adjacent",
       "damage": "2d6",
       "damage_type": "slashing",
@@ -243,7 +243,7 @@
     {
       "id": "halberd",
       "name": "Halberd",
-      "cost": "2000 cp",
+      "cost": 2000,
       "range": "Reach",
       "damage": "1d10",
       "damage_type": "slashing",
@@ -255,7 +255,7 @@
     {
       "id": "lance",
       "name": "Lance",
-      "cost": "1000 cp",
+      "cost": 1000,
       "range": "Reach",
       "damage": "1d12",
       "damage_type": "piercing",
@@ -267,7 +267,7 @@
     {
       "id": "longsword",
       "name": "Longsword",
-      "cost": "1500 cp",
+      "cost": 1500,
       "range": "Adjacent",
       "damage": "1d8",
       "damage_type": "slashing",
@@ -279,7 +279,7 @@
     {
       "id": "maul",
       "name": "Maul",
-      "cost": "1000 cp",
+      "cost": 1000,
       "range": "Adjacent",
       "damage": "2d6",
       "damage_type": "bludgeoning",
@@ -291,7 +291,7 @@
     {
       "id": "morningstar",
       "name": "Morningstar",
-      "cost": "1500 cp",
+      "cost": 1500,
       "range": "Adjacent",
       "damage": "1d8",
       "damage_type": "piercing",
@@ -303,7 +303,7 @@
     {
       "id": "pike",
       "name": "Pike",
-      "cost": "500 cp",
+      "cost": 500,
       "range": "Reach",
       "damage": "1d10",
       "damage_type": "piercing",
@@ -315,7 +315,7 @@
     {
       "id": "rapier",
       "name": "Rapier",
-      "cost": "2500 cp",
+      "cost": 2500,
       "range": "Adjacent",
       "damage": "1d8",
       "damage_type": "piercing",
@@ -327,7 +327,7 @@
     {
       "id": "scimitar",
       "name": "Scimitar",
-      "cost": "2500 cp",
+      "cost": 2500,
       "range": "Adjacent",
       "damage": "1d6",
       "damage_type": "slashing",
@@ -339,7 +339,7 @@
     {
       "id": "shortsword",
       "name": "Shortsword",
-      "cost": "1000 cp",
+      "cost": 1000,
       "range": "Adjacent",
       "damage": "1d6",
       "damage_type": "piercing",
@@ -351,7 +351,7 @@
     {
       "id": "trident",
       "name": "Trident",
-      "cost": "500 cp",
+      "cost": 500,
       "range": "Adjacent",
       "damage": "1d6",
       "damage_type": "piercing",
@@ -363,7 +363,7 @@
     {
       "id": "war_pick",
       "name": "War Pick",
-      "cost": "500 cp",
+      "cost": 500,
       "range": "Adjacent",
       "damage": "1d8",
       "damage_type": "piercing",
@@ -375,7 +375,7 @@
     {
       "id": "warhammer",
       "name": "Warhammer",
-      "cost": "1500 cp",
+      "cost": 1500,
       "range": "Adjacent",
       "damage": "1d8",
       "damage_type": "bludgeoning",
@@ -387,7 +387,7 @@
     {
       "id": "whip",
       "name": "Whip",
-      "cost": "200 cp",
+      "cost": 200,
       "range": "Reach",
       "damage": "1d4",
       "damage_type": "slashing",
@@ -399,7 +399,7 @@
     {
       "id": "blowgun",
       "name": "Blowgun",
-      "cost": "1000 cp",
+      "cost": 1000,
       "range": "Close",
       "damage": "1",
       "damage_type": "piercing",
@@ -411,7 +411,7 @@
     {
       "id": "crossbow_hand",
       "name": "Crossbow, Hand",
-      "cost": "7500 cp",
+      "cost": 7500,
       "range": "Close",
       "damage": "1d6",
       "damage_type": "piercing",
@@ -423,7 +423,7 @@
     {
       "id": "crossbow_heavy",
       "name": "Crossbow, Heavy",
-      "cost": "5000 cp",
+      "cost": 5000,
       "range": "Long",
       "damage": "1d10",
       "damage_type": "piercing",
@@ -435,7 +435,7 @@
     {
       "id": "longbow",
       "name": "Longbow",
-      "cost": "5000 cp",
+      "cost": 5000,
       "range": "Long",
       "damage": "1d8",
       "damage_type": "piercing",
@@ -447,7 +447,7 @@
     {
       "id": "net",
       "name": "Net",
-      "cost": "100 cp",
+      "cost": 100,
       "range": "Close",
       "damage": "N/A",
       "damage_type": "N/A",
