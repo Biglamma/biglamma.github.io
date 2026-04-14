@@ -121,18 +121,6 @@
       "tags": ["melee", "simple", "throwable", "versatile"]
     },
     {
-      "id": "unarmed_strike",
-      "name": "Unarmed Strike",
-      "cost": N/A",
-      "range": "Adjacent",
-      "damage": "1",
-      "damage_type": "bludgeoning",
-      "weight": "N/A",
-      "special": "",
-      "image": "/images/unarmed_strike.png",
-      "tags": ["melee", "simple"]
-    },
-    {
       "id": "crossbow_light",
       "name": "Crossbow, Light",
       "cost": 2500,
