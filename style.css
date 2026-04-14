@@ -344,7 +344,7 @@ body::before {
 }
 
 .open-btn {
-  width: 50vw;             
+  width: 30vw;             
   aspect-ratio: 1 / 1;      
   max-width: 400px;       
   padding: 20px;
@@ -374,7 +374,7 @@ body::before {
 }
 
 .back-btn {
-  width: 50%;
+  width: 30vw;
   padding: 20px;
   background: rgba(100,100,100,0.1);
   border: 2px solid var(--dim);
