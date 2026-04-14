@@ -388,11 +388,6 @@ body::before {
   align-items: center;
   justify-content: center;
   text-align: center;
-
-  position: absolute;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
 }
 
 .back-btn:hover { 
