@@ -1,63 +1,72 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-  <title>SUPPLY DROP</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Let It Ride</title>
   <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
 </head>
 <body>
+
 <div class="page">
-  <header class="hdr">
-    <div class="hdr-left" style="position: relative;">
-      <div class="hdr-logo" id="siteHeader">Mothership</div>
-      <div class="system-menu" id="systemMenu">
-        <div class="system-menu-item active" data-system="mothership">Mothership</div>
-        <div class="system-menu-item" data-system="dnd">D&D</div>
-      </div>
+  <header class="hdr" role="banner">
+    <div class="hdr-left">
+      <div class="hdr-logo" id="siteHeader" aria-haspopup="true">System</div>
+      <nav class="system-menu" id="systemMenu" aria-label="System Selection">
+        <button type="button" class="system-menu-item active" data-system="mothership">Mothership</button>
+        <button type="button" class="system-menu-item" data-system="dnd">D&D</button>
+      </nav>
     </div>
-    <div style="position: relative;">
-      <button class="menu-btn" id="menuBtn">☰</button>
-      <div class="menu-dropdown" id="menuDropdown">
-        <button class="menu-item active" data-tab="main">Main</button>
-        <button class="menu-item" data-tab="inventory">Inventory</button>
-        <button class="menu-item" data-tab="loot">Loot Table</button>
-      </div>
+
+    <div class="hdr-right">
+      <button class="menu-btn" id="menuBtn" aria-label="Toggle Navigation Menu" aria-expanded="false">☰</button>
+      <nav class="menu-dropdown" id="menuDropdown" hidden>
+        <button type="button" class="menu-item active" data-tab="main">Main</button>
+        <button type="button" class="menu-item" data-tab="inventory">Inventory</button>
+        <button type="button" class="menu-item" data-tab="loot">Loot Table</button>
+      </nav>
     </div>
   </header>
-  <div class="content-panel active" id="mainPanel">
-    <div class="case-select-grid" id="caseSelectGrid"></div>
-    <div class="case-open-container" id="caseOpenContainer">
-      <div class="reel-section">
-        <div class="reel-wrap" id="reelWrap">
-          <div class="reel-track" id="reelTrack"></div>
+
+  <main class="content-container">
+    <section class="content-panel active" id="mainPanel" aria-labelledby="siteHeader">
+      <div class="case-select-grid" id="caseSelectGrid"></div>
+      
+      <div class="case-open-container" id="caseOpenContainer" hidden>
+        <div class="reel-section">
+          <div class="reel-wrap" id="reelWrap">
+            <div class="reel-track" id="reelTrack" aria-live="polite"></div>
+          </div>
+        </div>
+        <div class="reel-controls">
+          <button type="button" class="open-btn" id="openBtn">OPEN CASE</button>
+          <button type="button" class="back-btn" id="backBtn">← BACK</button>
         </div>
       </div>
-      <div class="reel-controls">
-        <button class="open-btn" id="openBtn">OPEN CASE</button>
-        <button class="back-btn" id="backBtn">← BACK</button>
+    </section>
+
+    <section class="content-panel" id="inventoryPanel" hidden>
+      <div class="inv-section">
+        <header class="inv-header">
+          <h2 class="inv-label">// Inventory</h2>
+          <span class="inv-count" id="invCount">0 items</span>
+        </header>
+        <div id="invGrid" class="grid-layout">
+          <p class="inv-empty">No items yet</p>
+        </div>
       </div>
-    </div>
-  </div>
-  <div class="content-panel" id="inventoryPanel">
-    <div class="inv-section">
-      <div class="inv-label">
-        <span>// Inventory</span>
-        <span class="inv-count" id="invCount">0 items</span>
+    </section>
+
+    <section class="content-panel" id="lootPanel" hidden>
+      <div class="loot-section">
+        <h2 class="loot-label">// Drop Pools</h2>
+        <nav class="rarity-tabs" id="rarityTabs" role="tablist"></nav>
+        <div id="lootContent" role="tabpanel"></div>
       </div>
-      <div id="invGrid">
-        <div class="inv-empty">No items yet</div>
-      </div>
-    </div>
-  </div>
-  <div class="content-panel" id="lootPanel">
-    <div class="loot-section">
-      <div class="loot-label">// Drop Pools</div>
-      <div class="rarity-tabs" id="rarityTabs"></div>
-      <div id="lootContent"></div>
-    </div>
-  </div>
+    </section>
+  </main>
 </div>
-<script src="script.js"></script>
+
 </body>
 </html>
