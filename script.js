@@ -1,263 +1,262 @@
-const RARITIES = {
-  common:    { label: 'Common',    color: '#7a7f8a' },
-  uncommon:  { label: 'Uncommon',  color: '#3fbf5a' },
-  rare:      { label: 'Rare',      color: '#3a7ccf' },
-  epic:      { label: 'Epic',      color: '#8a4faa' },
-  legendary: { label: 'Legendary', color: '#e67e22' },
-  mythical:  { label: 'Mythical',  color: '#ff0000' }
-};
-
-const RARITY_ORDER = Object.keys(RARITIES);
-
-const SYSTEMS = {
-  mothership: {
-    label: 'MOTHERSHIP',
-    theme: 'theme-mothership',
-    cases: [
-      { id: 'c1', name: 'Teamster Cache',   color: '#7a7f8a', pool: ['common','uncommon'] },
-      { id: 'c2', name: 'Corp Requisition', color: '#3fbf5a', pool: ['common','uncommon','rare'] },
-      { id: 'c3', name: 'Marine Armory',    color: '#3a7ccf', pool: ['uncommon','rare','epic'] },
-      { id: 'c4', name: 'Black Budget',     color: '#e67e22', pool: ['rare','epic','legendary'] }
-    ],
-    itemFiles: ['mosh-weapons.json', 'mosh-armor.json', 'mosh-equipment.json'],
-    categories: { weapons: 'Weapons', armor: 'Armor', equipment: 'Equipment' }
+/**
+ * CONFIGURATION & CONSTANTS
+ */
+const CONFIG = {
+  RARITIES: {
+    common:    { label: 'Common',    color: '#7a7f8a' },
+    uncommon:  { label: 'Uncommon',  color: '#3fbf5a' },
+    rare:      { label: 'Rare',      color: '#3a7ccf' },
+    epic:      { label: 'Epic',      color: '#8a4faa' },
+    legendary: { label: 'Legendary', color: '#e67e22' },
+    mythical:  { label: 'Mythical',  color: '#ff0000' }
   },
-  dnd: {
-    label: 'D&D',
-    theme: 'theme-dnd',
-    cases: [
-      { id: 'd1', name: "Adventurer's Pack", color: '#7a7f8a', pool: ['common','uncommon'] },
-      { id: 'd2', name: "Merchant's Stock",  color: '#3fbf5a', pool: ['common','uncommon','rare'] },
-      { id: 'd3', name: "Dragon's Hoard",    color: '#e67e22', pool: ['rare','epic','legendary'] }
-    ],
-    itemFiles: ['dnd-weapons.json', 'dnd-armor.json', 'dnd-equipment.json'],
-    categories: { weapons: 'Weapons', armor: 'Armour', equipment: 'Items' }
+  SYSTEMS: {
+    mothership: {
+      label: 'MOTHERSHIP',
+      theme: 'theme-mothership',
+      files: ['mosh-weapons.json', 'mosh-armor.json', 'mosh-equipment.json'],
+      cases: [
+        // Type-Based Cases
+        { id: 'm-wep', name: 'Weapon Crate',   color: '#e74c3c', filter: i => i.category === 'weapons' },
+        { id: 'm-arm', name: 'Armor Locker',   color: '#3498db', filter: i => i.category === 'armor' },
+        { id: 'm-tls', name: 'Utility Kit',    color: '#95a5a6', filter: i => i.category === 'equipment' },
+        // Location-Based Cases
+        { id: 'm-med', name: 'Medbay Recovery',color: '#2ecc71', filter: i => i.tags?.includes('medical') || i.name.includes('Stim') },
+        { id: 'm-sci', name: 'Research Lab',   color: '#9b59b6', filter: i => i.rarity === 'mythical' || i.tags?.includes('science') },
+        { id: 'm-mil', name: 'Military Deck',  color: '#c0392b', filter: i => i.tags?.includes('combat') || i.tags?.includes('heavy') }
+      ]
+    },
+    dnd: {
+      label: 'D&D 5E',
+      theme: 'theme-dnd',
+      files: ['dnd-weapons.json', 'dnd-armor.json', 'dnd-equipment.json'],
+      cases: [
+        // Type-Based Cases
+        { id: 'd-wep', name: 'The Armory',     color: '#c0392b', filter: i => i.category === 'weapons' },
+        { id: 'd-arm', name: 'The Bulwark',    color: '#2980b9', filter: i => i.category === 'armor' },
+        // Location-Based Cases
+        { id: 'd-vil', name: 'Village Market', color: '#d35400', filter: i => ['common', 'uncommon'].includes(i.rarity) },
+        { id: 'd-dun', name: 'Dungeon Hoard',  color: '#2c3e50', filter: i => i.rarity !== 'common' && (i.tags?.includes('magic') || i.tags?.includes('loot')) },
+        { id: 'd-cas', name: 'Royal Treasury', color: '#f1c40f', filter: i => i.cost > 1000 || i.rarity === 'mythical' }
+      ]
+    }
   }
 };
 
-const $ = (sel) => document.querySelector(sel);
-const $$ = (sel) => document.querySelectorAll(sel);
-
+/**
+ * APP STATE MANAGEMENT
+ */
 class AppState {
   constructor() {
     this.items = [];
+    this.inventory = [];
     this.activeCase = null;
-    this.activeRarityFilter = null;
-    this.spinning = false;
-    this.activeSystemKey = 'mothership';
-    this.inventory = this.loadInventory();
+    this.activeSystem = 'mothership';
+    this.isSpinning = false;
+    this.rarityFilter = null;
   }
 
-  loadInventory() {
-    return JSON.parse(localStorage.getItem(`inv_${this.activeSystemKey}`) || '[]');
+  setSystem(key) {
+    this.activeSystem = key;
+    this.inventory = JSON.parse(localStorage.getItem(`inv_${key}`) || '[]');
+    this.rarityFilter = null;
   }
 
-  saveInventory() {
-    localStorage.setItem(`inv_${this.activeSystemKey}`, JSON.stringify(this.inventory));
-    updateInventoryUI();
-  }
-
-  async switchSystem(key) {
-    this.activeSystemKey = key;
-    this.inventory = this.loadInventory();
-    this.activeRarityFilter = null;
-    
-    const sys = SYSTEMS[key];
-    document.body.className = sys.theme;
-    $('#siteHeader').textContent = sys.label;
-    
-    const rawData = await Promise.all(
-      sys.itemFiles.map(f => fetch(`./${f}`).then(r => r.json()).catch(() => []))
-    );
-
-    const flatItems = rawData.flat().map((item, i) => ({
-      ...item,
-      category: sys.itemFiles[i]?.includes('weapon') ? 'weapons' : 
-                sys.itemFiles[i]?.includes('armor') ? 'armor' : 'equipment'
-    }));
-
-    this.items = this.autoAssignRarities(flatItems);
-    renderAll();
-  }
-
-  autoAssignRarities(items) {
-    const parseCost = (c) => typeof c === 'number' ? c : parseFloat(String(c).replace(/[^0-9.]/g, '')) || 0;
-    const sorted = [...items].sort((a, b) => parseCost(a.cost) - parseCost(b.cost));
-    const thresholds = [0.2, 0.4, 0.6, 0.8, 0.95, 1];
-    
-    return sorted.map((item, i) => {
-      const p = i / sorted.length;
-      item.rarity = RARITY_ORDER[thresholds.findIndex(t => p < t)];
-      return item;
-    });
+  save() {
+    localStorage.setItem(`inv_${this.activeSystem}`, JSON.stringify(this.inventory));
   }
 }
 
 const state = new AppState();
 
-function getItemHTML(item, isInv = false, idx = null) {
-  const rar = RARITIES[item.rarity];
-  const img = item.image ? `<img src="${item.image}" onerror="this.remove()">` : '';
+/**
+ * UI HELPERS
+ */
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => document.querySelectorAll(s);
+
+const toggleView = (showId) => {
+  $$('.content-panel, #caseOpenContainer').forEach(el => el.hidden = true);
+  $(`#${showId}`).hidden = false;
+};
+
+/**
+ * CORE LOGIC
+ */
+async function loadSystem(key) {
+  state.setSystem(key);
+  const sys = CONFIG.SYSTEMS[key];
   
-  if (isInv) {
-    return `
-      <div class="inv-tile" style="border-color:${rar.color}">
-        <div class="inv-tile-icon">${img}</div>
-        <div class="inv-tile-name">${item.name}</div>
-        <button class="inv-tile-delete" data-index="${idx}">×</button>
-      </div>`;
-  }
-  return `
-    <div class="loot-item">
-      <div class="loot-item-icon">${img}</div>
-      <div class="loot-item-name">${item.name}</div>
-      <div style="color:${rar.color}">${rar.label}</div>
-    </div>`;
+  document.body.className = sys.theme;
+  $('#siteHeader').textContent = sys.label;
+
+  // DRY: Fetch all files and auto-tag categories
+  const data = await Promise.all(sys.files.map(async file => {
+    try {
+      const r = await fetch(`./${file}`);
+      const json = await r.json();
+      const cat = file.includes('weapon') ? 'weapons' : file.includes('armor') ? 'armor' : 'equipment';
+      return (Array.isArray(json) ? json : Object.values(json)[0]).map(i => ({ ...i, category: cat }));
+    } catch (e) { return []; }
+  }));
+
+  state.items = autoAssignRarity(data.flat());
+  renderAll();
 }
 
+function autoAssignRarity(items) {
+  const sorted = [...items].sort((a, b) => (parseInt(a.cost) || 0) - (parseInt(b.cost) || 0));
+  const tiers = Object.keys(CONFIG.RARITIES);
+  return sorted.map((item, i) => ({
+    ...item,
+    rarity: tiers[Math.floor((i / sorted.length) * tiers.length)] || 'common'
+  }));
+}
+
+/**
+ * RENDERING
+ */
 function renderAll() {
-  const sys = SYSTEMS[state.activeSystemKey];
+  const sys = CONFIG.SYSTEMS[state.activeSystem];
   
+  // Render Cases
   $('#caseSelectGrid').innerHTML = sys.cases.map(c => `
     <div class="case-tile" data-id="${c.id}" style="border-color:${c.color}">
-      <div style="font-size:24px">📦</div>
+      <div style="font-size:2rem; margin-bottom:8px;">📦</div>
       <div>${c.name}</div>
     </div>
   `).join('');
 
-  $('#rarityTabs').innerHTML = RARITY_ORDER.map(r => 
-    `<div class="rarity-tab ${r} ${state.activeRarityFilter === r ? 'active' : ''}" data-rarity="${r}"></div>`
-  ).join('');
+  // Render Rarity Tabs
+  $('#rarityTabs').innerHTML = Object.keys(CONFIG.RARITIES).map(r => `
+    <div class="rarity-tab ${r} ${state.rarityFilter === r ? 'active' : ''}" data-rarity="${r}"></div>
+  `).join('');
 
-  renderLootPanel();
-  updateInventoryUI();
+  renderLoot();
+  renderInventory();
 }
 
-function renderLootPanel() {
-  const sys = SYSTEMS[state.activeSystemKey];
-  let html = '';
-
-  Object.keys(sys.categories).forEach(cat => {
-    const filtered = state.items.filter(i => 
-      (cat === 'weapons' ? i.category === 'weapons' : i.category === cat) &&
-      (!state.activeRarityFilter || i.rarity === state.activeRarityFilter)
-    );
-    
-    if (!filtered.length) return;
-    html += `<div class="loot-category-header">${sys.categories[cat]}</div>
-             <div class="loot-items-list">${filtered.map(i => getItemHTML(i)).join('')}</div>`;
-  });
-
-  $('#lootContent').innerHTML = html || '<div class="inv-empty">No items match filter</div>';
+function renderLoot() {
+  const filtered = state.rarityFilter ? state.items.filter(i => i.rarity === state.rarityFilter) : state.items;
+  $('#lootContent').innerHTML = filtered.map(i => `
+    <div class="loot-item">
+      <div class="loot-item-icon">${i.image ? `<img src="${i.image}">` : '📦'}</div>
+      <div class="loot-item-name">${i.name}</div>
+      <div style="color:${CONFIG.RARITIES[i.rarity].color}">${CONFIG.RARITIES[i.rarity].label}</div>
+    </div>
+  `).join('') || '<div class="inv-empty">No items found</div>';
 }
 
-function updateInventoryUI() {
-  $('#invCount').textContent = `${state.inventory.length} item${state.inventory.length === 1 ? '' : 's'}`;
-  $('#invGrid').innerHTML = state.inventory.length 
-    ? state.inventory.map((item, i) => getItemHTML(item, true, i)).join('')
-    : '<div class="inv-empty">Inventory is empty</div>';
+function renderInventory() {
+  $('#invCount').textContent = `${state.inventory.length} Items`;
+  $('#invGrid').innerHTML = state.inventory.map((item, i) => `
+    <div class="inv-tile" style="border-color:${CONFIG.RARITIES[item.rarity].color}">
+      <div class="inv-tile-icon">${item.image ? `<img src="${item.image}">` : '📦'}</div>
+      <div class="inv-tile-name">${item.name}</div>
+      <button class="inv-del" data-idx="${i}">×</button>
+    </div>
+  `).join('') || '<div class="inv-empty">Inventory is empty</div>';
 }
 
+/**
+ * THE SPIN
+ */
 function spin() {
-  if (state.spinning) return;
-  state.spinning = true;
+  if (state.isSpinning) return;
+  const pool = state.items.filter(state.activeCase.filter);
+  if (!pool.length) return alert("This case is currently empty!");
 
+  state.isSpinning = true;
   const track = $('#reelTrack');
-  const pool = state.items.filter(i => state.activeCase.pool.includes(i.rarity));
-  const spinItems = Array.from({length: 100}, () => pool[Math.floor(Math.random() * pool.length)]);
+  const reelItems = Array.from({length: 80}, () => pool[Math.floor(Math.random() * pool.length)]);
   
-  track.innerHTML = spinItems.map(item => `
-    <div class="rc" style="--rc-col:${RARITIES[item.rarity].color}">
-      <div class="rc-icon">${item.image ? `<img src="${item.image}">` : ''}</div>
+  track.innerHTML = reelItems.map(item => `
+    <div class="rc" style="--rc-col:${CONFIG.RARITIES[item.rarity].color}">
       <div class="rc-name">${item.name}</div>
     </div>
   `).join('');
 
-  const targetIdx = 85; 
-  const finalX = -(targetIdx * 120 - ($('#reelWrap').offsetWidth / 2 - 60));
-  
   $('#openBtn').hidden = $('#backBtn').hidden = true;
   $('#reelWrap').hidden = false;
-  
   track.style.transition = 'none';
   track.style.transform = 'translateX(0)';
   
   setTimeout(() => {
     track.style.transition = 'transform 6s cubic-bezier(0.1, 0, 0.1, 1)';
-    track.style.transform = `translateX(${finalX}px)`;
+    track.style.transform = `translateX(-${(70 * 120) - ($('#reelWrap').offsetWidth/2 - 60)}px)`;
   }, 50);
 
   setTimeout(() => {
-    const won = spinItems[targetIdx];
-    state.inventory.push(won);
-    state.saveInventory();
-    showSplash(won);
-    state.spinning = false;
+    const winner = reelItems[70];
+    state.inventory.push(winner);
+    state.save();
+    showSplash(winner);
+    state.isSpinning = false;
   }, 6500);
 }
 
 function showSplash(item) {
   const splash = document.createElement('div');
   splash.className = 'splash-overlay';
-  splash.style.background = RARITIES[item.rarity].color;
-  splash.innerHTML = `
-    <div class="splash-content">
-      <div class="splash-name">${item.name}</div>
-      <div class="splash-rarity">${RARITIES[item.rarity].label}</div>
-    </div>`;
+  splash.style.background = CONFIG.RARITIES[item.rarity].color;
+  splash.innerHTML = `<div class="splash-content"><h1>${item.name}</h1><p>${CONFIG.RARITIES[item.rarity].label}</p></div>`;
   document.body.appendChild(splash);
   
-  const close = () => {
+  splash.onclick = () => {
     splash.remove();
     $('#openBtn').hidden = $('#backBtn').hidden = false;
     $('#reelWrap').hidden = true;
+    renderInventory();
   };
-  splash.onclick = close;
-  setTimeout(close, 3000);
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  state.switchSystem('mothership');
+/**
+ * GLOBAL EVENT DELEGATION
+ */
+document.addEventListener('click', (e) => {
+  const t = e.target;
 
-  $('body').addEventListener('click', (e) => {
-    const t = e.target;
-    
-    if (t.closest('.case-tile')) {
-      const id = t.closest('.case-tile').dataset.id;
-      state.activeCase = SYSTEMS[state.activeSystemKey].cases.find(c => c.id === id);
-      $('#caseSelectGrid').hidden = true;
-      $('#caseOpenContainer').hidden = false;
-    }
+  if (t.closest('.case-tile')) {
+    const id = t.closest('.case-tile').dataset.id;
+    state.activeCase = CONFIG.SYSTEMS[state.activeSystem].cases.find(c => c.id === id);
+    toggleView('caseOpenContainer');
+    $('#caseSelectGrid').hidden = true;
+  }
 
-    if (t.id === 'backBtn') {
-      $('#caseSelectGrid').hidden = false;
-      $('#caseOpenContainer').hidden = true;
-    }
+  if (t.id === 'backBtn') {
+    toggleView('mainPanel');
+    $('#caseSelectGrid').hidden = false;
+  }
 
-    if (t.id === 'openBtn') spin();
+  if (t.id === 'openBtn') spin();
 
-    if (t.closest('.rarity-tab')) {
-      const r = t.closest('.rarity-tab').dataset.rarity;
-      state.activeRarityFilter = state.activeRarityFilter === r ? null : r;
-      renderAll();
-    }
+  if (t.closest('.rarity-tab')) {
+    const r = t.closest('.rarity-tab').dataset.rarity;
+    state.rarityFilter = state.rarityFilter === r ? null : r;
+    renderAll();
+  }
 
-    if (t.closest('.inv-tile-delete')) {
-      state.inventory.splice(t.closest('.inv-tile-delete').dataset.index, 1);
-      state.saveInventory();
-    }
+  if (t.closest('.inv-del')) {
+    state.inventory.splice(t.closest('.inv-del').dataset.idx, 1);
+    state.save();
+    renderInventory();
+  }
 
-    if (t.closest('.menu-item')) {
-      const tab = t.closest('.menu-item').dataset.tab;
-      $$('.content-panel').forEach(p => p.hidden = p.id !== `${tab}Panel`);
-      $('#menuDropdown').hidden = true;
-    }
+  if (t.closest('.menu-item')) {
+    const tab = t.closest('.menu-item').dataset.tab;
+    toggleView(`${tab}Panel`);
+    $('#menuDropdown').hidden = true;
+  }
 
-    if (t.closest('.system-menu-item')) {
-      state.switchSystem(t.closest('.system-menu-item').dataset.system);
-    }
-  });
-
-  $('#menuBtn').onclick = () => $('#menuDropdown').hidden = !$('#menuDropdown').hidden;
-  $('#siteHeader').onclick = () => $('#systemMenu').classList.toggle('show');
+  if (t.closest('.system-menu-item')) {
+    loadSystem(t.closest('.system-menu-item').dataset.system);
+    $('#systemMenu').classList.remove('show');
+  }
 });
+
+// Setup Menus
+$('#menuBtn').onclick = () => $('#menuDropdown').hidden = !$('#menuDropdown').hidden;
+$('#siteHeader').onclick = () => $('#systemMenu').classList.toggle('show');
+
+// Start
+loadSystem('mothership');
