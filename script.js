@@ -305,7 +305,8 @@ document.addEventListener('click', (e) => {
   const menuItem = t.closest('.menu-item');
   if (menuItem) {
     showPanel(menuItem.dataset.tab);
-    $('#menuDropdown').hidden = true;
+    $('#menuDropdown').classList.remove('show');
+    $('#menuBtn').setAttribute('aria-expanded', 'false');
     return;
   }
 
@@ -317,7 +318,8 @@ document.addEventListener('click', (e) => {
   }
 
   if (!t.closest('#menuDropdown') && !t.closest('#menuBtn')) {
-    $('#menuDropdown').hidden = true;
+    $('#menuDropdown').classList.remove('show');
+    $('#menuBtn').setAttribute('aria-expanded', 'false');
   }
   if (!t.closest('#systemMenu') && !t.closest('#siteHeader')) {
     $('#systemMenu').classList.remove('show');
@@ -325,19 +327,12 @@ document.addEventListener('click', (e) => {
 });
 
 // Primary Menu Toggle (Inventory/Loot/Main)
-// Primary Menu Toggle (Inventory/Loot/Main)
 $('#menuBtn').addEventListener('click', (e) => {
   e.stopPropagation();
   const menu = $('#menuDropdown');
-  
-  // Method A: Manual toggle of the hidden attribute
-  if (menu.hasAttribute('hidden')) {
-    menu.removeAttribute('hidden');
-  } else {
-    menu.setAttribute('hidden', '');
-  }
-  
-  // Ensure the other menu (systemMenu) closes when this one opens
+  menu.classList.toggle('show');
+  $('#menuBtn').setAttribute('aria-expanded', menu.classList.contains('show'));
+  // Close the system menu if open
   $('#systemMenu').classList.remove('show');
 });
 
