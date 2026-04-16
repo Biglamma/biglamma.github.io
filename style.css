@@ -147,10 +147,45 @@ body::before {
 .content-panel { width: 100%; }
 [hidden] { display: none !important; }
 
+.case-group {
+  width: 100%;
+  margin-bottom: 32px;
+}
+
+.case-group-title {
+  font-family: var(--disp);
+  font-size: 13px;
+  letter-spacing: 3px;
+  color: var(--dim);
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+
 .case-select-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 20px;
+}
+
+.case-tile-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 4px;
+  border: 1px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  margin: 0 auto 12px;
+}
+
+.case-tile-name {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--bright);
 }
 
 .case-tile {
@@ -179,8 +214,8 @@ body::before {
 
 .reel-wrap {
   width: 100%;
-  max-width: 700px;
-  height: 140px;
+  max-width: 1000px;
+  height: 200px;
   background: #050608;
   border: 2px solid var(--border);
   position: relative;
@@ -283,8 +318,8 @@ body::before {
   border-bottom: 3px solid var(--border);
 }
 
-.inv-tile-icon, .loot-item-icon { font-size: 24px; margin-bottom: 10px; }
-.inv-tile-icon img, .loot-item-icon img { width: 40px; height: 40px; object-fit: contain; }
+.inv-tile-icon, .loot-item-icon { margin-bottom: 10px; }
+.inv-tile-icon img, .loot-item-icon img { width: 80px; height: 80px; object-fit: contain; display: block; margin: 0 auto; }
 
 .inv-del {
   position: absolute;
@@ -325,8 +360,22 @@ body::before {
   to { opacity: 1; }
 }
 
+.inv-tile-name, .loot-item-name {
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--bright);
+  margin-bottom: 4px;
+}
+
+.inv-tile-rarity, .loot-item-rarity {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
 @media (max-width: 600px) {
   .case-select-grid { grid-template-columns: repeat(2, 1fr); }
-  .reel-wrap { height: 100px; }
+  .reel-wrap { height: 140px; }
   .rc { min-width: 100px; }
 }

@@ -16,12 +16,12 @@ const CONFIG = {
       theme: 'theme-mothership',
       files: ['mosh-weapons.json', 'mosh-armor.json', 'mosh-equipment.json'],
       cases: [
-        { id: 'm-wep', name: 'Weapon Crate',    color: '#e74c3c', filter: i => i.category === 'weapons' },
-        { id: 'm-arm', name: 'Armor Locker',    color: '#3498db', filter: i => i.category === 'armor' },
-        { id: 'm-tls', name: 'Utility Kit',     color: '#95a5a6', filter: i => i.category === 'equipment' },
-        { id: 'm-med', name: 'Medbay Recovery', color: '#2ecc71', filter: i => i.tags?.includes('medical') || i.name.includes('Stim') },
-        { id: 'm-sci', name: 'Research Lab',    color: '#9b59b6', filter: i => i.rarity === 'mythical' || i.tags?.includes('science') },
-        { id: 'm-mil', name: 'Military Deck',   color: '#c0392b', filter: i => i.tags?.includes('combat') || i.tags?.includes('heavy') }
+        { id: 'm-wep', name: 'Weapon Crate',    color: '#e74c3c', group: 'Standard Issue',  filter: i => i.category === 'weapons' },
+        { id: 'm-arm', name: 'Armor Locker',    color: '#3498db', group: 'Standard Issue',  filter: i => i.category === 'armor' },
+        { id: 'm-tls', name: 'Utility Kit',     color: '#95a5a6', group: 'Standard Issue',  filter: i => i.category === 'equipment' },
+        { id: 'm-med', name: 'Medbay Recovery', color: '#2ecc71', group: 'Special Ops',     filter: i => i.tags?.includes('medical') || i.name.includes('Stim') },
+        { id: 'm-sci', name: 'Research Lab',    color: '#9b59b6', group: 'Special Ops',     filter: i => i.rarity === 'mythical' || i.tags?.includes('science') },
+        { id: 'm-mil', name: 'Military Deck',   color: '#c0392b', group: 'Special Ops',     filter: i => i.tags?.includes('combat') || i.tags?.includes('heavy') }
       ]
     },
     dnd: {
@@ -29,11 +29,11 @@ const CONFIG = {
       theme: 'theme-dnd',
       files: ['dnd-weapons.json', 'dnd-armor.json', 'dnd-equipment.json'],
       cases: [
-        { id: 'd-wep', name: 'The Armory',     color: '#c0392b', filter: i => i.category === 'weapons' },
-        { id: 'd-arm', name: 'The Bulwark',    color: '#2980b9', filter: i => i.category === 'armor' },
-        { id: 'd-vil', name: 'Village Market', color: '#d35400', filter: i => ['common', 'uncommon'].includes(i.rarity) },
-        { id: 'd-dun', name: 'Dungeon Hoard',  color: '#2c3e50', filter: i => i.rarity !== 'common' && (i.tags?.includes('magic') || i.tags?.includes('loot')) },
-        { id: 'd-cas', name: 'Royal Treasury', color: '#f1c40f', filter: i => i.cost > 1000 || i.rarity === 'mythical' }
+        { id: 'd-wep', name: 'The Armory',     color: '#c0392b', group: 'Common Stock', filter: i => i.category === 'weapons' },
+        { id: 'd-arm', name: 'The Bulwark',    color: '#2980b9', group: 'Common Stock', filter: i => i.category === 'armor' },
+        { id: 'd-vil', name: 'Village Market', color: '#d35400', group: 'Common Stock', filter: i => ['common', 'uncommon'].includes(i.rarity) },
+        { id: 'd-dun', name: 'Dungeon Hoard',  color: '#2c3e50', group: 'Rare Finds',   filter: i => i.rarity !== 'common' && (i.tags?.includes('magic') || i.tags?.includes('loot')) },
+        { id: 'd-cas', name: 'Royal Treasury', color: '#f1c40f', group: 'Rare Finds',   filter: i => i.cost > 1000 || i.rarity === 'mythical' }
       ]
     }
   }
@@ -149,10 +149,23 @@ function autoAssignRarity(items) {
 function renderAll() {
   const sys = CONFIG.SYSTEMS[state.activeSystem];
 
-  $('#caseSelectGrid').innerHTML = sys.cases.map(c => `
-    <div class="case-tile" data-id="${c.id}" style="border-color:${c.color}">
-      <div style="font-size:2rem; margin-bottom:8px;">📦</div>
-      <div>${c.name}</div>
+  // Group cases by their group label and render each group with a heading
+  const groups = sys.cases.reduce((acc, c) => {
+    (acc[c.group] = acc[c.group] || []).push(c);
+    return acc;
+  }, {});
+
+  $('#caseSelectGrid').innerHTML = Object.entries(groups).map(([groupName, cases]) => `
+    <div class="case-group">
+      <div class="case-group-title">${groupName}</div>
+      <div class="case-select-grid">
+        ${cases.map(c => `
+          <div class="case-tile" data-id="${c.id}" style="border-color:${c.color}">
+            <div class="case-tile-icon" style="background:${c.color}22; border-color:${c.color}">📦</div>
+            <div class="case-tile-name">${c.name}</div>
+          </div>
+        `).join('')}
+      </div>
     </div>
   `).join('');
 
@@ -169,21 +182,29 @@ function renderLoot() {
     ? state.items.filter(i => i.rarity === state.rarityFilter)
     : state.items;
 
-  $('#lootContent').innerHTML = items.map(i => `
-    <div class="loot-item">
-      <div class="loot-item-icon">${i.image ? `<img src="${i.image}">` : '📦'}</div>
-      <div class="loot-item-name">${i.name}</div>
-      <div style="color:${CONFIG.RARITIES[i.rarity].color}">${CONFIG.RARITIES[i.rarity].label}</div>
-    </div>
-  `).join('') || '<div class="inv-empty">No items found</div>';
+  if (!items.length) {
+    $('#lootContent').innerHTML = '<div class="inv-empty">No items found</div>';
+    return;
+  }
+
+  $('#lootContent').innerHTML = `<div class="grid-layout">${
+    items.map(i => `
+      <div class="loot-item">
+        ${i.image ? `<div class="loot-item-icon"><img src="${i.image}" alt="${i.name}"></div>` : ''}
+        <div class="loot-item-name">${i.name}</div>
+        <div class="loot-item-rarity" style="color:${CONFIG.RARITIES[i.rarity].color}">${CONFIG.RARITIES[i.rarity].label}</div>
+      </div>
+    `).join('')
+  }</div>`;
 }
 
 function renderInventory() {
   $('#invCount').textContent = `${state.inventory.length} Items`;
   $('#invGrid').innerHTML = state.inventory.map((item, i) => `
     <div class="inv-tile" style="border-color:${CONFIG.RARITIES[item.rarity].color}">
-      <div class="inv-tile-icon">${item.image ? `<img src="${item.image}">` : '📦'}</div>
+      ${item.image ? `<div class="inv-tile-icon"><img src="${item.image}" alt="${item.name}"></div>` : ''}
       <div class="inv-tile-name">${item.name}</div>
+      <div class="inv-tile-rarity" style="color:${CONFIG.RARITIES[item.rarity].color}">${CONFIG.RARITIES[item.rarity].label}</div>
       <button class="inv-del" data-idx="${i}">×</button>
     </div>
   `).join('') || '<div class="inv-empty">Inventory is empty</div>';
