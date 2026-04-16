@@ -73,39 +73,24 @@ const $$ = (s) => document.querySelectorAll(s);
 
 /**
  * VIEW MANAGEMENT
- *
- * The HTML structure is:
- *   #mainPanel (.content-panel)
- *     ├── #caseSelectGrid      — case picker
- *     └── #caseOpenContainer   — reel + buttons (hidden attr in HTML)
- *   #inventoryPanel (.content-panel, hidden)
- *   #lootPanel      (.content-panel, hidden)
- *
- * #caseOpenContainer is a CHILD of #mainPanel, not a sibling panel.
- * Switching tabs only toggles .content-panel elements.
- * Entering/exiting a case swaps #caseSelectGrid ↔ #caseOpenContainer within mainPanel.
  */
 function showPanel(tabName) {
-  // Toggle top-level panels only
   $$('.content-panel').forEach(p => { p.hidden = true; });
   $(`#${tabName}Panel`).hidden = false;
 
-  // Whenever we return to mainPanel via tab, always reset to case grid view
   if (tabName === 'main') {
     $('#caseSelectGrid').hidden    = false;
     $('#caseOpenContainer').hidden = true;
     $('#reelWrap').hidden          = true;
   }
 
-  // Keep menu item active state in sync
   $$('.menu-item').forEach(m => m.classList.toggle('active', m.dataset.tab === tabName));
 }
 
 function enterCase() {
-  // Stay on mainPanel — just swap what's visible inside it
   $('#caseSelectGrid').hidden    = true;
   $('#caseOpenContainer').hidden = false;
-  $('#reelWrap').hidden          = true;  // hidden until spin starts
+  $('#reelWrap').hidden          = true;
   $('#openBtn').hidden           = false;
   $('#backBtn').hidden           = false;
 }
@@ -127,15 +112,12 @@ async function loadSystem(key) {
   document.body.className = sys.theme;
   $('#siteHeader').textContent = sys.label;
 
-  // Update system menu active state
   $$('.system-menu-item').forEach(el => {
     el.classList.toggle('active', el.dataset.system === key);
   });
 
-  // Reset to case grid view whenever the system changes
   showPanel('main');
 
-  // Load item files and auto-tag categories from filename
   const data = await Promise.all(sys.files.map(async file => {
     try {
       const r    = await fetch(`./${file}`);
@@ -228,16 +210,13 @@ function spin() {
     </div>
   `).join('');
 
-  // Hide buttons, reveal reel
   $('#openBtn').hidden = true;
   $('#backBtn').hidden = true;
   reelWrap.hidden      = false;
 
-  // Reset position without transition, then animate
   track.style.transition = 'none';
   track.style.transform  = 'translateX(0)';
 
-  // Let the reset paint before starting animation
   requestAnimationFrame(() => requestAnimationFrame(() => {
     const cellW    = 120;
     const winnerIdx = 70;
@@ -257,23 +236,31 @@ function spin() {
 
 function showSplash(item) {
   const splash = document.createElement('div');
-  splash.className      = 'splash-overlay';
+  splash.className = 'splash-overlay';
   splash.style.background = CONFIG.RARITIES[item.rarity].color;
   splash.innerHTML = `
     <div class="splash-content">
       <h1>${item.name}</h1>
       <p>${CONFIG.RARITIES[item.rarity].label}</p>
+      <small style="opacity: 0.8;">Click to continue</small>
     </div>
   `;
   document.body.appendChild(splash);
 
-  splash.onclick = () => {
-    splash.remove();
-    $('#reelWrap').hidden = true;
-    $('#openBtn').hidden  = false;
-    $('#backBtn').hidden  = false;
-    renderInventory();
+  const dismissSplash = () => {
+    if (document.body.contains(splash)) {
+        splash.remove();
+        $('#reelWrap').hidden = true;
+        $('#openBtn').hidden  = false;
+        $('#backBtn').hidden  = false;
+        renderInventory();
+    }
   };
+
+  splash.onclick = dismissSplash;
+  
+  // Auto-dismiss after 5 seconds if the user doesn't click
+  setTimeout(dismissSplash, 5000);
 }
 
 /**
@@ -282,7 +269,6 @@ function showSplash(item) {
 document.addEventListener('click', (e) => {
   const t = e.target;
 
-  // Case tile clicked — enter case view
   const tile = t.closest('.case-tile');
   if (tile) {
     state.activeCase = CONFIG.SYSTEMS[state.activeSystem].cases.find(c => c.id === tile.dataset.id);
@@ -290,19 +276,16 @@ document.addEventListener('click', (e) => {
     return;
   }
 
-  // Back button — exit case view
   if (t.id === 'backBtn') {
     exitCase();
     return;
   }
 
-  // Open button — spin
   if (t.id === 'openBtn') {
     spin();
     return;
   }
 
-  // Rarity filter tabs (inside loot panel)
   const rarityTab = t.closest('.rarity-tab');
   if (rarityTab) {
     const r = rarityTab.dataset.rarity;
@@ -311,7 +294,6 @@ document.addEventListener('click', (e) => {
     return;
   }
 
-  // Inventory delete
   const delBtn = t.closest('.inv-del');
   if (delBtn) {
     state.inventory.splice(parseInt(delBtn.dataset.idx), 1);
@@ -320,7 +302,6 @@ document.addEventListener('click', (e) => {
     return;
   }
 
-  // Nav menu tab items
   const menuItem = t.closest('.menu-item');
   if (menuItem) {
     showPanel(menuItem.dataset.tab);
@@ -328,7 +309,6 @@ document.addEventListener('click', (e) => {
     return;
   }
 
-  // System switcher items
   const sysItem = t.closest('.system-menu-item');
   if (sysItem) {
     loadSystem(sysItem.dataset.system);
@@ -336,7 +316,6 @@ document.addEventListener('click', (e) => {
     return;
   }
 
-  // Close menus on outside click
   if (!t.closest('#menuDropdown') && !t.closest('#menuBtn')) {
     $('#menuDropdown').hidden = true;
   }
@@ -345,16 +324,18 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// Menu toggles
+// Primary Menu Toggle (Inventory/Loot/Main)
 $('#menuBtn').addEventListener('click', (e) => {
   e.stopPropagation();
-  $('#menuDropdown').hidden = !$('#menuDropdown').hidden;
+  const menu = $('#menuDropdown');
+  menu.hidden = !menu.hidden;
 });
 
+// System Selection Toggle (Mothership/D&D)
 $('#siteHeader').addEventListener('click', (e) => {
   e.stopPropagation();
   $('#systemMenu').classList.toggle('show');
 });
 
-// Boot
+// Initial Boot
 loadSystem('mothership');
