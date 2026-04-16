@@ -325,10 +325,20 @@ document.addEventListener('click', (e) => {
 });
 
 // Primary Menu Toggle (Inventory/Loot/Main)
+// Primary Menu Toggle (Inventory/Loot/Main)
 $('#menuBtn').addEventListener('click', (e) => {
   e.stopPropagation();
   const menu = $('#menuDropdown');
-  menu.hidden = !menu.hidden;
+  
+  // Method A: Manual toggle of the hidden attribute
+  if (menu.hasAttribute('hidden')) {
+    menu.removeAttribute('hidden');
+  } else {
+    menu.setAttribute('hidden', '');
+  }
+  
+  // Ensure the other menu (systemMenu) closes when this one opens
+  $('#systemMenu').classList.remove('show');
 });
 
 // System Selection Toggle (Mothership/D&D)
