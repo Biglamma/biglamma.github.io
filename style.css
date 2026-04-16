@@ -9,16 +9,16 @@
   --bright: #dce8f5;
   --dim: #3d4d60;
   --acc: #e05228;
-  --hover: rgba(224,82,40,0.1);
+  --hover: rgba(224, 82, 40, 0.1);
   --panel: #0e1017;
   --mono: 'Share Tech Mono', monospace;
   --disp: 'Bebas Neue', sans-serif;
 
-  --common: #9da3a4;
-  --uncommon: #4caf50;
-  --rare: #2196f3;
-  --epic: #9c27b0;
-  --legendary: #ff9800;
+  --common: #7a7f8a;
+  --uncommon: #3fbf5a;
+  --rare: #3a7ccf;
+  --epic: #8a4faa;
+  --legendary: #e67e22;
   --mythical: #ff0000;
 
   --transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
@@ -33,7 +33,7 @@ body.theme-dnd {
   --bright: #f0ddb0;
   --dim: #6b4e2a;
   --acc: #c8922a;
-  --hover: rgba(200,146,42,0.15);
+  --hover: rgba(200, 146, 42, 0.15);
   --panel: #231a0a;
   --mono: 'Crimson Text', serif;
   --disp: 'Cinzel', serif;
@@ -50,114 +50,102 @@ body {
   font-size: 14px;
   line-height: 1.5;
   transition: background var(--transition), color var(--transition);
+  min-height: 100vh;
 }
 
-/* Scanline/Overlay Effect */
+/* Scanline Effect */
 body::before {
   content: '';
   pointer-events: none;
   position: fixed; 
   inset: 0; 
   z-index: 100;
-  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.04) 2px, rgba(0,0,0,0.04) 4px);
-  transform: translateZ(0);
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
 }
 
 .page {
   width: 100%;
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
 }
 
-/* ─── HEADER ─── */
+/* ─── HEADER & NAVIGATION ─── */
 .hdr {
   width: 100%;
-  max-width: 1200px;
   padding: 20px 0;
   border-bottom: 1px solid var(--border);
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   position: relative;
-  z-index: 50;
+  margin-bottom: 30px;
 }
-
-.hdr-left { display: flex; gap: 16px; align-items: baseline; position: relative; }
 
 .hdr-logo {
   font-family: var(--disp);
-  font-size: clamp(28px, 6vw, 36px);
-  letter-spacing: 3px;
+  font-size: clamp(24px, 5vw, 32px);
+  letter-spacing: 2px;
   color: var(--acc);
-  text-shadow: 0 0 20px rgba(224,82,40,0.3);
   cursor: pointer;
   user-select: none;
 }
 
-body.theme-dnd .hdr-logo {
-  text-shadow: 0 0 20px rgba(200,146,42,0.4), 2px 2px 0 rgba(0,0,0,0.6);
-}
-
-/* ─── NAVIGATION & MENUS ─── */
 .menu-btn {
-  background: none;
-  border: 1px solid var(--border);
-  color: var(--text);
-  font-size: 18px;
-  padding: 6px 12px;
-  cursor: pointer;
-}
-
-.system-menu, .menu-dropdown {
-  position: absolute;
-  top: calc(100% + 8px);
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 4px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-  backdrop-filter: blur(10px);
-  min-width: 200px;
-  display: none;
-  z-index: 60;
+  color: var(--text);
+  padding: 8px 16px;
+  cursor: pointer;
+  font-family: var(--mono);
 }
 
-.system-menu.show, .menu-dropdown.show { 
-  display: flex; 
-  flex-direction: column; 
-  animation: slideDown 0.2s ease-out;
+/* Dropdown Menus */
+.system-menu, .menu-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  min-width: 180px;
+  display: none; /* Hidden by default */
+  flex-direction: column;
+  z-index: 1000;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.system-menu { left: 0; }
+.menu-dropdown { right: 0; }
+
+/* Toggled via JS classList.toggle('show') */
+.system-menu.show, .menu-dropdown.show {
+  display: flex;
 }
 
 .menu-item, .system-menu-item {
   padding: 12px 20px;
   background: none;
   border: none;
-  border-bottom: 1px solid var(--border);
   color: var(--text);
-  font-family: var(--mono);
   text-align: left;
-  text-transform: uppercase;
-  font-size: 11px;
-  letter-spacing: 1px;
   cursor: pointer;
-  transition: background var(--transition);
+  font-family: var(--mono);
+  text-transform: uppercase;
+  font-size: 12px;
 }
 
-.menu-item:last-child { border: none; }
-.menu-item:hover, .system-menu-item:hover { background: var(--hover); color: var(--bright); }
-.menu-item.active { background: var(--hover); color: var(--acc); font-weight: bold; }
-
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+.menu-item:hover, .system-menu-item:hover {
+  background: var(--hover);
+  color: var(--bright);
 }
 
-/* ─── CASE SELECTION & PANELS ─── */
-.content-panel { width: 100%; display: none; padding: 20px 0; }
-.content-panel.active { display: block; }
+.menu-item.active {
+  color: var(--acc);
+  border-left: 2px solid var(--acc);
+}
+
+/* ─── PANELS & GRIDS ─── */
+.content-panel { width: 100%; }
+[hidden] { display: none !important; }
 
 .case-select-grid {
   display: grid;
@@ -168,30 +156,38 @@ body.theme-dnd .hdr-logo {
 .case-tile {
   background: var(--surface);
   border: 1px solid var(--border);
-  padding: 30px 20px;
+  padding: 40px 20px;
   text-align: center;
   cursor: pointer;
-  transition: transform var(--transition), border-color var(--transition);
+  transition: all var(--transition);
+  border-bottom: 4px solid transparent;
 }
 
 .case-tile:hover {
-  transform: translateY(-4px);
-  border-color: var(--acc);
+  transform: translateY(-5px);
+  background: var(--hover);
 }
 
-/* ─── REEL SYSTEM ─── */
-.case-open-container { flex-direction: column; align-items: center; gap: 40px; }
+/* ─── REEL (THE SPIN) ─── */
+.case-open-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 30px;
+}
 
 .reel-wrap {
   width: 100%;
-  height: 120px;
+  max-width: 700px;
+  height: 140px;
   background: #050608;
-  border: 1px solid var(--border);
+  border: 2px solid var(--border);
   position: relative;
   overflow: hidden;
-  border-radius: 4px;
 }
 
+/* Red marker line */
 .reel-wrap::after {
   content: '';
   position: absolute;
@@ -203,82 +199,134 @@ body.theme-dnd .hdr-logo {
   transform: translateX(-50%);
 }
 
-.reel-track { display: flex; height: 100%; }
+.reel-track {
+  display: flex;
+  height: 100%;
+  will-change: transform;
+}
 
+/* Individual Reel Item */
+.rc {
+  min-width: 120px; /* Crucial: JS uses this for math */
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  text-align: center;
+  border-right: 1px solid rgba(255,255,255,0.05);
+  background: linear-gradient(to bottom, var(--surface), #050608);
+  position: relative;
+}
+
+.rc::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 4px;
+  background: var(--rc-col, var(--common));
+}
+
+.rc-name {
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: var(--bright);
+}
+
+/* ─── BUTTONS ─── */
 .reel-controls {
   display: flex;
   flex-direction: column;
-  gap: 16px;
   align-items: center;
-  width: 100%;
+  gap: 15px;
 }
 
 .open-btn {
-  width: clamp(200px, 50vw, 320px);
-  aspect-ratio: 1/1;
-  background: var(--hover);
-  border: 2px solid var(--acc);
-  color: var(--acc);
+  background: var(--acc);
+  color: white;
+  border: none;
+  padding: 15px 40px;
   font-family: var(--disp);
-  font-size: clamp(18px, 4vw, 24px);
+  font-size: 20px;
   letter-spacing: 2px;
-  border-radius: 8px;
+  cursor: pointer;
+  transition: transform 0.1s;
 }
 
-.open-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+.open-btn:active { transform: scale(0.95); }
 
 .back-btn {
-  padding: 10px 30px;
-  font-size: 12px;
-  border-color: var(--dim);
-}
-
-/* ─── INVENTORY & LOOT ─── */
-.inv-label, .loot-label {
-  font-size: 11px;
-  letter-spacing: 3px;
+  background: none;
+  border: 1px solid var(--dim);
   color: var(--dim);
-  text-transform: uppercase;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 12px;
-  margin-bottom: 24px;
-  display: flex;
-  justify-content: space-between;
+  padding: 8px 20px;
+  cursor: pointer;
+  font-family: var(--mono);
 }
 
-.inv-items-grid, .loot-items-list {
+.back-btn:hover { border-color: var(--text); color: var(--text); }
+
+/* ─── INVENTORY / LOOT ─── */
+.grid-layout {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 16px;
+  gap: 15px;
 }
 
 .inv-tile, .loot-item {
   background: var(--surface);
   border: 1px solid var(--border);
-  padding: 16px;
+  padding: 15px;
+  text-align: center;
+  position: relative;
+  border-bottom: 3px solid var(--border);
+}
+
+.inv-tile-icon, .loot-item-icon { font-size: 24px; margin-bottom: 10px; }
+.inv-tile-icon img, .loot-item-icon img { width: 40px; height: 40px; object-fit: contain; }
+
+.inv-del {
+  position: absolute;
+  top: 5px; right: 5px;
+  background: none; border: none; color: var(--dim);
+  cursor: pointer; font-size: 16px;
+}
+
+.inv-del:hover { color: #ff4444; }
+
+/* ─── SPLASH OVERLAY ─── */
+.splash-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.9);
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 10px;
-  transition: transform var(--transition);
+  justify-content: center;
+  z-index: 2000;
+  cursor: pointer;
+  animation: fadeIn 0.3s ease-out;
 }
 
-.inv-tile:hover { transform: scale(1.03); border-color: var(--acc); }
-
-/* Rarity Helpers */
-.rarity-common { color: var(--common); border-color: var(--common); }
-.rarity-uncommon { color: var(--uncommon); border-color: var(--uncommon); }
-.rarity-rare { color: var(--rare); border-color: var(--rare); }
-.rarity-epic { color: var(--epic); border-color: var(--epic); }
-.rarity-legendary { color: var(--legendary); border-color: var(--legendary); }
-
-/* ─── MOBILE OPTIMIZATION ─── */
-@media (max-width: 768px) {
-  .page { padding: 10px; }
-  .hdr { padding: 15px 5px; }
-  .case-select-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
-  .open-btn { width: 180px; }
+.splash-content {
+  text-align: center;
+  padding: 40px;
+  border: 2px solid var(--bright);
 }
 
-/* Global Hidden Attribute */
-[hidden] { display: none !important; }
+.splash-content h1 {
+  font-family: var(--disp);
+  font-size: 48px;
+  margin-bottom: 10px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 600px) {
+  .case-select-grid { grid-template-columns: repeat(2, 1fr); }
+  .reel-wrap { height: 100px; }
+  .rc { min-width: 100px; }
+}
