@@ -16,14 +16,12 @@ const CONFIG = {
       theme: 'theme-mothership',
       files: ['mosh-weapons.json', 'mosh-armor.json', 'mosh-equipment.json'],
       cases: [
-        // Type-Based Cases
-        { id: 'm-wep', name: 'Weapon Crate',   color: '#e74c3c', filter: i => i.category === 'weapons' },
-        { id: 'm-arm', name: 'Armor Locker',   color: '#3498db', filter: i => i.category === 'armor' },
-        { id: 'm-tls', name: 'Utility Kit',    color: '#95a5a6', filter: i => i.category === 'equipment' },
-        // Location-Based Cases
-        { id: 'm-med', name: 'Medbay Recovery',color: '#2ecc71', filter: i => i.tags?.includes('medical') || i.name.includes('Stim') },
-        { id: 'm-sci', name: 'Research Lab',   color: '#9b59b6', filter: i => i.rarity === 'mythical' || i.tags?.includes('science') },
-        { id: 'm-mil', name: 'Military Deck',  color: '#c0392b', filter: i => i.tags?.includes('combat') || i.tags?.includes('heavy') }
+        { id: 'm-wep', name: 'Weapon Crate',    color: '#e74c3c', filter: i => i.category === 'weapons' },
+        { id: 'm-arm', name: 'Armor Locker',    color: '#3498db', filter: i => i.category === 'armor' },
+        { id: 'm-tls', name: 'Utility Kit',     color: '#95a5a6', filter: i => i.category === 'equipment' },
+        { id: 'm-med', name: 'Medbay Recovery', color: '#2ecc71', filter: i => i.tags?.includes('medical') || i.name.includes('Stim') },
+        { id: 'm-sci', name: 'Research Lab',    color: '#9b59b6', filter: i => i.rarity === 'mythical' || i.tags?.includes('science') },
+        { id: 'm-mil', name: 'Military Deck',   color: '#c0392b', filter: i => i.tags?.includes('combat') || i.tags?.includes('heavy') }
       ]
     },
     dnd: {
@@ -31,10 +29,8 @@ const CONFIG = {
       theme: 'theme-dnd',
       files: ['dnd-weapons.json', 'dnd-armor.json', 'dnd-equipment.json'],
       cases: [
-        // Type-Based Cases
         { id: 'd-wep', name: 'The Armory',     color: '#c0392b', filter: i => i.category === 'weapons' },
         { id: 'd-arm', name: 'The Bulwark',    color: '#2980b9', filter: i => i.category === 'armor' },
-        // Location-Based Cases
         { id: 'd-vil', name: 'Village Market', color: '#d35400', filter: i => ['common', 'uncommon'].includes(i.rarity) },
         { id: 'd-dun', name: 'Dungeon Hoard',  color: '#2c3e50', filter: i => i.rarity !== 'common' && (i.tags?.includes('magic') || i.tags?.includes('loot')) },
         { id: 'd-cas', name: 'Royal Treasury', color: '#f1c40f', filter: i => i.cost > 1000 || i.rarity === 'mythical' }
@@ -44,12 +40,12 @@ const CONFIG = {
 };
 
 /**
- * APP STATE MANAGEMENT
+ * APP STATE
  */
 class AppState {
   constructor() {
-    this.items = [];
-    this.inventory = [];
+    this.items      = [];
+    this.inventory  = [];
     this.activeCase = null;
     this.activeSystem = 'mothership';
     this.isSpinning = false;
@@ -58,7 +54,7 @@ class AppState {
 
   setSystem(key) {
     this.activeSystem = key;
-    this.inventory = JSON.parse(localStorage.getItem(`inv_${key}`) || '[]');
+    this.inventory    = JSON.parse(localStorage.getItem(`inv_${key}`) || '[]');
     this.rarityFilter = null;
   }
 
@@ -70,33 +66,85 @@ class AppState {
 const state = new AppState();
 
 /**
- * UI HELPERS
+ * DOM HELPERS
  */
-const $ = (s) => document.querySelector(s);
+const $  = (s) => document.querySelector(s);
 const $$ = (s) => document.querySelectorAll(s);
 
-const toggleView = (showId) => {
-  $$('.content-panel, #caseOpenContainer').forEach(el => el.hidden = true);
-  $(`#${showId}`).hidden = false;
-};
+/**
+ * VIEW MANAGEMENT
+ *
+ * The HTML structure is:
+ *   #mainPanel (.content-panel)
+ *     ├── #caseSelectGrid      — case picker
+ *     └── #caseOpenContainer   — reel + buttons (hidden attr in HTML)
+ *   #inventoryPanel (.content-panel, hidden)
+ *   #lootPanel      (.content-panel, hidden)
+ *
+ * #caseOpenContainer is a CHILD of #mainPanel, not a sibling panel.
+ * Switching tabs only toggles .content-panel elements.
+ * Entering/exiting a case swaps #caseSelectGrid ↔ #caseOpenContainer within mainPanel.
+ */
+function showPanel(tabName) {
+  // Toggle top-level panels only
+  $$('.content-panel').forEach(p => { p.hidden = true; });
+  $(`#${tabName}Panel`).hidden = false;
+
+  // Whenever we return to mainPanel via tab, always reset to case grid view
+  if (tabName === 'main') {
+    $('#caseSelectGrid').hidden    = false;
+    $('#caseOpenContainer').hidden = true;
+    $('#reelWrap').hidden          = true;
+  }
+
+  // Keep menu item active state in sync
+  $$('.menu-item').forEach(m => m.classList.toggle('active', m.dataset.tab === tabName));
+}
+
+function enterCase() {
+  // Stay on mainPanel — just swap what's visible inside it
+  $('#caseSelectGrid').hidden    = true;
+  $('#caseOpenContainer').hidden = false;
+  $('#reelWrap').hidden          = true;  // hidden until spin starts
+  $('#openBtn').hidden           = false;
+  $('#backBtn').hidden           = false;
+}
+
+function exitCase() {
+  $('#caseOpenContainer').hidden = true;
+  $('#caseSelectGrid').hidden    = false;
+  $('#reelWrap').hidden          = true;
+}
 
 /**
  * CORE LOGIC
  */
 async function loadSystem(key) {
-  state.setSystem(key);
   const sys = CONFIG.SYSTEMS[key];
-  
+  if (!sys) return;
+
+  state.setSystem(key);
   document.body.className = sys.theme;
   $('#siteHeader').textContent = sys.label;
 
-  // DRY: Fetch all files and auto-tag categories
+  // Update system menu active state
+  $$('.system-menu-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.system === key);
+  });
+
+  // Reset to case grid view whenever the system changes
+  showPanel('main');
+
+  // Load item files and auto-tag categories from filename
   const data = await Promise.all(sys.files.map(async file => {
     try {
-      const r = await fetch(`./${file}`);
+      const r    = await fetch(`./${file}`);
       const json = await r.json();
-      const cat = file.includes('weapon') ? 'weapons' : file.includes('armor') ? 'armor' : 'equipment';
-      return (Array.isArray(json) ? json : Object.values(json)[0]).map(i => ({ ...i, category: cat }));
+      const cat  = file.includes('weapon') ? 'weapons'
+                 : file.includes('armor')  ? 'armor'
+                 : 'equipment';
+      const arr  = Array.isArray(json) ? json : (Object.values(json)[0] || []);
+      return arr.map(i => ({ ...i, category: cat }));
     } catch (e) { return []; }
   }));
 
@@ -106,7 +154,7 @@ async function loadSystem(key) {
 
 function autoAssignRarity(items) {
   const sorted = [...items].sort((a, b) => (parseInt(a.cost) || 0) - (parseInt(b.cost) || 0));
-  const tiers = Object.keys(CONFIG.RARITIES);
+  const tiers  = Object.keys(CONFIG.RARITIES);
   return sorted.map((item, i) => ({
     ...item,
     rarity: tiers[Math.floor((i / sorted.length) * tiers.length)] || 'common'
@@ -118,8 +166,7 @@ function autoAssignRarity(items) {
  */
 function renderAll() {
   const sys = CONFIG.SYSTEMS[state.activeSystem];
-  
-  // Render Cases
+
   $('#caseSelectGrid').innerHTML = sys.cases.map(c => `
     <div class="case-tile" data-id="${c.id}" style="border-color:${c.color}">
       <div style="font-size:2rem; margin-bottom:8px;">📦</div>
@@ -127,7 +174,6 @@ function renderAll() {
     </div>
   `).join('');
 
-  // Render Rarity Tabs
   $('#rarityTabs').innerHTML = Object.keys(CONFIG.RARITIES).map(r => `
     <div class="rarity-tab ${r} ${state.rarityFilter === r ? 'active' : ''}" data-rarity="${r}"></div>
   `).join('');
@@ -137,8 +183,11 @@ function renderAll() {
 }
 
 function renderLoot() {
-  const filtered = state.rarityFilter ? state.items.filter(i => i.rarity === state.rarityFilter) : state.items;
-  $('#lootContent').innerHTML = filtered.map(i => `
+  const items = state.rarityFilter
+    ? state.items.filter(i => i.rarity === state.rarityFilter)
+    : state.items;
+
+  $('#lootContent').innerHTML = items.map(i => `
     <div class="loot-item">
       <div class="loot-item-icon">${i.image ? `<img src="${i.image}">` : '📦'}</div>
       <div class="loot-item-name">${i.name}</div>
@@ -163,28 +212,39 @@ function renderInventory() {
  */
 function spin() {
   if (state.isSpinning) return;
+
   const pool = state.items.filter(state.activeCase.filter);
-  if (!pool.length) return alert("This case is currently empty!");
+  if (!pool.length) { alert('This case is currently empty!'); return; }
 
   state.isSpinning = true;
-  const track = $('#reelTrack');
-  const reelItems = Array.from({length: 80}, () => pool[Math.floor(Math.random() * pool.length)]);
-  
+
+  const track     = $('#reelTrack');
+  const reelWrap  = $('#reelWrap');
+  const reelItems = Array.from({ length: 80 }, () => pool[Math.floor(Math.random() * pool.length)]);
+
   track.innerHTML = reelItems.map(item => `
     <div class="rc" style="--rc-col:${CONFIG.RARITIES[item.rarity].color}">
       <div class="rc-name">${item.name}</div>
     </div>
   `).join('');
 
-  $('#openBtn').hidden = $('#backBtn').hidden = true;
-  $('#reelWrap').hidden = false;
+  // Hide buttons, reveal reel
+  $('#openBtn').hidden = true;
+  $('#backBtn').hidden = true;
+  reelWrap.hidden      = false;
+
+  // Reset position without transition, then animate
   track.style.transition = 'none';
-  track.style.transform = 'translateX(0)';
-  
-  setTimeout(() => {
+  track.style.transform  = 'translateX(0)';
+
+  // Let the reset paint before starting animation
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const cellW    = 120;
+    const winnerIdx = 70;
+    const offset   = (winnerIdx * cellW) - (reelWrap.offsetWidth / 2 - cellW / 2);
     track.style.transition = 'transform 6s cubic-bezier(0.1, 0, 0.1, 1)';
-    track.style.transform = `translateX(-${(70 * 120) - ($('#reelWrap').offsetWidth/2 - 60)}px)`;
-  }, 50);
+    track.style.transform  = `translateX(-${offset}px)`;
+  }));
 
   setTimeout(() => {
     const winner = reelItems[70];
@@ -197,66 +257,104 @@ function spin() {
 
 function showSplash(item) {
   const splash = document.createElement('div');
-  splash.className = 'splash-overlay';
+  splash.className      = 'splash-overlay';
   splash.style.background = CONFIG.RARITIES[item.rarity].color;
-  splash.innerHTML = `<div class="splash-content"><h1>${item.name}</h1><p>${CONFIG.RARITIES[item.rarity].label}</p></div>`;
+  splash.innerHTML = `
+    <div class="splash-content">
+      <h1>${item.name}</h1>
+      <p>${CONFIG.RARITIES[item.rarity].label}</p>
+    </div>
+  `;
   document.body.appendChild(splash);
-  
+
   splash.onclick = () => {
     splash.remove();
-    $('#openBtn').hidden = $('#backBtn').hidden = false;
     $('#reelWrap').hidden = true;
+    $('#openBtn').hidden  = false;
+    $('#backBtn').hidden  = false;
     renderInventory();
   };
 }
 
 /**
- * GLOBAL EVENT DELEGATION
+ * EVENT DELEGATION
  */
 document.addEventListener('click', (e) => {
   const t = e.target;
 
-  if (t.closest('.case-tile')) {
-    const id = t.closest('.case-tile').dataset.id;
-    state.activeCase = CONFIG.SYSTEMS[state.activeSystem].cases.find(c => c.id === id);
-    toggleView('caseOpenContainer');
-    $('#caseSelectGrid').hidden = true;
+  // Case tile clicked — enter case view
+  const tile = t.closest('.case-tile');
+  if (tile) {
+    state.activeCase = CONFIG.SYSTEMS[state.activeSystem].cases.find(c => c.id === tile.dataset.id);
+    enterCase();
+    return;
   }
 
+  // Back button — exit case view
   if (t.id === 'backBtn') {
-    toggleView('mainPanel');
-    $('#caseSelectGrid').hidden = false;
+    exitCase();
+    return;
   }
 
-  if (t.id === 'openBtn') spin();
+  // Open button — spin
+  if (t.id === 'openBtn') {
+    spin();
+    return;
+  }
 
-  if (t.closest('.rarity-tab')) {
-    const r = t.closest('.rarity-tab').dataset.rarity;
+  // Rarity filter tabs (inside loot panel)
+  const rarityTab = t.closest('.rarity-tab');
+  if (rarityTab) {
+    const r = rarityTab.dataset.rarity;
     state.rarityFilter = state.rarityFilter === r ? null : r;
     renderAll();
+    return;
   }
 
-  if (t.closest('.inv-del')) {
-    state.inventory.splice(t.closest('.inv-del').dataset.idx, 1);
+  // Inventory delete
+  const delBtn = t.closest('.inv-del');
+  if (delBtn) {
+    state.inventory.splice(parseInt(delBtn.dataset.idx), 1);
     state.save();
     renderInventory();
+    return;
   }
 
-  if (t.closest('.menu-item')) {
-    const tab = t.closest('.menu-item').dataset.tab;
-    toggleView(`${tab}Panel`);
+  // Nav menu tab items
+  const menuItem = t.closest('.menu-item');
+  if (menuItem) {
+    showPanel(menuItem.dataset.tab);
+    $('#menuDropdown').hidden = true;
+    return;
+  }
+
+  // System switcher items
+  const sysItem = t.closest('.system-menu-item');
+  if (sysItem) {
+    loadSystem(sysItem.dataset.system);
+    $('#systemMenu').classList.remove('show');
+    return;
+  }
+
+  // Close menus on outside click
+  if (!t.closest('#menuDropdown') && !t.closest('#menuBtn')) {
     $('#menuDropdown').hidden = true;
   }
-
-  if (t.closest('.system-menu-item')) {
-    loadSystem(t.closest('.system-menu-item').dataset.system);
+  if (!t.closest('#systemMenu') && !t.closest('#siteHeader')) {
     $('#systemMenu').classList.remove('show');
   }
 });
 
-// Setup Menus
-$('#menuBtn').onclick = () => $('#menuDropdown').hidden = !$('#menuDropdown').hidden;
-$('#siteHeader').onclick = () => $('#systemMenu').classList.toggle('show');
+// Menu toggles
+$('#menuBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  $('#menuDropdown').hidden = !$('#menuDropdown').hidden;
+});
 
-// Start
+$('#siteHeader').addEventListener('click', (e) => {
+  e.stopPropagation();
+  $('#systemMenu').classList.toggle('show');
+});
+
+// Boot
 loadSystem('mothership');
