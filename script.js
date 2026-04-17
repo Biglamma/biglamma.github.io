@@ -324,28 +324,34 @@ function renderInventory() {
 function spin(forcedPool = null) {
   if (state.isSpinning && !forcedPool) return;
 
-  // Use the magicPool if this is a re-roll, otherwise calculate the standard pool
   const isMagicRespin = !!forcedPool;
-  const pool = forcedPool || state.items
+  
+  // 1. Prepare the pool
+  let pool = forcedPool || state.items
     .filter(state.activeCase.filter)
     .filter(i => !state.disabledItems.has(i._key));
 
-  if (!pool.length && state.activeCase.id !== 'd-test') {
-    alert('No items available to roll!');
+  if (!pool.length) {
+    alert('No items available!');
     return;
   }
 
-  // Only add the trigger to the pool if we aren't already in the magic reel
+  // 2. Add the Token if this is the first roll
+  // We manually push a dummy item with the 'mythical' rarity
   if (!isMagicRespin) {
-    pool.push({ name: "MAGIC ROLL", rarity: "mythical", isTrigger: true, _key: "trigger" });
+    pool.push({ 
+      name: "RE-ROLLING...", 
+      rarity: "mythical", 
+      isTrigger: true, 
+      _key: "magic-token" 
+    });
   }
 
   state.isSpinning = true;
-
   const track = $('#reelTrack');
   const reelWrap = $('#reelWrap');
   
-  // Fill the reel
+  // 3. Generate the reel items
   const reelItems = Array.from({ length: 80 }, () => getWeightedItem(pool));
 
   track.innerHTML = reelItems.map(item => `
@@ -360,33 +366,33 @@ function spin(forcedPool = null) {
   $('#backBtn').hidden = true;
   reelWrap.hidden = false;
 
-  // Reset track position for the animation
   track.style.transition = 'none';
   track.style.transform = 'translateX(0)';
 
   requestAnimationFrame(() => requestAnimationFrame(() => {
     const winnerIdx = 70;
     const offset = (winnerIdx * REEL_CELL_W) - (reelWrap.offsetWidth / 2 - REEL_CELL_W / 2);
-    // Speed up the magic roll slightly for hype (5s vs 6s)
     track.style.transition = `transform ${isMagicRespin ? '5s' : '6s'} cubic-bezier(0.1, 0, 0.1, 1)`;
     track.style.transform = `translateX(-${offset}px)`;
   }));
 
+  // 4. Handle the Win
   setTimeout(() => {
     const winner = { ...reelItems[70] };
     
-    if (winner.isTrigger) {
-      // PHASE 2: The Respin
+    // If the landed item has the mythical rarity (the token), trigger respin
+    if (winner.rarity === 'mythical' && !isMagicRespin) {
       if (!state.magicPool.length) {
-        alert("The weave is empty!");
+        alert("The magic pool is empty!");
         state.isSpinning = false;
         exitCase();
       } else {
-        // Trigger the magic respin with the special pool
+        // Clear the track and spin again using the magicPool
+        track.innerHTML = ''; 
         spin(state.magicPool); 
       }
     } else {
-      // FINAL WIN (Normal or Magic)
+      // It's a real item (either from the first roll or the magic respin)
       state.inventory.push(winner);
       state.saveInventory();
       state.isSpinning = false;
