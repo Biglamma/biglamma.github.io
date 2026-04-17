@@ -1,7 +1,6 @@
 // This is for the reel cell width — must stay in sync with .rc { min-width } in CSS
 const REEL_CELL_W = 140;
 
-// This is for all static configuration: rarities and game systems with their stash definitions
 const CONFIG = {
   RARITIES: {
     common:    { label: 'Common',    color: '#7a7f8a', weight: 0.5000 },
@@ -9,7 +8,7 @@ const CONFIG = {
     rare:      { label: 'Rare',      color: '#3a7ccf', weight: 0.2000 },
     epic:      { label: 'Epic',      color: '#8a4faa', weight: 0.1000 },
     legendary: { label: 'Legendary', color: '#e67e22', weight: 0.0500 },
-    mythical:  { label: 'Magical',    color: '#ff0000', weight: 0.0100 },
+    mythical:  { label: 'Magical',   color: '#ff0000', weight: 0.0100 },
   },
   SYSTEMS: {
     mothership: {
@@ -17,10 +16,9 @@ const CONFIG = {
       theme: 'theme-mothership',
       files: ['mosh-weapons.json', 'mosh-armor.json', 'mosh-equipment.json'],
       cases: [
-        { id: 'm-wep', name: 'Arsenal',  color: '#e74c3c', group: 'Standard Issue', filter: i => i.category === 'weapons'   },
-        { id: 'm-arm', name: 'Aegis',    color: '#3498db', group: 'Standard Issue', filter: i => i.category === 'armor'     },
+        { id: 'm-wep', name: 'Arsenal',   color: '#e74c3c', group: 'Standard Issue', filter: i => i.category === 'weapons'   },
+        { id: 'm-arm', name: 'Aegis',     color: '#3498db', group: 'Standard Issue', filter: i => i.category === 'armor'     },
         { id: 'm-eqp', name: 'Logistics', color: '#95a5a6', group: 'Standard Issue', filter: i => i.category === 'equipment' },
-        
         { id: 'm-med', name: 'Medbay Cache',  color: '#2ecc71', group: 'Scavenged Finds', filter: i => i.tags?.includes('medical') || i.name?.includes('Stim') },
         { id: 'm-sci', name: 'Research Lab',  color: '#9b59b6', group: 'Scavenged Finds', filter: i => i.rarity === 'mythical' || i.tags?.includes('science') },
         { id: 'm-mil', name: 'Military Deck', color: '#c0392b', group: 'Scavenged Finds', filter: i => i.tags?.includes('combat') || i.tags?.includes('heavy') },
@@ -32,14 +30,13 @@ const CONFIG = {
       files: ['dnd-weapons.json', 'dnd-armor.json', 'dnd-equipment.json'],
       magicFiles: ['dnd-magic-items.json'],
       cases: [
-        { id: 'd-wep', name: 'Armory',       color: '#c0392b', group: 'Adventuring Gear', filter: i => i.category === 'weapons'  },
-        { id: 'd-arm', name: 'Bulwark',      color: '#2980b9', group: 'Adventuring Gear', filter: i => i.category === 'armor'    },
-        { id: 'd-eqp', name: "Provisions",   color: '#7f8c8d', group: 'Adventuring Gear', filter: i => i.category === 'equipment' },
-        
-        { id: 'd-wiz', name: "Wizard's Bag",    color: '#8e44ad', group: 'Recovered Spoils', filter: i => i.tags?.includes('magic') || i.rarity === 'epic' },
-        { id: 'd-dun', name: 'Dungeon Hoard',   color: '#34495e', group: 'Recovered Spoils', filter: i => i.rarity !== 'common' && (i.tags?.includes('magic') || i.tags?.includes('loot')) },
-        { id: 'd-nob', name: 'Noble Treasury',  color: '#d4ac0d', group: 'Recovered Spoils', filter: i => i.cost > 500 || i.rarity === 'legendary' },
-        { id: 'd-roy', name: 'Royal Vault',     color: '#f1c40f', group: 'Recovered Spoils', filter: i => i.cost > 1000 || i.rarity === 'mythical' },
+        { id: 'd-wep', name: 'Armory',     color: '#c0392b', group: 'Adventuring Gear', filter: i => i.category === 'weapons'   },
+        { id: 'd-arm', name: 'Bulwark',    color: '#2980b9', group: 'Adventuring Gear', filter: i => i.category === 'armor'     },
+        { id: 'd-eqp', name: 'Provisions', color: '#7f8c8d', group: 'Adventuring Gear', filter: i => i.category === 'equipment' },
+        { id: 'd-wiz', name: "Wizard's Bag",   color: '#8e44ad', group: 'Recovered Spoils', filter: i => i.tags?.includes('magic') || i.rarity === 'epic' },
+        { id: 'd-dun', name: 'Dungeon Hoard',  color: '#34495e', group: 'Recovered Spoils', filter: i => i.rarity !== 'common' && (i.tags?.includes('magic') || i.tags?.includes('loot')) },
+        { id: 'd-nob', name: 'Noble Treasury', color: '#d4ac0d', group: 'Recovered Spoils', filter: i => i.cost > 500  || i.rarity === 'legendary' },
+        { id: 'd-roy', name: 'Royal Vault',    color: '#f1c40f', group: 'Recovered Spoils', filter: i => i.cost > 1000 || i.rarity === 'mythical'  },
         { id: 'd-test', name: 'Cocksure Mythic', color: '#ff0000', group: 'Experimental', filter: i => i.rarity === 'mythical' },
       ],
     },
@@ -50,12 +47,12 @@ const CONFIG = {
 class AppState {
   constructor() {
     this.items          = [];
-    this.magicPool      = []; 
+    this.magicPool      = [];
     this.inventory      = [];
     this.disabledItems  = new Set();
     this.activeCase     = null;
     this.activeSystem   = 'mothership';
-    this.isSpinning      = false;
+    this.isSpinning     = false;
     this.rarityFilter   = null;
     this.selectedInvIdx = null;
   }
@@ -92,7 +89,6 @@ const $$ = s => document.querySelectorAll(s);
 function getWeightedItem(pool) {
   const totalWeight = pool.reduce((sum, item) => sum + (CONFIG.RARITIES[item.rarity]?.weight || 0), 0);
   let random = Math.random() * totalWeight;
-
   for (const item of pool) {
     const itemWeight = CONFIG.RARITIES[item.rarity].weight;
     if (random < itemWeight) return item;
@@ -114,8 +110,8 @@ function enterCase(caseConfig) {
   $('#caseGroups').hidden        = true;
   $('#caseOpenContainer').hidden = false;
   $('#reelWrap').hidden          = true;
-  $('#openBtn').hidden            = false;
-  $('#backBtn').hidden            = false;
+  $('#openBtn').hidden           = false;
+  $('#backBtn').hidden           = false;
 }
 
 function exitCase() {
@@ -153,33 +149,34 @@ async function loadSystem(key) {
 
   state.items = autoAssignRarity(batches.flat());
 
-  // Unified Ancient Artifact trigger
+  // Magic portal trigger — no image, always in pool
   state.items.push({
-    name: "ANCIENT ARTIFACT",
-    rarity: "mythical",
-    category: "equipment",
-    _key: "magic_portal_trigger",
-    image: "https://via.placeholder.com/140/000000/ff0000?text=%3F"
+    name: 'ANCIENT ARTIFACT',
+    rarity: 'mythical',
+    category: 'equipment',
+    _key: 'magic_portal_trigger',
   });
 
   if (sys.magicFiles) {
     const magicBatches = await Promise.all(sys.magicFiles.map(async file => {
       try {
-        const res = await fetch(`./${file}`);
+        const res  = await fetch(`./${file}`);
         const json = await res.json();
-        const arr = json.artifacts || (Array.isArray(json) ? json : Object.values(json)[0]);
+        const arr  = json.artifacts || (Array.isArray(json) ? json : Object.values(json)[0]);
         return arr;
-      } catch (err) { 
-        console.error("Magic file error:", err);
-        return []; 
+      } catch (err) {
+        console.error('Magic file error:', err);
+        return [];
       }
     }));
 
-    state.magicPool = magicBatches.flat().map(i => ({ 
-      ...i, 
-      rarity: 'legendary', 
-      category: 'equipment', 
-      _key: i.name 
+    state.magicPool = magicBatches.flat().map(i => ({
+      ...i,
+      rarity:   'mythical',
+      category: i.category || 'equipment',
+      _key:     i.name,
+      // strip any placeholder images
+      image:    (i.image && !i.image.includes('placeholder')) ? i.image : undefined,
     }));
   }
 
@@ -188,18 +185,19 @@ async function loadSystem(key) {
 
 function autoAssignRarity(items) {
   const sorted = [...items].sort((a, b) => (parseInt(a.cost) || 0) - (parseInt(b.cost) || 0));
-  const total = sorted.length;
+  const total  = sorted.length;
 
   return sorted.map((item, index) => {
     const percentile = index / total;
     let rarity = 'common';
-    if (percentile >= 0.95)      rarity = 'legendary'; 
+    if      (percentile >= 0.95) rarity = 'legendary';
     else if (percentile >= 0.80) rarity = 'epic';
     else if (percentile >= 0.60) rarity = 'rare';
     else if (percentile >= 0.30) rarity = 'uncommon';
-    else                         rarity = 'common';
 
-    return { ...item, _key: item.name, rarity: rarity };
+    // Strip placeholder images
+    const image = (item.image && !item.image.includes('placeholder')) ? item.image : undefined;
+    return { ...item, _key: item.name, rarity, image };
   });
 }
 
@@ -222,7 +220,7 @@ function renderAll() {
 }
 
 function renderCases() {
-  const sys = CONFIG.SYSTEMS[state.activeSystem];
+  const sys    = CONFIG.SYSTEMS[state.activeSystem];
   const groups = sys.cases.reduce((acc, c) => {
     (acc[c.group] = acc[c.group] || []).push(c);
     return acc;
@@ -244,21 +242,32 @@ function renderCases() {
 }
 
 function renderRarityTabs() {
-  const entries = [['', { label: 'All', color: 'var(--dim)' }], ...Object.entries(CONFIG.RARITIES)];
-  $('#rarityTabs').innerHTML = entries.map(([key, r]) => {
-    const active = key === '' ? state.rarityFilter === null : state.rarityFilter === key;
-    return `
-      <button class="rarity-tab" data-rarity="${key}"
-        style="border-color:${r.color}; background:${active ? r.color : 'transparent'}; color:${active ? '#fff' : r.color}">
-        ${r.label}
-      </button>
-    `;
-  }).join('');
+  const entries = [['', { color: '#555' }], ...Object.entries(CONFIG.RARITIES)];
+  $('#rarityTabs').innerHTML =
+    `<div style="display:flex;width:100%;gap:3px">` +
+    entries.map(([key, r]) => {
+      const active = key === '' ? state.rarityFilter === null : state.rarityFilter === key;
+      return `<button class="rarity-tab" data-rarity="${key}"
+        style="flex:1;height:20px;border:none;border-radius:3px;cursor:pointer;padding:0;min-width:0;
+               background:${active ? r.color : r.color + '44'};
+               box-shadow:${active ? `0 0 6px ${r.color}88` : 'none'};
+               transition:background 0.15s,box-shadow 0.15s"></button>`;
+    }).join('') +
+    `</div>`;
 }
 
 function renderLoot() {
   const basePool = state.items.filter(i => i._key !== 'magic_portal_trigger');
-  const visible = state.rarityFilter ? basePool.filter(i => i.rarity === state.rarityFilter) : basePool;
+  // Magic pool items ARE the mythical tier — merge them in
+  const magicAsItems = state.magicPool.map(i => ({
+    ...i,
+    rarity:   'mythical',
+    category: i.category || 'equipment',
+  }));
+  const allItems = [...basePool, ...magicAsItems];
+  const visible  = state.rarityFilter
+    ? allItems.filter(i => i.rarity === state.rarityFilter)
+    : allItems;
   const CATS = { weapons: 'Weapons', armor: 'Armor', equipment: 'Tools & Equipment' };
 
   $('#lootContent').innerHTML = Object.entries(CATS).map(([cat, label]) =>
@@ -303,9 +312,20 @@ function spin(forcedPool = null) {
   if (state.isSpinning && !forcedPool) return;
 
   const isMagicRespin = !!forcedPool;
-  let pool = forcedPool || state.items
-    .filter(state.activeCase.filter)
-    .filter(i => !state.disabledItems.has(i._key));
+
+  let pool;
+  if (forcedPool) {
+    pool = forcedPool;
+  } else {
+    // Case-filtered items, minus the trigger placeholder
+    const caseItems = state.items
+      .filter(state.activeCase.filter)
+      .filter(i => !state.disabledItems.has(i._key) && i._key !== 'magic_portal_trigger');
+
+    // Magic portal trigger is ALWAYS present so any spin can land on it
+    const trigger = state.items.find(i => i._key === 'magic_portal_trigger');
+    pool = trigger ? [...caseItems, trigger] : caseItems;
+  }
 
   if (!pool.length) {
     alert('No items available!');
@@ -313,9 +333,9 @@ function spin(forcedPool = null) {
   }
 
   state.isSpinning = true;
-  const track = $('#reelTrack');
+  const track    = $('#reelTrack');
   const reelWrap = $('#reelWrap');
-  
+
   const reelItems = Array.from({ length: 80 }, () => getWeightedItem(pool));
 
   track.innerHTML = reelItems.map(item => `
@@ -331,13 +351,13 @@ function spin(forcedPool = null) {
   reelWrap.hidden = false;
 
   track.style.transition = 'none';
-  track.style.transform = 'translateX(0)';
+  track.style.transform  = 'translateX(0)';
 
   requestAnimationFrame(() => requestAnimationFrame(() => {
     const winnerIdx = 70;
     const offset = (winnerIdx * REEL_CELL_W) - (reelWrap.offsetWidth / 2 - REEL_CELL_W / 2);
     track.style.transition = `transform ${isMagicRespin ? '5s' : '6s'} cubic-bezier(0.1, 0, 0.1, 1)`;
-    track.style.transform = `translateX(-${offset}px)`;
+    track.style.transform  = `translateX(-${offset}px)`;
   }));
 
   setTimeout(() => {
@@ -345,18 +365,18 @@ function spin(forcedPool = null) {
 
     if (winner._key === 'magic_portal_trigger') {
       if (!state.magicPool.length) {
-        alert("The Vault is empty!");
+        alert('The Vault is empty!');
         state.isSpinning = false;
         exitCase();
       } else {
-        track.innerHTML = ''; 
-        spin(state.magicPool); 
+        track.innerHTML = '';
+        spin(state.magicPool);
       }
     } else {
       state.inventory.push(winner);
       state.saveInventory();
       state.isSpinning = false;
-      showSplash(winner, isMagicRespin); 
+      showSplash(winner, isMagicRespin);
     }
   }, isMagicRespin ? 5500 : 6500);
 }
@@ -391,7 +411,7 @@ function showSplash(item, isMagic = false) {
 // Global Event Delegation
 document.addEventListener('click', e => {
   const t = e.target;
-  
+
   const tile = t.closest('.case-tile');
   if (tile) {
     const c = CONFIG.SYSTEMS[state.activeSystem].cases.find(c => c.id === tile.dataset.id);
