@@ -162,17 +162,28 @@ async function loadSystem(key) {
 
   // Load Magic/Secret Items
   if (sys.magicFiles) {
-    const magicBatches = await Promise.all(sys.magicFiles.map(async file => {
-      try {
-        const res  = await fetch(`./${file}`);
-        const json = await res.json();
-        const arr  = Array.isArray(json) ? json : (Object.values(json)[0] || []);
-        return arr;
-      } catch { return []; }
-    }));
-    // We tag magic items as 'legendary' for their inner color, but they are pulled exclusively on a Mythical trigger.
-    state.magicPool = magicBatches.flat().map(i => ({ ...i, rarity: 'legendary', _key: i.name }));
-  }
+  const magicBatches = await Promise.all(sys.magicFiles.map(async file => {
+    try {
+      const res = await fetch(`./${file}`);
+      const json = await res.json();
+      
+      // FIX: Check specifically for the 'artifacts' key or fallback to array
+      const arr = json.artifacts || (Array.isArray(json) ? json : Object.values(json)[0]);
+      
+      return arr;
+    } catch (err) { 
+      console.error("Failed to load magic file:", file, err);
+      return []; 
+    }
+  }));
+
+  // Map and store in the magic pool
+  state.magicPool = magicBatches.flat().map(i => ({ 
+    ...i, 
+    rarity: 'legendary', // Visual color for the reel
+    category: 'equipment', // Default category for inventory grouping
+    _key: i.name 
+  }));
 
   renderAll();
 }
