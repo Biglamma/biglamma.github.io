@@ -320,72 +320,79 @@ function renderInventory() {
 }
 
 // This is for running the reel animation and selecting a random winner from the enabled stash pool
-function spin() {
-  if (state.isSpinning) return;
+// Updated spin function to handle nested magic rolls
+function spin(forcedPool = null) {
+  if (state.isSpinning && !forcedPool) return;
 
-  const pool = state.items
+  // Use the magicPool if this is a re-roll, otherwise calculate the standard pool
+  const isMagicRespin = !!forcedPool;
+  const pool = forcedPool || state.items
     .filter(state.activeCase.filter)
     .filter(i => !state.disabledItems.has(i._key));
 
   if (!pool.length && state.activeCase.id !== 'd-test') {
-    alert('All items in this stash are disabled. Re-enable some from the Loot Table first.');
+    alert('No items available to roll!');
     return;
   }
 
-  // Inject the Magic Roll Trigger into the pool before spinning
-  pool.push({ name: "MAGIC ROLL", rarity: "mythical", isTrigger: true, _key: "trigger" });
+  // Only add the trigger to the pool if we aren't already in the magic reel
+  if (!isMagicRespin) {
+    pool.push({ name: "MAGIC ROLL", rarity: "mythical", isTrigger: true, _key: "trigger" });
+  }
 
   state.isSpinning = true;
 
-  const track     = $('#reelTrack');
-  const reelWrap  = $('#reelWrap');
+  const track = $('#reelTrack');
+  const reelWrap = $('#reelWrap');
+  
+  // Fill the reel
   const reelItems = Array.from({ length: 80 }, () => getWeightedItem(pool));
 
   track.innerHTML = reelItems.map(item => `
     <div class="rc" style="--rc-col:${CONFIG.RARITIES[item.rarity].color}">
       ${item.image ? `<img class="rc-img" src="${item.image}" alt="${item.name}">` : ''}
       <div class="rc-name">${item.name}</div>
+      ${isMagicRespin ? '<div class="magic-sparkle">✨</div>' : ''}
     </div>
   `).join('');
 
   $('#openBtn').hidden = true;
   $('#backBtn').hidden = true;
-  reelWrap.hidden      = false;
+  reelWrap.hidden = false;
 
+  // Reset track position for the animation
   track.style.transition = 'none';
-  track.style.transform  = 'translateX(0)';
+  track.style.transform = 'translateX(0)';
 
   requestAnimationFrame(() => requestAnimationFrame(() => {
     const winnerIdx = 70;
-    const offset    = (winnerIdx * REEL_CELL_W) - (reelWrap.offsetWidth / 2 - REEL_CELL_W / 2);
-    track.style.transition = 'transform 6s cubic-bezier(0.1, 0, 0.1, 1)';
-    track.style.transform  = `translateX(-${offset}px)`;
+    const offset = (winnerIdx * REEL_CELL_W) - (reelWrap.offsetWidth / 2 - REEL_CELL_W / 2);
+    // Speed up the magic roll slightly for hype (5s vs 6s)
+    track.style.transition = `transform ${isMagicRespin ? '5s' : '6s'} cubic-bezier(0.1, 0, 0.1, 1)`;
+    track.style.transform = `translateX(-${offset}px)`;
   }));
 
   setTimeout(() => {
     const winner = { ...reelItems[70] };
     
-    // Handle Bonus Magic Trigger
     if (winner.isTrigger) {
+      // PHASE 2: The Respin
       if (!state.magicPool.length) {
-        alert("The weave is empty! (No magic items loaded)");
+        alert("The weave is empty!");
         state.isSpinning = false;
         exitCase();
-        return;
+      } else {
+        // Trigger the magic respin with the special pool
+        spin(state.magicPool); 
       }
-      const magicWinner = state.magicPool[Math.floor(Math.random() * state.magicPool.length)];
-      state.inventory.push({ ...magicWinner });
-      state.saveInventory();
-      state.isSpinning = false;
-      showSplash(magicWinner, true); // True flag enables magic styling
     } else {
-      // Normal win
+      // FINAL WIN (Normal or Magic)
       state.inventory.push(winner);
       state.saveInventory();
       state.isSpinning = false;
-      showSplash(winner);
+      showSplash(winner, isMagicRespin); 
     }
-  }, 6500);
+  }, isMagicRespin ? 5500 : 6500);
 }
 
 // This is for displaying the full-screen item reveal overlay after the reel settles
