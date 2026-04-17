@@ -1,1 +1,20 @@
-
+{
+  "artifacts": [
+    {
+      "id": "potion-of-healing",
+      "name": "Potion of Healing",
+      "attuned": false,
+      "description": "A red glimmering potion that restores 2d4+2 hit points when consumed. Its potency varies by rarity, but the basic healing version is common."
+      "image": "/images/items/potion-of-healing.png",
+      "tags": ["potion"],
+    },
+    {
+      "id": "potion-of-climbing",
+      "name": "Potion of Climbing",
+      "attuned": false,
+      "image": "/images/items/potion-of-climbing.png",
+      "tags": ["potion"],
+      "description": "Drinking this potion grants a climbing speed equal to your walking speed for 1 hour and advantage on Athletics checks to climb. The liquid forms layered bands of brown, silver, and gray."
+    }
+  ]
+}
