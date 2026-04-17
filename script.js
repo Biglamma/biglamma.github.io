@@ -4,12 +4,12 @@ const REEL_CELL_W = 140;
 // This is for all static configuration: rarities and game systems with their stash definitions
 const CONFIG = {
   RARITIES: {
-    common:    { label: 'Common',    color: '#7a7f8a', weight: 0.6000 },
-    uncommon:  { label: 'Uncommon',  color: '#3fbf5a', weight: 0.2500 },
-    rare:      { label: 'Rare',      color: '#3a7ccf', weight: 0.1000 },
-    epic:      { label: 'Epic',      color: '#8a4faa', weight: 0.0400 },
-    legendary: { label: 'Legendary', color: '#e67e22', weight: 0.0090 },
-    mythical:  { label: 'MAGIC ROLL', color: '#ff0000', weight: 0.0010 }, // 0.1% Chance
+    common:    { label: 'Common',    color: '#7a7f8a', weight: 0.5000 },
+    uncommon:  { label: 'Uncommon',  color: '#3fbf5a', weight: 0.3000 },
+    rare:      { label: 'Rare',      color: '#3a7ccf', weight: 0.2000 },
+    epic:      { label: 'Epic',      color: '#8a4faa', weight: 0.1000 },
+    legendary: { label: 'Legendary', color: '#e67e22', weight: 0.0500 },
+    mythical:  { label: 'Magical', color: '#ff0000', weight: 0.0100 },
   },
   SYSTEMS: {
     mothership: {
@@ -17,27 +17,29 @@ const CONFIG = {
       theme: 'theme-mothership',
       files: ['mosh-weapons.json', 'mosh-armor.json', 'mosh-equipment.json'],
       cases: [
-        { id: 'm-wep', name: 'Weapon Crate',  color: '#e74c3c', group: 'Standard Issue', filter: i => i.category === 'weapons'   },
-        { id: 'm-arm', name: 'Armor Locker',  color: '#3498db', group: 'Standard Issue', filter: i => i.category === 'armor'     },
-        { id: 'm-tls', name: 'Tool Kit',      color: '#95a5a6', group: 'Standard Issue', filter: i => i.category === 'equipment' },
-        { id: 'm-med', name: 'Medbay Cache',  color: '#2ecc71', group: 'Special Ops',    filter: i => i.tags?.includes('medical') || i.name?.includes('Stim') },
-        { id: 'm-sci', name: 'Research Lab',  color: '#9b59b6', group: 'Special Ops',    filter: i => i.rarity === 'mythical'    || i.tags?.includes('science') },
-        { id: 'm-mil', name: 'Military Deck', color: '#c0392b', group: 'Special Ops',    filter: i => i.tags?.includes('combat') || i.tags?.includes('heavy')  },
+        { id: 'm-wep', name: 'Arsenal',  color: '#e74c3c', group: 'Standard Issue', filter: i => i.category === 'weapons'   },
+        { id: 'm-arm', name: 'Aegis',  color: '#3498db', group: 'Standard Issue', filter: i => i.category === 'armor'     },
+        { id: 'm-eqp', name: 'Logistics',      color: '#95a5a6', group: 'Standard Issue', filter: i => i.category === 'equipment' },
+        
+        { id: 'm-med', name: 'Medbay Cache',  color: '#2ecc71', group: 'Scavenged Finds',    filter: i => i.tags?.includes('medical') || i.name?.includes('Stim') },
+        { id: 'm-sci', name: 'Research Lab',  color: '#9b59b6', group: 'Scavenged Finds',    filter: i => i.rarity === 'mythical'    || i.tags?.includes('science') },
+        { id: 'm-mil', name: 'Military Deck', color: '#c0392b', group: 'Scavenged Finds',    filter: i => i.tags?.includes('combat') || i.tags?.includes('heavy')  },
       ],
     },
     dnd: {
       label: 'D&D 5E',
       theme: 'theme-dnd',
       files: ['dnd-weapons.json', 'dnd-armor.json', 'dnd-equipment.json'],
-      magicFiles: ['dnd-magic-items.json'], // Hidden from standard loot
+      magicFiles: ['dnd-magic-items.json'],
       cases: [
-        { id: 'd-pea', name: "Peasant's Stash", color: '#7f8c8d', group: 'Common Folk', filter: i => i.rarity === 'common'     },
-        { id: 'd-wep', name: 'The Armory',      color: '#c0392b', group: 'Common Folk', filter: i => i.category === 'weapons'  },
-        { id: 'd-arm', name: 'The Bulwark',     color: '#2980b9', group: 'Common Folk', filter: i => i.category === 'armor'    },
-        { id: 'd-wiz', name: "Wizard's Bag",    color: '#8e44ad', group: 'Rare Finds',  filter: i => i.tags?.includes('magic') || i.rarity === 'epic'       },
-        { id: 'd-dun', name: 'Dungeon Hoard',   color: '#34495e', group: 'Rare Finds',  filter: i => i.rarity !== 'common'    && (i.tags?.includes('magic') || i.tags?.includes('loot')) },
-        { id: 'd-nob', name: 'Noble Treasury',  color: '#d4ac0d', group: 'Rare Finds',  filter: i => i.cost > 500             || i.rarity === 'legendary'   },
-        { id: 'd-roy', name: 'Royal Vault',     color: '#f1c40f', group: 'Rare Finds',  filter: i => i.cost > 1000            || i.rarity === 'mythical'    },
+        { id: 'd-wep', name: 'Armory',      color: '#c0392b', group: 'Adventuring Gear', filter: i => i.category === 'weapons'  },
+        { id: 'd-arm', name: 'Bulwark',     color: '#2980b9', group: 'Adventuring Gear', filter: i => i.category === 'armor'    },
+        { id: 'd-eqp', name: "Provisions", color: '#7f8c8d', group: 'Adventuring Gear', filter: i => i.category === 'equipment'     },
+        
+        { id: 'd-wiz', name: "Wizard's Bag",    color: '#8e44ad', group: 'Recovered Spoils',  filter: i => i.tags?.includes('magic') || i.rarity === 'epic'       },
+        { id: 'd-dun', name: 'Dungeon Hoard',   color: '#34495e', group: 'Recovered Spoils',  filter: i => i.rarity !== 'common'    && (i.tags?.includes('magic') || i.tags?.includes('loot')) },
+        { id: 'd-nob', name: 'Noble Treasury',  color: '#d4ac0d', group: 'Recovered Spoils',  filter: i => i.cost > 500             || i.rarity === 'legendary'   },
+        { id: 'd-roy', name: 'Royal Vault',     color: '#f1c40f', group: 'Recovered Spoils',  filter: i => i.cost > 1000            || i.rarity === 'mythical'    },
         { id: 'd-test', name: 'Cocksure Mythic', color: '#ff0000', group: 'Experimental', filter: i => i.rarity === 'mythical' }, // Test case for the 0.1% roll
       ],
     },
