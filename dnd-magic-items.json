@@ -4,9 +4,9 @@
       "id": "potion-of-healing",
       "name": "Potion of Healing",
       "attuned": false,
-      "description": "A red glimmering potion that restores 2d4+2 hit points when consumed. Its potency varies by rarity, but the basic healing version is common."
+      "description": "A red glimmering potion that restores 2d4+2 hit points when consumed. The liquid shimmers when moved.",
       "image": "/images/items/potion-of-healing.png",
-      "tags": ["potion"],
+      "tags": ["potion"]
     },
     {
       "id": "potion-of-climbing",
@@ -14,7 +14,31 @@
       "attuned": false,
       "image": "/images/items/potion-of-climbing.png",
       "tags": ["potion"],
-      "description": "Drinking this potion grants a climbing speed equal to your walking speed for 1 hour and advantage on Athletics checks to climb. The liquid forms layered bands of brown, silver, and gray."
+      "description": "Grants a climbing speed equal to walking speed for 1 hour and advantage on Athletics checks to climb. The liquid forms layered stone-like bands."
+    },
+    {
+      "id": "bag-of-holding",
+      "name": "Bag of Holding",
+      "attuned": false,
+      "image": "/images/items/bag-of-holding.png",
+      "tags": ["wondrous"],
+      "description": "A small bag with a magically expanded interior capable of holding up to 500 pounds or 64 cubic feet. Overloading or damaging it destroys the bag and ejects contents into the Astral Plane."
+    },
+    {
+      "id": "sending-stones",
+      "name": "Sending Stones",
+      "attuned": false,
+      "image": "/images/items/sending-stones.png",
+      "tags": ["wondrous"],
+      "description": "A paired set of stones that allow the user to cast a once-per-day sending spell to the bearer of the matching stone."
+    },
+    {
+      "id": "immovable-rod",
+      "name": "Immovable Rod",
+      "attuned": false,
+      "image": "/images/items/immovable-rod.png",
+      "tags": ["rod"],
+      "description": "A metal rod that becomes fixed in place when its button is pressed, supporting up to 8,000 pounds until deactivated."
     }
   ]
 }
