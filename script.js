@@ -9,7 +9,7 @@ const CONFIG = {
     rare:      { label: 'Rare',      color: '#3a7ccf', weight: 0.2000 },
     epic:      { label: 'Epic',      color: '#8a4faa', weight: 0.1000 },
     legendary: { label: 'Legendary', color: '#e67e22', weight: 0.0500 },
-    mythical:  { label: 'Magical',   color: '#ff0000', weight: 0.0100 },
+    mythical:  { label: 'Magical',    color: '#ff0000', weight: 0.0100 },
   },
   SYSTEMS: {
     mothership: {
@@ -114,8 +114,8 @@ function enterCase(caseConfig) {
   $('#caseGroups').hidden        = true;
   $('#caseOpenContainer').hidden = false;
   $('#reelWrap').hidden          = true;
-  $('#openBtn').hidden           = false;
-  $('#backBtn').hidden           = false;
+  $('#openBtn').hidden            = false;
+  $('#backBtn').hidden            = false;
 }
 
 function exitCase() {
@@ -153,6 +153,7 @@ async function loadSystem(key) {
 
   state.items = autoAssignRarity(batches.flat());
 
+  // Unified Ancient Artifact trigger
   state.items.push({
     name: "ANCIENT ARTIFACT",
     rarity: "mythical",
@@ -311,10 +312,6 @@ function spin(forcedPool = null) {
     return;
   }
 
-  if (!isMagicRespin) {
-    pool = [...pool, { name: "ANCIENT MAGIC", rarity: "mythical", isTrigger: true, _key: "trigger" }];
-  }
-
   state.isSpinning = true;
   const track = $('#reelTrack');
   const reelWrap = $('#reelWrap');
@@ -346,19 +343,16 @@ function spin(forcedPool = null) {
   setTimeout(() => {
     const winner = { ...reelItems[70] };
 
-    // Detect the hardcoded trigger item
     if (winner._key === 'magic_portal_trigger') {
       if (!state.magicPool.length) {
         alert("The Vault is empty!");
         state.isSpinning = false;
         exitCase();
       } else {
-        // Clear track and spin again using magicPool
         track.innerHTML = ''; 
         spin(state.magicPool); 
       }
     } else {
-      // Normal item behavior: save to inventory and show splash
       state.inventory.push(winner);
       state.saveInventory();
       state.isSpinning = false;
