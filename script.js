@@ -153,6 +153,14 @@ async function loadSystem(key) {
 
   state.items = autoAssignRarity(batches.flat());
 
+  state.items.push({
+    name: "ANCIENT ARTIFACT",
+    rarity: "mythical",
+    category: "equipment",
+    _key: "magic_portal_trigger",
+    image: "https://via.placeholder.com/140/000000/ff0000?text=%3F"
+  });
+
   if (sys.magicFiles) {
     const magicBatches = await Promise.all(sys.magicFiles.map(async file => {
       try {
@@ -248,7 +256,8 @@ function renderRarityTabs() {
 }
 
 function renderLoot() {
-  const visible = state.rarityFilter ? state.items.filter(i => i.rarity === state.rarityFilter) : state.items;
+  const basePool = state.items.filter(i => i._key !== 'magic_portal_trigger');
+  const visible = state.rarityFilter ? basePool.filter(i => i.rarity === state.rarityFilter) : basePool;
   const CATS = { weapons: 'Weapons', armor: 'Armor', equipment: 'Tools & Equipment' };
 
   $('#lootContent').innerHTML = Object.entries(CATS).map(([cat, label]) =>
@@ -336,17 +345,20 @@ function spin(forcedPool = null) {
 
   setTimeout(() => {
     const winner = { ...reelItems[70] };
-    
-    if (!isMagicRespin && (winner.rarity === 'mythical' || winner.isTrigger)) {
+
+    // Detect the hardcoded trigger item
+    if (winner._key === 'magic_portal_trigger') {
       if (!state.magicPool.length) {
-        alert("The magic pool is empty!");
+        alert("The Vault is empty!");
         state.isSpinning = false;
         exitCase();
       } else {
+        // Clear track and spin again using magicPool
         track.innerHTML = ''; 
         spin(state.magicPool); 
       }
     } else {
+      // Normal item behavior: save to inventory and show splash
       state.inventory.push(winner);
       state.saveInventory();
       state.isSpinning = false;
