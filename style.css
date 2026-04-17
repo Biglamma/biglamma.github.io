@@ -527,3 +527,77 @@ body::before {
   .rarity-tab { padding: 9px 12px; font-size: 10px; }
   .splash-content { padding: 36px 28px; }
 }
+
+/* ─── MAGIC RESPIN EXTENSIONS ─── */
+
+/* High-tier item glow in the reel */
+.rc[style*="--rc-col:#e67e22"], 
+.rc[style*="--rc-col:#ff0000"] {
+    background: linear-gradient(to bottom, var(--surface), rgba(230, 126, 34, 0.1));
+}
+
+/* Sparkle element for the magic respin */
+.magic-sparkle {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 14px;
+    color: #fff;
+    text-shadow: 0 0 10px #fff, 0 0 20px #ff0000;
+    animation: magicPulse 1.5s infinite ease-in-out;
+    pointer-events: none;
+    z-index: 5;
+}
+
+/* The "Magic" version of the reel track */
+.reel-track.magic-mode {
+    filter: saturate(1.5) contrast(1.1);
+}
+
+/* Enhanced glow for the center marker during magic rolls */
+.reel-wrap.magic-active::after {
+    background: #ff0000;
+    box-shadow: 0 0 30px #ff0000, 0 0 60px rgba(255, 0, 0, 0.5);
+    width: 4px;
+}
+
+/* Animations */
+@keyframes magicPulse {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.4); opacity: 1; }
+}
+
+/* Special styling for the 'Ancient Magic' Splash */
+.splash-overlay.magic-win {
+    background: radial-gradient(circle, rgba(60, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.98) 100%);
+}
+
+.splash-overlay.magic-win .splash-content {
+    border: 3px solid #ff0000;
+    box-shadow: 0 0 50px rgba(255, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle "glitch" or "energy" line for the magic splash */
+.splash-overlay.magic-win .splash-content::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: conic-gradient(transparent, rgba(255,0,0,0.1), transparent 30%);
+    animation: rotateMagic 4s linear infinite;
+    z-index: -1;
+}
+
+@keyframes rotateMagic {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Mobile Tweak for Magic Text */
+@media (max-width: 600px) {
+    .magic-sparkle { font-size: 10px; top: 4px; right: 4px; }
+}
