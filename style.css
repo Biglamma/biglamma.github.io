@@ -144,30 +144,6 @@ body::before {
 /* ─── PANELS ─── */
 .content-panel { width: 100%; }
 
-/* ─── PANEL TAB BAR ─── */
-.panel-tab-bar {
-  background: var(--acc);
-  color: #fff;
-  font-family: var(--disp);
-  font-size: 20px;
-  letter-spacing: 4px;
-  text-transform: uppercase;
-  padding: 14px 20px;
-  margin-bottom: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-}
-
-.tab-bar-count {
-  font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 1px;
-  opacity: 0.75;
-  font-weight: normal;
-}
-
 /* ─── FILTER STACK ─── */
 .filter-stack {
   display: flex;
@@ -185,7 +161,7 @@ body::before {
 
 .cat-filter-btn {
   flex: 1;
-  height: 34px;
+  height: 28px;
   border: none;
   cursor: pointer;
   font-family: var(--mono);
@@ -209,7 +185,7 @@ body::before {
 
 .rar-filter-btn {
   flex: 1;
-  height: 14px;
+  height: 28px;
   border: none;
   cursor: pointer;
   padding: 0;
@@ -602,5 +578,4 @@ body::before {
   .splash-content  { padding: 36px 28px; }
   .magic-sparkle   { font-size: 10px; top: 4px; right: 4px; }
   .cat-filter-btn  { font-size: 9px; letter-spacing: 0.5px; }
-  .panel-tab-bar   { font-size: 16px; letter-spacing: 2px; padding: 12px 14px; }
 }
