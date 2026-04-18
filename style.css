@@ -66,17 +66,12 @@ body::before {
 }
 
 /* ─── HEADER ─── */
-.hdr {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 0;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 32px;
-}
+
 
 .hdr-left,
 .hdr-right { position: relative; }
+
+.hdr-right { display: flex; justify-content: flex-end; }
 
 .hdr-logo {
   font-family: var(--disp);
@@ -142,30 +137,37 @@ body::before {
 .system-menu-item.active { color: var(--acc); }
 
 /* ─── PANEL NAV STRIP ─── */
-.panel-nav {
-  display: flex;
+.hdr {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  gap: 10px;
-  padding: 10px 0 18px;
-  margin-bottom: 8px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 32px;
+}
+
+.hdr-center {
+  text-align: center;
+  position: relative;
+  height: 1.2em;
 }
 
 .panel-nav-item {
   font-family: var(--disp);
-  font-size: 13px;
-  letter-spacing: 4px;
-  color: var(--dim);
-  transition: color var(--transition);
-  cursor: default;
+  font-size: clamp(16px, 3.5vw, 24px);
+  letter-spacing: 5px;
+  color: var(--acc);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
 }
 
 .panel-nav-item.active {
-  color: var(--acc);
-}
-
-.panel-nav-sep {
-  color: var(--border);
-  font-size: 13px;
+  opacity: 1;
 }
 
 /* ─── PANELS ─── */
