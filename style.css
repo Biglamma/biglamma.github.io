@@ -141,6 +141,33 @@ body::before {
 .menu-item.active { color: var(--acc); border-left: 2px solid var(--acc); }
 .system-menu-item.active { color: var(--acc); }
 
+/* ─── PANEL NAV STRIP ─── */
+.panel-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0 18px;
+  margin-bottom: 8px;
+}
+
+.panel-nav-item {
+  font-family: var(--disp);
+  font-size: 13px;
+  letter-spacing: 4px;
+  color: var(--dim);
+  transition: color var(--transition);
+  cursor: default;
+}
+
+.panel-nav-item.active {
+  color: var(--acc);
+}
+
+.panel-nav-sep {
+  color: var(--border);
+  font-size: 13px;
+}
+
 /* ─── PANELS ─── */
 .content-panel { width: 100%; }
 

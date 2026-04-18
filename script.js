@@ -25,7 +25,7 @@ const CONFIG = {
       ],
     },
     dnd: {
-      label: 'D&D 5E',
+      label: 'D&D',
       theme: 'theme-dnd',
       files: ['dnd-weapons.json', 'dnd-armor.json', 'dnd-equipment.json'],
       magicFiles: ['dnd-magic-items.json'],
@@ -112,6 +112,10 @@ function showPanel(name) {
   $(`#${name}Panel`).hidden = false;
   $$('.menu-item').forEach(m => m.classList.toggle('active', m.dataset.tab === name));
   state.selectedInvIdx = null;
+  const labels = { main: 'ROLL', inventory: 'INV', loot: 'LOOT' };
+  $$('.panel-nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === name);
+  });
 }
 
 function enterCase(caseConfig) {
@@ -249,10 +253,10 @@ function buildFilterHTML(activeCat, activeRar, panel) {
       data-cat="${c.key}" data-panel="${panel}">${c.label}</button>`
   ).join('');
 
-  // Rarity row — no text, colored blocks (All + 6 rarities = 7 blocks)
-  const rarEntries = [['', '#555'], ...Object.entries(CONFIG.RARITIES).map(([k, v]) => [k, v.color])];
+  // Rarity row — no text, colored blocks (6 rarities only; click active again to deselect)
+  const rarEntries = Object.entries(CONFIG.RARITIES).map(([k, v]) => [k, v.color]);
   const rarRow = rarEntries.map(([key, color]) => {
-    const active = key === '' ? activeRar === null : activeRar === key;
+    const active = activeRar === key;
     return `<button class="rar-filter-btn" data-rar="${key}" data-panel="${panel}"
       style="background:${active ? color : color + '44'};box-shadow:${active ? `0 0 5px ${color}88` : 'none'}"></button>`;
   }).join('');
@@ -303,8 +307,6 @@ function renderInventory() {
   let items = [...state.inventory];
   if (state.invCatFilter) items = items.filter(i => i.category === state.invCatFilter);
   if (state.invRarFilter) items = items.filter(i => i.rarity   === state.invRarFilter);
-
-  $('#invCount').textContent = `${state.inventory.length} Items`;
 
   const CATS = { weapons: 'Weapons', armor: 'Armor', equipment: 'Equipment' };
   const html = Object.entries(CATS)
