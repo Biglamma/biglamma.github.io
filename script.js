@@ -1,5 +1,4 @@
-// REEL_CELL_W is a fallback only — actual width is measured from DOM at spin time
-const REEL_CELL_W = 140;
+const REEL_CELL_W = 140; // fallback — actual width measured from DOM at spin time
 
 const CONFIG = {
   RARITIES: {
@@ -16,12 +15,12 @@ const CONFIG = {
       theme: 'theme-mothership',
       files: ['mosh-weapons.json', 'mosh-armor.json', 'mosh-equipment.json'],
       cases: [
-        { id: 'm-wep', name: 'Arsenal',      color: '#e74c3c', group: 'Standard Issue',  filter: i => i.category === 'weapons'   },
-        { id: 'm-arm', name: 'Aegis',        color: '#3498db', group: 'Standard Issue',  filter: i => i.category === 'armor'     },
-        { id: 'm-eqp', name: 'Logistics',    color: '#95a5a6', group: 'Standard Issue',  filter: i => i.category === 'equipment' },
-        { id: 'm-med', name: 'Medbay Cache', color: '#2ecc71', group: 'Scavenged Finds', filter: i => i.tags?.includes('medical') || i.name?.includes('Stim') },
-        { id: 'm-sci', name: 'Research Lab', color: '#9b59b6', group: 'Scavenged Finds', filter: i => i.rarity === 'mythical'    || i.tags?.includes('science') },
-        { id: 'm-mil', name: 'Military Deck',color: '#c0392b', group: 'Scavenged Finds', filter: i => i.tags?.includes('combat') || i.tags?.includes('heavy') },
+        { id: 'm-wep', name: 'Arsenal',       color: '#e74c3c', group: 'Standard Issue',  filter: i => i.category === 'weapons'   },
+        { id: 'm-arm', name: 'Aegis',         color: '#3498db', group: 'Standard Issue',  filter: i => i.category === 'armor'     },
+        { id: 'm-eqp', name: 'Logistics',     color: '#95a5a6', group: 'Standard Issue',  filter: i => i.category === 'equipment' },
+        { id: 'm-med', name: 'Medbay Cache',  color: '#2ecc71', group: 'Scavenged Finds', filter: i => i.tags?.includes('medical') || i.name?.includes('Stim') },
+        { id: 'm-sci', name: 'Research Lab',  color: '#9b59b6', group: 'Scavenged Finds', filter: i => i.rarity === 'mythical' || i.tags?.includes('science') },
+        { id: 'm-mil', name: 'Military Deck', color: '#c0392b', group: 'Scavenged Finds', filter: i => i.tags?.includes('combat') || i.tags?.includes('heavy') },
       ],
     },
     dnd: {
@@ -30,17 +29,18 @@ const CONFIG = {
       files: ['dnd-weapons.json', 'dnd-armor.json', 'dnd-equipment.json'],
       magicFiles: ['dnd-magic-items.json'],
       cases: [
-        { id: 'd-wep',  name: 'Armory',          color: '#c0392b', group: 'Adventuring Gear', filter: i => i.category === 'weapons'   },
-        { id: 'd-arm',  name: 'Bulwark',          color: '#2980b9', group: 'Adventuring Gear', filter: i => i.category === 'armor'     },
-        { id: 'd-eqp',  name: 'Provisions',       color: '#7f8c8d', group: 'Adventuring Gear', filter: i => i.category === 'equipment' },
-        { id: 'd-wiz',  name: "Wizard's Bag",     color: '#8e44ad', group: 'Recovered Spoils', filter: i => i.tags?.includes('magic')  || i.rarity === 'epic' },
-        { id: 'd-dun',  name: 'Dungeon Hoard',    color: '#34495e', group: 'Recovered Spoils', filter: i => i.rarity !== 'common' && (i.tags?.includes('magic') || i.tags?.includes('loot')) },
-        { id: 'd-nob',  name: 'Noble Treasury',   color: '#d4ac0d', group: 'Recovered Spoils', filter: i => i.cost > 500  || i.rarity === 'legendary' },
-        { id: 'd-roy',  name: 'Royal Vault',      color: '#f1c40f', group: 'Recovered Spoils', filter: i => i.cost > 1000 || i.rarity === 'mythical'  },
-        { id: 'd-test', name: 'Cocksure Mythic',  color: '#ff0000', group: 'Experimental',     filter: i => i.rarity === 'mythical' },
+        { id: 'd-wep',  name: 'Armory',        color: '#c0392b', group: 'Adventuring Gear', filter: i => i.category === 'weapons'   },
+        { id: 'd-arm',  name: 'Bulwark',        color: '#2980b9', group: 'Adventuring Gear', filter: i => i.category === 'armor'     },
+        { id: 'd-eqp',  name: 'Provisions',     color: '#7f8c8d', group: 'Adventuring Gear', filter: i => i.category === 'equipment' },
+        { id: 'd-wiz',  name: "Wizard's Bag",   color: '#8e44ad', group: 'Recovered Spoils', filter: i => i.tags?.includes('magic') || i.rarity === 'epic' },
+        { id: 'd-dun',  name: 'Dungeon Hoard',  color: '#34495e', group: 'Recovered Spoils', filter: i => i.rarity !== 'common' && (i.tags?.includes('magic') || i.tags?.includes('loot')) },
+        { id: 'd-nob',  name: 'Noble Treasury', color: '#d4ac0d', group: 'Recovered Spoils', filter: i => i.cost > 500  || i.rarity === 'legendary' },
+        { id: 'd-roy',  name: 'Royal Vault',    color: '#f1c40f', group: 'Recovered Spoils', filter: i => i.cost > 1000 || i.rarity === 'mythical'  },
+        { id: 'd-myt',  name: 'Mythic Cache',   color: '#ff0000', group: 'Experimental',     filter: i => i.rarity === 'mythical' },
       ],
     },
   },
+  MUTED_GROUPS: new Set(['Standard Issue', 'Adventuring Gear']),
 };
 
 // ── STATE ─────────────────────────────────────────────────
@@ -55,9 +55,8 @@ class AppState {
     this.activeSystem   = 'mothership';
     this.isSpinning     = false;
     this.selectedInvIdx = null;
-    // Panel filters
-    this.lootCatFilter  = null;   // 'weapons' | 'armor' | 'equipment' | null
-    this.lootRarFilter  = null;   // rarity key | null
+    this.lootCatFilter  = null;
+    this.lootRarFilter  = null;
     this.invCatFilter   = null;
     this.invRarFilter   = null;
   }
@@ -90,7 +89,7 @@ const $$ = s => document.querySelectorAll(s);
 
 // ── HELPERS ───────────────────────────────────────────────
 
-function validImage(url) {
+function resolveImageUrl(url) {
   if (!url) return undefined;
   if (url.includes('placeholder') || url.includes('via.placeholder')) return undefined;
   return url;
@@ -107,32 +106,41 @@ function getWeightedItem(pool) {
   return pool[pool.length - 1];
 }
 
-function showPanel(name) {
+function switchToPanel(name) {
   $$('.content-panel').forEach(p => { p.hidden = true; });
   $(`#${name}Panel`).hidden = false;
   $$('.menu-item').forEach(m => m.classList.toggle('active', m.dataset.tab === name));
   state.selectedInvIdx = null;
-  const labels = { main: 'ROLL', inventory: 'INV', loot: 'LOOT' };
   $$('.panel-nav-item').forEach(el => {
     el.classList.toggle('active', el.dataset.tab === name);
   });
 }
 
-function enterCase(caseConfig) {
+function openCase(caseConfig) {
   state.activeCase     = caseConfig;
   state.selectedInvIdx = null;
-  $('#caseGroups').hidden        = true;
-  $('#caseOpenContainer').hidden = false;
-  $('#reelWrap').hidden          = true;
-  $('#openBtn').hidden           = false;
-  $('#backBtn').hidden           = false;
+  $('#caseGridContainer').hidden = true;
+  $('#caseOpenView').hidden      = false;
+  $('#reelContainer').hidden     = true;
+  $('#openCaseBtn').hidden       = false;
+  $('#backToCasesBtn').hidden    = false;
+  populateCasePreview(caseConfig);
+  $('#casePreview').hidden = false;
 }
 
-function exitCase() {
+function populateCasePreview(caseConfig) {
+  const icon = $('#casePreviewIcon');
+  icon.style.borderColor = caseConfig.color;
+  icon.style.background  = caseConfig.color + '1a';
+  $('#casePreviewName').textContent  = caseConfig.name;
+  $('#casePreviewName').style.color  = caseConfig.color;
+}
+
+function closeCases() {
   state.activeCase = null;
-  $('#caseGroups').hidden        = false;
-  $('#caseOpenContainer').hidden = true;
-  $('#reelWrap').hidden          = true;
+  $('#caseGridContainer').hidden = false;
+  $('#caseOpenView').hidden      = true;
+  $('#reelContainer').hidden     = true;
 }
 
 // ── DATA LOADING ──────────────────────────────────────────
@@ -142,14 +150,15 @@ async function loadSystem(key) {
   if (!sys) return;
 
   state.setSystem(key);
-  document.body.className      = sys.theme;
-  $('#siteHeader').textContent = sys.label;
+  document.body.className             = sys.theme;
+  $('#systemSwitcherBtn').childNodes[0].textContent = sys.label + ' ';
+
   $$('.system-menu-item').forEach(el =>
     el.classList.toggle('active', el.dataset.system === key)
   );
 
-  showPanel('main');
-  exitCase();
+  switchToPanel('main');
+  closeCases();
 
   const batches = await Promise.all(sys.files.map(async file => {
     try {
@@ -162,7 +171,6 @@ async function loadSystem(key) {
 
   state.items = autoAssignRarity(batches.flat());
 
-  // Magic portal trigger — always included in every pool; display as "Magical Item"
   state.items.push({
     name:     'Magical Item',
     rarity:   'mythical',
@@ -183,11 +191,11 @@ async function loadSystem(key) {
       rarity:   'mythical',
       category: i.category || 'equipment',
       _key:     i.name,
-      image:    validImage(i.image),
+      image:    resolveImageUrl(i.image),
     }));
   }
 
-  renderAll();
+  renderAllPanels();
 }
 
 function autoAssignRarity(items) {
@@ -196,13 +204,13 @@ function autoAssignRarity(items) {
   return sorted.map((item, i) => {
     const p      = i / total;
     const rarity = p >= 0.95 ? 'legendary' : p >= 0.80 ? 'epic' : p >= 0.60 ? 'rare' : p >= 0.30 ? 'uncommon' : 'common';
-    return { ...item, _key: item.name, rarity, image: validImage(item.image) };
+    return { ...item, _key: item.name, rarity, image: resolveImageUrl(item.image) };
   });
 }
 
 // ── RENDERING ─────────────────────────────────────────────
 
-function renderAll() {
+function renderAllPanels() {
   renderCases();
   renderLootFilters();
   renderInvFilters();
@@ -210,12 +218,12 @@ function renderAll() {
   renderInventory();
 }
 
-function renderSection(title, items, fn) {
+function renderItemSection(title, items, buildTileHTML) {
   if (!items.length) return '';
   return `
     <div class="cat-section">
       <div class="cat-title">${title}</div>
-      <div class="item-grid">${items.map(fn).join('')}</div>
+      <div class="item-grid">${items.map(buildTileHTML).join('')}</div>
     </div>`;
 }
 
@@ -226,36 +234,35 @@ function renderCases() {
     return acc;
   }, {});
 
-  $('#caseGroups').innerHTML = Object.entries(groups).map(([title, cases]) => `
+  $('#caseGridContainer').innerHTML = Object.entries(groups).map(([title, cases]) => `
     <div class="case-group">
       <div class="case-group-title">${title}</div>
       <div class="case-grid">
-        ${cases.map(c => `
-          <div class="case-tile" data-id="${c.id}" style="border-color:${c.color}">
-            <div class="case-tile-icon" style="background:${c.color}1a;border-color:${c.color}">📦</div>
-            <div class="case-tile-name">${c.name}</div>
-          </div>`).join('')}
+        ${cases.map(c => {
+          const tileColor = CONFIG.MUTED_GROUPS.has(title) ? '#95a5a6' : c.color;
+          return `
+            <div class="case-tile" data-id="${c.id}" style="border-color:${tileColor}">
+              <div class="case-tile-icon" style="background:${tileColor}1a;border-color:${tileColor}">📦</div>
+              <div class="case-tile-name">${c.name}</div>
+            </div>`;
+        }).join('')}
       </div>
     </div>`).join('');
 }
 
-// Shared filter row builder
 const FILTER_CATS = [
   { key: 'weapons',   label: 'Weapons'   },
   { key: 'armor',     label: 'Armor'     },
   { key: 'equipment', label: 'Equipment' },
 ];
 
-function buildFilterHTML(activeCat, activeRar, panel) {
-  // Category row — text labels
+function buildFilterMarkup(activeCat, activeRar, panel) {
   const catRow = FILTER_CATS.map(c => `
     <button class="cat-filter-btn${activeCat === c.key ? ' active' : ''}"
       data-cat="${c.key}" data-panel="${panel}">${c.label}</button>`
   ).join('');
 
-  // Rarity row — no text, colored blocks (6 rarities only; click active again to deselect)
-  const rarEntries = Object.entries(CONFIG.RARITIES).map(([k, v]) => [k, v.color]);
-  const rarRow = rarEntries.map(([key, color]) => {
+  const rarRow = Object.entries(CONFIG.RARITIES).map(([key, { color }]) => {
     const active = activeRar === key;
     return `<button class="rar-filter-btn" data-rar="${key}" data-panel="${panel}"
       style="background:${active ? color : color + '44'};box-shadow:${active ? `0 0 5px ${color}88` : 'none'}"></button>`;
@@ -267,16 +274,15 @@ function buildFilterHTML(activeCat, activeRar, panel) {
 }
 
 function renderLootFilters() {
-  $('#lootFilters').innerHTML = buildFilterHTML(state.lootCatFilter, state.lootRarFilter, 'loot');
+  $('#lootTableFilters').innerHTML = buildFilterMarkup(state.lootCatFilter, state.lootRarFilter, 'loot');
 }
 
 function renderInvFilters() {
-  $('#invFilters').innerHTML = buildFilterHTML(state.invCatFilter, state.invRarFilter, 'inv');
+  $('#inventoryFilters').innerHTML = buildFilterMarkup(state.invCatFilter, state.invRarFilter, 'inv');
 }
 
 function renderLoot() {
   const basePool     = state.items.filter(i => i._key !== 'magic_portal_trigger');
-  // Magic pool items ARE the mythical tier — surfaced here
   const magicAsItems = state.magicPool.map(i => ({
     ...i, rarity: 'mythical', category: i.category || 'equipment',
   }));
@@ -287,7 +293,7 @@ function renderLoot() {
 
   const CATS = { weapons: 'Weapons', armor: 'Armor', equipment: 'Equipment' };
   const html = Object.entries(CATS)
-    .map(([cat, label]) => renderSection(label, items.filter(i => i.category === cat), item => {
+    .map(([cat, label]) => renderItemSection(label, items.filter(i => i.category === cat), item => {
       const disabled = state.disabledItems.has(item._key);
       const col      = CONFIG.RARITIES[item.rarity].color;
       return `
@@ -300,7 +306,7 @@ function renderLoot() {
     }))
     .join('');
 
-  $('#lootContent').innerHTML = html || '<div class="empty-state">No items match this filter</div>';
+  $('#lootTableContent').innerHTML = html || '<div class="empty-state">No items match this filter</div>';
 }
 
 function renderInventory() {
@@ -310,7 +316,7 @@ function renderInventory() {
 
   const CATS = { weapons: 'Weapons', armor: 'Armor', equipment: 'Equipment' };
   const html = Object.entries(CATS)
-    .map(([cat, label]) => renderSection(label, items.filter(i => i.category === cat), item => {
+    .map(([cat, label]) => renderItemSection(label, items.filter(i => i.category === cat), item => {
       const idx      = state.inventory.indexOf(item);
       const selected = state.selectedInvIdx === idx;
       const col      = CONFIG.RARITIES[item.rarity]?.color ?? '#7a7f8a';
@@ -324,15 +330,21 @@ function renderInventory() {
     }))
     .join('');
 
-  $('#invContent').innerHTML = html || '<div class="empty-state">Inventory is empty — start rolling!</div>';
+  $('#inventoryContent').innerHTML = html || '<div class="empty-state">Inventory is empty — start rolling!</div>';
 }
 
 // ── REEL & SPIN ───────────────────────────────────────────
 
-const REEL_TOTAL  = 100;  // total cells generated
-const REEL_WINNER = 80;   // which cell is the winner (index)
+const REEL_TOTAL  = 100;
+const REEL_WINNER = 80;
 
-function spin(forcedPool = null) {
+// Fast burst at start, then a long slow crawl to the stop — maximum tension
+const SPIN_EASING   = 'cubic-bezier(0.04, 0.95, 0.2, 1)';
+const SPIN_DURATION = 9;      // seconds for normal spin
+const SPIN_MAGIC_DURATION = 7; // seconds for magic respin
+const SPIN_SETTLE_BUFFER  = 600; // ms after transition ends before showing result
+
+function spinReel(forcedPool = null) {
   if (state.isSpinning && !forcedPool) return;
 
   const isMagicRespin = !!forcedPool;
@@ -341,7 +353,6 @@ function spin(forcedPool = null) {
   if (forcedPool) {
     pool = forcedPool;
   } else {
-    // Case-filtered items, always append the magic trigger so every chest can roll magical
     const caseItems = state.items
       .filter(state.activeCase.filter)
       .filter(i => !state.disabledItems.has(i._key) && i._key !== 'magic_portal_trigger');
@@ -353,9 +364,9 @@ function spin(forcedPool = null) {
 
   state.isSpinning = true;
 
-  const track    = $('#reelTrack');
-  const reelWrap = $('#reelWrap');
-  const reelItems = Array.from({ length: REEL_TOTAL }, () => getWeightedItem(pool));
+  const track         = $('#reelItemTrack');
+  const reelContainer = $('#reelContainer');
+  const reelItems     = Array.from({ length: REEL_TOTAL }, () => getWeightedItem(pool));
 
   track.innerHTML = reelItems.map(item => `
     <div class="rc" style="--rc-col:${CONFIG.RARITIES[item.rarity].color}">
@@ -364,21 +375,23 @@ function spin(forcedPool = null) {
       ${isMagicRespin ? '<div class="magic-sparkle">✨</div>' : ''}
     </div>`).join('');
 
-  $('#openBtn').hidden = true;
-  $('#backBtn').hidden = true;
-  reelWrap.hidden = false;
+  $('#openCaseBtn').hidden   = true;
+  $('#backToCasesBtn').hidden = true;
+  $('#casePreview').hidden   = true;
+  reelContainer.hidden       = false;
 
-  // Force layout so getBoundingClientRect returns real values on all screen sizes
-  reelWrap.getBoundingClientRect();
+  reelContainer.getBoundingClientRect(); // force layout so measurements are accurate
   const cellEl = track.querySelector('.rc');
   const cellW  = cellEl ? cellEl.getBoundingClientRect().width : REEL_CELL_W;
 
   track.style.transition = 'none';
   track.style.transform  = 'translateX(0)';
 
+  const duration = isMagicRespin ? SPIN_MAGIC_DURATION : SPIN_DURATION;
+
   requestAnimationFrame(() => requestAnimationFrame(() => {
-    const offset = (REEL_WINNER * cellW) - (reelWrap.offsetWidth / 2 - cellW / 2);
-    track.style.transition = `transform ${isMagicRespin ? '5s' : '6s'} cubic-bezier(0.1, 0, 0.1, 1)`;
+    const offset = (REEL_WINNER * cellW) - (reelContainer.offsetWidth / 2 - cellW / 2);
+    track.style.transition = `transform ${duration}s ${SPIN_EASING}`;
     track.style.transform  = `translateX(-${offset}px)`;
   }));
 
@@ -389,21 +402,21 @@ function spin(forcedPool = null) {
       if (!state.magicPool.length) {
         alert('The Vault is empty!');
         state.isSpinning = false;
-        exitCase();
+        closeCases();
       } else {
         track.innerHTML = '';
-        spin(state.magicPool);
+        spinReel(state.magicPool);
       }
     } else {
       state.inventory.push(winner);
       state.saveInventory();
       state.isSpinning = false;
-      showSplash(winner, isMagicRespin);
+      showWinSplash(winner, isMagicRespin);
     }
-  }, isMagicRespin ? 5500 : 6500);
+  }, (duration * 1000) + SPIN_SETTLE_BUFFER);
 }
 
-function showSplash(item, isMagic = false) {
+function showWinSplash(item, isMagic = false) {
   const col    = isMagic ? CONFIG.RARITIES.mythical.color : (CONFIG.RARITIES[item.rarity]?.color || '#7a7f8a');
   const splash = document.createElement('div');
   splash.className = 'splash-overlay' + (isMagic ? ' magic-win' : '');
@@ -419,9 +432,10 @@ function showSplash(item, isMagic = false) {
   const dismiss = () => {
     if (!document.body.contains(splash)) return;
     splash.remove();
-    $('#reelWrap').hidden = true;
-    $('#openBtn').hidden  = false;
-    $('#backBtn').hidden  = false;
+    $('#reelContainer').hidden  = true;
+    $('#openCaseBtn').hidden    = false;
+    $('#backToCasesBtn').hidden = false;
+    $('#casePreview').hidden    = false;
     renderInventory();
   };
   splash.addEventListener('click', dismiss);
@@ -433,18 +447,16 @@ function showSplash(item, isMagic = false) {
 document.addEventListener('click', e => {
   const t = e.target;
 
-  // Case tile
   const tile = t.closest('.case-tile');
   if (tile) {
     const c = CONFIG.SYSTEMS[state.activeSystem].cases.find(c => c.id === tile.dataset.id);
-    if (c) enterCase(c);
+    if (c) openCase(c);
     return;
   }
 
-  if (t.id === 'backBtn') return exitCase();
-  if (t.id === 'openBtn') return spin();
+  if (t.id === 'backToCasesBtn') return closeCases();
+  if (t.id === 'openCaseBtn')    return spinReel();
 
-  // Inventory: delete overlay
   const delOverlay = t.closest('.inv-del-overlay');
   if (delOverlay) {
     const idx = parseInt(delOverlay.dataset.delIdx);
@@ -454,7 +466,6 @@ document.addEventListener('click', e => {
     return renderInventory();
   }
 
-  // Inventory: select tile
   const invTile = t.closest('.inv-tile');
   if (invTile) {
     const idx = parseInt(invTile.dataset.invIdx);
@@ -462,14 +473,12 @@ document.addEventListener('click', e => {
     return renderInventory();
   }
 
-  // Loot: toggle disabled
   const lootItem = t.closest('.loot-item');
   if (lootItem) {
     state.toggleDisabled(lootItem.dataset.key);
     return renderLoot();
   }
 
-  // Category filter button
   const catBtn = t.closest('.cat-filter-btn');
   if (catBtn) {
     const { panel, cat } = catBtn.dataset;
@@ -483,7 +492,6 @@ document.addEventListener('click', e => {
     return;
   }
 
-  // Rarity filter button
   const rarBtn = t.closest('.rar-filter-btn');
   if (rarBtn) {
     const { panel, rar } = rarBtn.dataset;
@@ -497,52 +505,50 @@ document.addEventListener('click', e => {
     return;
   }
 
-  // Nav menu item
   const menuItem = t.closest('.menu-item');
   if (menuItem) {
-    showPanel(menuItem.dataset.tab);
-    $('#menuDropdown').classList.remove('show');
-    $('#menuBtn').setAttribute('aria-expanded', 'false');
+    switchToPanel(menuItem.dataset.tab);
+    $('#navMenuDropdown').classList.remove('show');
+    $('#navMenuBtn').setAttribute('aria-expanded', 'false');
     return;
   }
 
-  // System switcher
   const sysItem = t.closest('.system-menu-item');
   if (sysItem) {
     loadSystem(sysItem.dataset.system);
-    $('#systemMenu').classList.remove('show');
+    $('#systemSwitcherMenu').classList.remove('show');
     return;
   }
 
-  // Close menus on outside click
-  if (!t.closest('#menuDropdown') && !t.closest('#menuBtn')) {
-    $('#menuDropdown').classList.remove('show');
-    $('#menuBtn').setAttribute('aria-expanded', 'false');
+  if (!t.closest('#navMenuDropdown') && !t.closest('#navMenuBtn')) {
+    $('#navMenuDropdown').classList.remove('show');
+    $('#navMenuBtn').setAttribute('aria-expanded', 'false');
   }
-  if (!t.closest('#systemMenu') && !t.closest('#siteHeader')) {
-    $('#systemMenu').classList.remove('show');
+  if (!t.closest('#systemSwitcherMenu') && !t.closest('#systemSwitcherBtn')) {
+    $('#systemSwitcherMenu').classList.remove('show');
   }
 
-  // Deselect inventory tile on outside click
   if (!t.closest('.inv-tile') && state.selectedInvIdx !== null) {
     state.selectedInvIdx = null;
     renderInventory();
   }
 });
 
-$('#menuBtn').addEventListener('click', e => {
+$('#navMenuBtn').addEventListener('click', e => {
   e.stopPropagation();
-  const menu = $('#menuDropdown');
+  const menu = $('#navMenuDropdown');
   menu.classList.toggle('show');
-  $('#menuBtn').setAttribute('aria-expanded', menu.classList.contains('show'));
-  $('#systemMenu').classList.remove('show');
+  $('#navMenuBtn').setAttribute('aria-expanded', menu.classList.contains('show'));
+  $('#systemSwitcherMenu').classList.remove('show');
 });
 
-$('#siteHeader').addEventListener('click', e => {
+$('#systemSwitcherBtn').addEventListener('click', e => {
   e.stopPropagation();
-  $('#systemMenu').classList.toggle('show');
-  $('#menuDropdown').classList.remove('show');
-  $('#menuBtn').setAttribute('aria-expanded', 'false');
+  const menu = $('#systemSwitcherMenu');
+  menu.classList.toggle('show');
+  $('#systemSwitcherBtn').setAttribute('aria-expanded', menu.classList.contains('show'));
+  $('#navMenuDropdown').classList.remove('show');
+  $('#navMenuBtn').setAttribute('aria-expanded', 'false');
 });
 
 loadSystem('dnd');

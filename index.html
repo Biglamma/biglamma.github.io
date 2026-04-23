@@ -18,8 +18,10 @@
 <div class="page">
   <header class="hdr">
     <div class="hdr-left">
-      <div class="hdr-logo" id="siteHeader" role="button" aria-haspopup="true">System V</div>
-      <nav class="system-menu" id="systemMenu" aria-label="Game system">
+      <div class="hdr-logo" id="systemSwitcherBtn" role="button" aria-haspopup="true">
+        System V <span class="hdr-logo-arrow">▾</span>
+      </div>
+      <nav class="system-switcher-menu" id="systemSwitcherMenu" aria-label="Game system">
         <button type="button" class="system-menu-item active" data-system="mothership">Mothership V</button>
         <button type="button" class="system-menu-item" data-system="dnd">D&amp;D V</button>
       </nav>
@@ -30,8 +32,8 @@
       <span class="panel-nav-item" data-tab="loot">LOOT</span>
     </div>
     <div class="hdr-right">
-      <button type="button" class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">☰</button>
-      <nav class="menu-dropdown" id="menuDropdown" aria-label="Navigation">
+      <button type="button" class="menu-btn" id="navMenuBtn" aria-label="Open menu" aria-expanded="false">☰</button>
+      <nav class="menu-dropdown" id="navMenuDropdown" aria-label="Navigation">
         <button type="button" class="menu-item active" data-tab="main">Stashes</button>
         <button type="button" class="menu-item" data-tab="inventory">Inventory</button>
         <button type="button" class="menu-item" data-tab="loot">Loot Table</button>
@@ -40,24 +42,28 @@
   </header>
   <main>
     <section class="content-panel" id="mainPanel">
-      <div id="caseGroups"></div>
-      <div class="case-open-container" id="caseOpenContainer" hidden>
-        <div class="reel-wrap" id="reelWrap" hidden>
-          <div class="reel-track" id="reelTrack" aria-live="polite" aria-atomic="true"></div>
+      <div id="caseGridContainer"></div>
+      <div class="case-open-view" id="caseOpenView" hidden>
+        <div class="case-preview" id="casePreview">
+          <div class="case-preview-icon" id="casePreviewIcon">📦</div>
+          <div class="case-preview-name" id="casePreviewName"></div>
+        </div>
+        <div class="reel-container" id="reelContainer" hidden>
+          <div class="reel-item-track" id="reelItemTrack" aria-live="polite" aria-atomic="true"></div>
         </div>
         <div class="reel-controls">
-          <button type="button" class="open-btn" id="openBtn">OPEN</button>
-          <button type="button" class="back-btn" id="backBtn">← Back</button>
+          <button type="button" class="open-case-btn" id="openCaseBtn">OPEN</button>
+          <button type="button" class="back-to-cases-btn" id="backToCasesBtn">← Back</button>
         </div>
       </div>
     </section>
     <section class="content-panel" id="inventoryPanel" hidden>
-      <div id="invFilters" class="filter-stack"></div>
-      <div id="invContent"></div>
+      <div id="inventoryFilters" class="filter-stack"></div>
+      <div id="inventoryContent"></div>
     </section>
     <section class="content-panel" id="lootPanel" hidden>
-      <div id="lootFilters" class="filter-stack"></div>
-      <div id="lootContent"></div>
+      <div id="lootTableFilters" class="filter-stack"></div>
+      <div id="lootTableContent"></div>
     </section>
   </main>
 </div>
