@@ -87,6 +87,27 @@ const state = new AppState();
 const $  = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 
+// ── AUDIO ─────────────────────────────────────────────────
+
+const SFX = {
+  open: new Audio('sound/open.ogg'),
+  loop: new Audio('sound/loop.ogg'),
+};
+SFX.loop.loop = true;
+
+function playOpen() {
+  SFX.open.currentTime = 0;
+  SFX.open.play().catch(() => {});
+}
+function startLoop() {
+  SFX.loop.currentTime = 0;
+  SFX.loop.play().catch(() => {});
+}
+function stopLoop() {
+  SFX.loop.pause();
+  SFX.loop.currentTime = 0;
+}
+
 // ── HELPERS ───────────────────────────────────────────────
 
 function resolveImageUrl(url) {
@@ -380,6 +401,9 @@ function spinReel(forcedPool = null) {
   $('#casePreview').hidden   = true;
   reelContainer.hidden       = false;
 
+  playOpen();
+  startLoop();
+  
   reelContainer.getBoundingClientRect(); // force layout so measurements are accurate
   const cellEl = track.querySelector('.rc');
   const cellW  = cellEl ? cellEl.getBoundingClientRect().width : REEL_CELL_W;
@@ -396,6 +420,7 @@ function spinReel(forcedPool = null) {
   }));
 
   setTimeout(() => {
+    stopLoop();
     const winner = { ...reelItems[REEL_WINNER] };
 
     if (winner._key === 'magic_portal_trigger') {
