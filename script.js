@@ -423,9 +423,6 @@ function spinReel(forcedPool = null) {
   $('#backToCasesBtn').hidden = true;
   $('#casePreview').hidden   = true;
   reelContainer.hidden       = false;
-
-  playOpen();
-  startLoop(duration);
   
   reelContainer.getBoundingClientRect(); // force layout so measurements are accurate
   const cellEl = track.querySelector('.rc');
@@ -436,6 +433,9 @@ function spinReel(forcedPool = null) {
 
   const duration = isMagicRespin ? SPIN_MAGIC_DURATION : SPIN_DURATION;
 
+  playOpen();
+  startLoop(duration);
+  
   requestAnimationFrame(() => requestAnimationFrame(() => {
     const offset = (REEL_WINNER * cellW) - (reelContainer.offsetWidth / 2 - cellW / 2);
     track.style.transition = `transform ${duration}s ${SPIN_EASING}`;
