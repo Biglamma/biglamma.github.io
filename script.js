@@ -88,78 +88,105 @@ const $  = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 
 // ── AUDIO ─────────────────────────────────────────────────
-// FIX: Use relative paths (not /sounds/ absolute) so files resolve correctly
-// regardless of where the app is hosted.
+// Approach: instead of a looping file whose playback rate is hacked,
+// we play a short synthesised TICK every time a new item crosses the
+// centre of the reel.  Speed changes feel natural because the ticks
+// simply fire more or less often — exactly like a real slot machine.
 
-const SFX = {
-  open: new Audio('./sounds/open.ogg'),
-  loop: new Audio('./sounds/loop.ogg'),
-};
-SFX.loop.loop = true;
+let _muted     = false;
+let _audioCtx  = null;   // lazily created on first gesture
+let _tickRaf   = null;   // rAF handle for the per-item ticker
+let _tickActive = false; // guard so stopped loops don't fire late ticks
 
-// FIX: Track mute state and expose a toggle so users can silence the reel.
-let _muted    = false;
-let _rateRaf  = null;
-// FIX: Track whether the browser's autoplay policy has been satisfied.
-// Most browsers block audio until the first user gesture — we unlock lazily.
-let _audioReady = false;
+// Open sound is kept as a file — only the loop is replaced.
+const SFX_open = new Audio('./sounds/open.ogg');
 
-function _unlockAudio() {
-  if (_audioReady) return;
-  _audioReady = true;
-  // Play-then-pause each track so the browser considers them "unlocked".
-  [SFX.open, SFX.loop].forEach(sfx => {
-    const p = sfx.play();
-    if (p) p.then(() => { sfx.pause(); sfx.currentTime = 0; }).catch(() => {});
-  });
+// Lazily create / resume the AudioContext (browsers require a gesture first).
+function _getCtx() {
+  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (_audioCtx.state === 'suspended') _audioCtx.resume();
+  return _audioCtx;
 }
 
-// FIX: Attach the unlock to the first real click so audio is ready before spin.
-document.addEventListener('click', _unlockAudio, { capture: true, once: true });
+// Unlock everything on the very first user click.
+document.addEventListener('click', () => {
+  SFX_open.load();
+  try { _getCtx(); } catch (_) {}
+}, { capture: true, once: true });
 
 function setMuted(val) {
-  _muted           = val;
-  SFX.open.muted   = val;
-  SFX.loop.muted   = val;
+  _muted          = val;
+  SFX_open.muted  = val;
   const btn = $('#muteBtn');
   if (btn) btn.textContent = val ? '🔇' : '🔊';
 }
 
+// Short synthesised click — an oscillator with a fast frequency sweep and
+// gain envelope, so it sounds like a mechanical detent.
+function playTick(pitch = 420) {
+  if (_muted) return;
+  try {
+    const ctx  = _getCtx();
+    const t    = ctx.currentTime;
+    const dur  = 0.045;
+
+    const osc  = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    // Frequency drops quickly — gives a satisfying "thock" feel.
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(pitch, t);
+    osc.frequency.exponentialRampToValueAtTime(pitch * 0.4, t + dur);
+
+    gain.gain.setValueAtTime(0.28, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+    osc.start(t);
+    osc.stop(t + dur);
+  } catch (_) {}
+}
+
 function playOpen() {
   if (_muted) return;
-  SFX.open.currentTime = 0;
-  // FIX: Log audio errors instead of silently swallowing them.
-  SFX.open.play().catch(err => console.warn('[SFX open]', err));
+  SFX_open.currentTime = 0;
+  SFX_open.play().catch(err => console.warn('[SFX open]', err));
 }
 
-function startLoop(duration) {
-  if (_muted) return;
-  SFX.loop.currentTime    = 0;
-  SFX.loop.playbackRate   = 2.0;   // starts fast
-  SFX.loop.play().catch(err => console.warn('[SFX loop]', err));
+// Watch the live CSS transform on the reel track and fire a tick whenever
+// a new item slides into the centre window.
+function startTickLoop(track, cellW, reelContainer) {
+  _tickActive  = true;
+  let lastIdx  = -1;
 
-  const startRate  = 2.0;
-  const endRate    = 0.5;          // slows to a crawl
-  const startTime  = performance.now();
-  const totalMs    = duration * 1000;
+  function frame() {
+    if (!_tickActive) return;
 
-  cancelAnimationFrame(_rateRaf);
+    // Read the current animated translateX from the computed style.
+    const matrix  = new DOMMatrix(getComputedStyle(track).transform);
+    const currentX = -matrix.m41;                              // positive offset
 
-  function tick(now) {
-    const t      = Math.min((now - startTime) / totalMs, 1);
-    // ease-out cube — mirrors the CSS cubic-bezier feel
-    const eased  = 1 - Math.pow(1 - t, 3);
-    SFX.loop.playbackRate = startRate + (endRate - startRate) * eased;
-    if (t < 1) _rateRaf = requestAnimationFrame(tick);
+    // Which item index is closest to the centre pointer right now?
+    const centerOffset = reelContainer.offsetWidth / 2 - cellW / 2;
+    const idx = Math.round((currentX + centerOffset) / cellW);
+
+    if (idx !== lastIdx && idx >= 0 && idx < REEL_TOTAL) {
+      lastIdx = idx;
+      // Vary pitch very slightly per item — adds life without being annoying.
+      playTick(400 + Math.random() * 60);
+    }
+
+    _tickRaf = requestAnimationFrame(frame);
   }
-  _rateRaf = requestAnimationFrame(tick);
+
+  _tickRaf = requestAnimationFrame(frame);
 }
 
-function stopLoop() {
-  cancelAnimationFrame(_rateRaf);
-  SFX.loop.pause();
-  SFX.loop.currentTime  = 0;
-  SFX.loop.playbackRate = 1;
+function stopTickLoop() {
+  _tickActive = false;
+  cancelAnimationFrame(_tickRaf);
+  _tickRaf = null;
 }
 
 // ── HELPERS ───────────────────────────────────────────────
@@ -481,21 +508,22 @@ function spinReel(forcedPool = null) {
   const duration = isMagicRespin ? SPIN_MAGIC_DURATION : SPIN_DURATION;
 
   playOpen();
-  startLoop(duration);
 
   requestAnimationFrame(() => requestAnimationFrame(() => {
     const offset = (REEL_WINNER * cellW) - (reelContainer.offsetWidth / 2 - cellW / 2);
     track.style.transition = `transform ${duration}s ${SPIN_EASING}`;
     track.style.transform  = `translateX(-${offset}px)`;
+    // Start the tick loop AFTER the transition begins so item indices are valid.
+    startTickLoop(track, cellW, reelContainer);
   }));
 
-  // FIX: Use both transitionend AND a setTimeout fallback so the result fires
+  // Use both transitionend AND a setTimeout fallback so the result fires
   // even if the CSS transition is interrupted or the tab is backgrounded.
   let _spinSettled = false;
   function onSpinComplete() {
     if (_spinSettled) return;
     _spinSettled = true;
-    stopLoop();
+    stopTickLoop();
     const winner = { ...reelItems[REEL_WINNER] };
 
     if (winner._key === 'magic_portal_trigger') {
