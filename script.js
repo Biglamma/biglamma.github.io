@@ -88,24 +88,55 @@ const $  = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
 
 // ── AUDIO ─────────────────────────────────────────────────
+// FIX: Use relative paths (not /sounds/ absolute) so files resolve correctly
+// regardless of where the app is hosted.
 
 const SFX = {
-  open: new Audio('/sounds/open.ogg'),
-  loop: new Audio('/sounds/loop.ogg'),
+  open: new Audio('./sounds/open.ogg'),
+  loop: new Audio('./sounds/loop.ogg'),
 };
 SFX.loop.loop = true;
 
-let _rateRaf = null;
+// FIX: Track mute state and expose a toggle so users can silence the reel.
+let _muted    = false;
+let _rateRaf  = null;
+// FIX: Track whether the browser's autoplay policy has been satisfied.
+// Most browsers block audio until the first user gesture — we unlock lazily.
+let _audioReady = false;
+
+function _unlockAudio() {
+  if (_audioReady) return;
+  _audioReady = true;
+  // Play-then-pause each track so the browser considers them "unlocked".
+  [SFX.open, SFX.loop].forEach(sfx => {
+    const p = sfx.play();
+    if (p) p.then(() => { sfx.pause(); sfx.currentTime = 0; }).catch(() => {});
+  });
+}
+
+// FIX: Attach the unlock to the first real click so audio is ready before spin.
+document.addEventListener('click', _unlockAudio, { capture: true, once: true });
+
+function setMuted(val) {
+  _muted           = val;
+  SFX.open.muted   = val;
+  SFX.loop.muted   = val;
+  const btn = $('#muteBtn');
+  if (btn) btn.textContent = val ? '🔇' : '🔊';
+}
 
 function playOpen() {
+  if (_muted) return;
   SFX.open.currentTime = 0;
-  SFX.open.play().catch(() => {});
+  // FIX: Log audio errors instead of silently swallowing them.
+  SFX.open.play().catch(err => console.warn('[SFX open]', err));
 }
 
 function startLoop(duration) {
+  if (_muted) return;
   SFX.loop.currentTime    = 0;
   SFX.loop.playbackRate   = 2.0;   // starts fast
-  SFX.loop.play().catch(() => {});
+  SFX.loop.play().catch(err => console.warn('[SFX loop]', err));
 
   const startRate  = 2.0;
   const endRate    = 0.5;          // slows to a crawl
@@ -246,8 +277,15 @@ function autoAssignRarity(items) {
   const sorted = [...items].sort((a, b) => (parseInt(a.cost) || 0) - (parseInt(b.cost) || 0));
   const total  = sorted.length;
   return sorted.map((item, i) => {
-    const p      = i / total;
-    const rarity = p >= 0.95 ? 'legendary' : p >= 0.80 ? 'epic' : p >= 0.60 ? 'rare' : p >= 0.30 ? 'uncommon' : 'common';
+    // FIX: Added mythical tier at the very top 1%; fixed boundary so the top
+    // bucket is exclusive (i+1)/total so the last item doesn't fall through.
+    const p      = (i + 1) / total;
+    const rarity = p >= 0.99 ? 'mythical'
+                 : p >= 0.95 ? 'legendary'
+                 : p >= 0.80 ? 'epic'
+                 : p >= 0.60 ? 'rare'
+                 : p >= 0.30 ? 'uncommon'
+                 : 'common';
     return { ...item, _key: item.name, rarity, image: resolveImageUrl(item.image) };
   });
 }
@@ -422,6 +460,17 @@ function spinReel(forcedPool = null) {
   $('#casePreview').hidden    = true;
   reelContainer.hidden        = false;
 
+  // Inject mute button into reel if not already present
+  if (!$('#muteBtn')) {
+    const muteBtn = document.createElement('button');
+    muteBtn.id          = 'muteBtn';
+    muteBtn.className   = 'mute-btn';
+    muteBtn.textContent = _muted ? '🔇' : '🔊';
+    muteBtn.title       = 'Toggle sound';
+    muteBtn.addEventListener('click', e => { e.stopPropagation(); setMuted(!_muted); });
+    reelContainer.appendChild(muteBtn);
+  }
+
   reelContainer.getBoundingClientRect(); // force layout
   const cellEl = track.querySelector('.rc');
   const cellW  = cellEl ? cellEl.getBoundingClientRect().width : REEL_CELL_W;
@@ -440,7 +489,12 @@ function spinReel(forcedPool = null) {
     track.style.transform  = `translateX(-${offset}px)`;
   }));
 
-  setTimeout(() => {
+  // FIX: Use both transitionend AND a setTimeout fallback so the result fires
+  // even if the CSS transition is interrupted or the tab is backgrounded.
+  let _spinSettled = false;
+  function onSpinComplete() {
+    if (_spinSettled) return;
+    _spinSettled = true;
     stopLoop();
     const winner = { ...reelItems[REEL_WINNER] };
 
@@ -459,7 +513,10 @@ function spinReel(forcedPool = null) {
       state.isSpinning = false;
       showWinSplash(winner, isMagicRespin);
     }
-  }, (duration * 1000) + SPIN_SETTLE_BUFFER);
+  }
+
+  track.addEventListener('transitionend', onSpinComplete, { once: true });
+  setTimeout(onSpinComplete, (duration * 1000) + SPIN_SETTLE_BUFFER);
 }
 
 function showWinSplash(item, isMagic = false) {
@@ -598,3 +655,27 @@ $('#systemSwitcherBtn').addEventListener('click', e => {
 });
 
 loadSystem('dnd');
+
+// ── MUTE BUTTON STYLES (injected so no HTML changes are needed) ───────────
+(function injectMuteStyle() {
+  const style = document.createElement('style');
+  style.textContent = `
+    .mute-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 10;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 6px;
+      color: #fff;
+      font-size: 1.1rem;
+      padding: 4px 8px;
+      cursor: pointer;
+      line-height: 1;
+      transition: background 0.2s;
+    }
+    .mute-btn:hover { background: rgba(0,0,0,0.75); }
+  `;
+  document.head.appendChild(style);
+})();
