@@ -90,8 +90,8 @@ const $$ = s => document.querySelectorAll(s);
 // ── AUDIO ─────────────────────────────────────────────────
 
 const SFX = {
-  open: new Audio('sound/open.ogg'),
-  loop: new Audio('sound/loop.ogg'),
+  open: new Audio('sounds/open.ogg'),
+  loop: new Audio('sounds/loop.ogg'),
 };
 SFX.loop.loop = true;
 
