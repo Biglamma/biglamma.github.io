@@ -381,12 +381,10 @@ function renderInventory() {
 
 const REEL_TOTAL  = 100;
 const REEL_WINNER = 80;
-
-// Fast burst at start, then a long slow crawl to the stop — maximum tension
 const SPIN_EASING   = 'cubic-bezier(0.04, 0.95, 0.2, 1)';
-const SPIN_DURATION = 9;      // seconds for normal spin
-const SPIN_MAGIC_DURATION = 7; // seconds for magic respin
-const SPIN_SETTLE_BUFFER  = 600; // ms after transition ends before showing result
+const SPIN_DURATION = 9;
+const SPIN_MAGIC_DURATION = 7;
+const SPIN_SETTLE_BUFFER  = 600;
 
 function spinReel(forcedPool = null) {
   if (state.isSpinning && !forcedPool) return;
@@ -419,12 +417,12 @@ function spinReel(forcedPool = null) {
       ${isMagicRespin ? '<div class="magic-sparkle">✨</div>' : ''}
     </div>`).join('');
 
-  $('#openCaseBtn').hidden   = true;
+  $('#openCaseBtn').hidden    = true;
   $('#backToCasesBtn').hidden = true;
-  $('#casePreview').hidden   = true;
-  reelContainer.hidden       = false;
-  
-  reelContainer.getBoundingClientRect(); // force layout so measurements are accurate
+  $('#casePreview').hidden    = true;
+  reelContainer.hidden        = false;
+
+  reelContainer.getBoundingClientRect(); // force layout
   const cellEl = track.querySelector('.rc');
   const cellW  = cellEl ? cellEl.getBoundingClientRect().width : REEL_CELL_W;
 
@@ -435,7 +433,7 @@ function spinReel(forcedPool = null) {
 
   playOpen();
   startLoop(duration);
-  
+
   requestAnimationFrame(() => requestAnimationFrame(() => {
     const offset = (REEL_WINNER * cellW) - (reelContainer.offsetWidth / 2 - cellW / 2);
     track.style.transition = `transform ${duration}s ${SPIN_EASING}`;
