@@ -90,22 +90,45 @@ const $$ = s => document.querySelectorAll(s);
 // ── AUDIO ─────────────────────────────────────────────────
 
 const SFX = {
-  open: new Audio('/sounds/open.ogg'),
-  loop: new Audio('/sounds/loop.ogg'),
+  open: new Audio('sound/open.ogg'),
+  loop: new Audio('sound/loop.ogg'),
 };
 SFX.loop.loop = true;
+
+let _rateRaf = null;
 
 function playOpen() {
   SFX.open.currentTime = 0;
   SFX.open.play().catch(() => {});
 }
-function startLoop() {
-  SFX.loop.currentTime = 0;
+
+function startLoop(duration) {
+  SFX.loop.currentTime    = 0;
+  SFX.loop.playbackRate   = 2.0;   // starts fast
   SFX.loop.play().catch(() => {});
+
+  const startRate  = 2.0;
+  const endRate    = 0.5;          // slows to a crawl
+  const startTime  = performance.now();
+  const totalMs    = duration * 1000;
+
+  cancelAnimationFrame(_rateRaf);
+
+  function tick(now) {
+    const t      = Math.min((now - startTime) / totalMs, 1);
+    // ease-out cube — mirrors the CSS cubic-bezier feel
+    const eased  = 1 - Math.pow(1 - t, 3);
+    SFX.loop.playbackRate = startRate + (endRate - startRate) * eased;
+    if (t < 1) _rateRaf = requestAnimationFrame(tick);
+  }
+  _rateRaf = requestAnimationFrame(tick);
 }
+
 function stopLoop() {
+  cancelAnimationFrame(_rateRaf);
   SFX.loop.pause();
-  SFX.loop.currentTime = 0;
+  SFX.loop.currentTime  = 0;
+  SFX.loop.playbackRate = 1;
 }
 
 // ── HELPERS ───────────────────────────────────────────────
@@ -402,7 +425,7 @@ function spinReel(forcedPool = null) {
   reelContainer.hidden       = false;
 
   playOpen();
-  startLoop();
+  startLoop(duration);
   
   reelContainer.getBoundingClientRect(); // force layout so measurements are accurate
   const cellEl = track.querySelector('.rc');
