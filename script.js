@@ -121,30 +121,108 @@ function setMuted(val) {
   if (btn) btn.textContent = val ? '🔇' : '🔊';
 }
 
-// Short synthesised click — an oscillator with a fast frequency sweep and
-// gain envelope, so it sounds like a mechanical detent.
-function playTick(pitch = 420) {
+// Chunky wooden carousel hit — three noise layers per item pass.
+// Called once per item by startTickLoop.
+function playChunk() {
   if (_muted) return;
   try {
-    const ctx  = _getCtx();
-    const t    = ctx.currentTime;
-    const dur  = 0.045;
+    const c = _getCtx();
+    const t = c.currentTime;
 
-    const osc  = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.connect(gain);
-    gain.connect(ctx.destination);
+    function mkNoise(dur) {
+      const buf = c.createBuffer(1, Math.ceil(c.sampleRate * dur), c.sampleRate);
+      const d   = buf.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+      const s = c.createBufferSource(); s.buffer = buf; return s;
+    }
 
-    // Frequency drops quickly — gives a satisfying "thock" feel.
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(pitch, t);
-    osc.frequency.exponentialRampToValueAtTime(pitch * 0.4, t + dur);
+    // Body — low-mid bandpass, the woody mass of the chunk
+    const n   = mkNoise(0.11);
+    const bp  = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 410; bp.Q.value = 4.2;
+    const g   = c.createGain();
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.52, t + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.088);
+    n.connect(bp).connect(g).connect(c.destination); n.start(t); n.stop(t + 0.11);
 
-    gain.gain.setValueAtTime(0.28, t);
-    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    // Sub thump — weight that separates it from a plastic tick
+    const sub  = mkNoise(0.09);
+    const slp  = c.createBiquadFilter(); slp.type = 'lowpass'; slp.frequency.value = 105;
+    const sg   = c.createGain();
+    sg.gain.setValueAtTime(0.0001, t); sg.gain.exponentialRampToValueAtTime(0.38, t + 0.004); sg.gain.exponentialRampToValueAtTime(0.0001, t + 0.085);
+    sub.connect(slp).connect(sg).connect(c.destination); sub.start(t); sub.stop(t + 0.09);
 
-    osc.start(t);
-    osc.stop(t + dur);
+    // Transient — sharp moment of contact
+    const tr  = mkNoise(0.014);
+    const thp = c.createBiquadFilter(); thp.type = 'highpass'; thp.frequency.value = 2200;
+    const tg  = c.createGain();
+    tg.gain.setValueAtTime(0.0001, t); tg.gain.exponentialRampToValueAtTime(0.28, t + 0.0005); tg.gain.exponentialRampToValueAtTime(0.0001, t + 0.011);
+    tr.connect(thp).connect(tg).connect(c.destination); tr.start(t); tr.stop(t + 0.014);
+  } catch (_) {}
+}
+
+// Synthetic convolution reverb — decaying noise impulse response.
+function _mkReverb(c, secs = 2.2, decay = 3.0) {
+  const len = Math.ceil(c.sampleRate * secs);
+  const ir  = c.createBuffer(2, len, c.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = ir.getChannelData(ch);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+  }
+  const conv = c.createConvolver(); conv.buffer = ir; return conv;
+}
+
+// One brass voice: sawtooth + filter that opens on attack + fade-in vibrato.
+function _mkBrassVoice(c, freq, t, dur, vol, dry, rev) {
+  const osc  = c.createOscillator(); osc.type = 'sawtooth'; osc.frequency.value = freq;
+  const filt = c.createBiquadFilter(); filt.type = 'lowpass'; filt.Q.value = 1.8;
+  filt.frequency.setValueAtTime(500, t);
+  filt.frequency.exponentialRampToValueAtTime(3200, t + 0.14);
+  filt.frequency.setValueAtTime(3200, t + dur - 0.6);
+  filt.frequency.linearRampToValueAtTime(2200, t + dur);
+  const vib  = c.createOscillator(); vib.frequency.value = 6.1;
+  const vibD = c.createGain(); vibD.gain.setValueAtTime(0, t); vibD.gain.linearRampToValueAtTime(freq * 0.009, t + 0.55);
+  vib.connect(vibD).connect(osc.frequency);
+  const g = c.createGain();
+  g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.09);
+  g.gain.setValueAtTime(vol, t + dur - 0.55); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  osc.connect(filt).connect(g); g.connect(dry); g.connect(rev);
+  vib.start(t); osc.start(t); vib.stop(t + dur + 0.1); osc.stop(t + dur + 0.1);
+}
+
+// Royal trumpet arpeggio — G major ascending, all voices sustain together.
+// rare=true adds extra shimmer for legendary/mythical drops.
+function playSting(rare = false) {
+  if (_muted) return;
+  try {
+    const c   = _getCtx();
+    const t   = c.currentTime;
+    const rev = _mkReverb(c, 2.4, 2.6);
+    const wet = c.createGain(); wet.gain.value = 0.52;
+    const dry = c.createGain(); dry.gain.value = 0.75;
+    rev.connect(wet).connect(c.destination); dry.connect(c.destination);
+
+    // G4 B4 D5 G5 — classic royal herald arpeggio, 180 ms stagger
+    const voices = [
+      { freq: 392.00, delay: 0,    dur: 3.0,  vol: 0.16 },
+      { freq: 493.88, delay: 0.18, dur: 2.82, vol: 0.15 },
+      { freq: 587.33, delay: 0.36, dur: 2.64, vol: 0.15 },
+      { freq: 783.99, delay: 0.54, dur: 2.46, vol: rare ? 0.22 : 0.18 },
+    ];
+    voices.forEach(({ freq, delay, dur, vol }) => {
+      _mkBrassVoice(c, freq,       t + delay, dur, vol,       dry, rev);
+      _mkBrassVoice(c, freq * 0.5, t + delay, dur, vol * 0.4, dry, rev);
+    });
+
+    // Rare drop: shimmer burst at the peak note
+    if (rare) {
+      const st  = t + 0.54;
+      const buf = c.createBuffer(1, Math.ceil(c.sampleRate * 0.14), c.sampleRate);
+      const bd  = buf.getChannelData(0); for (let i = 0; i < bd.length; i++) bd[i] = Math.random() * 2 - 1;
+      const sh  = c.createBufferSource(); sh.buffer = buf;
+      const shf = c.createBiquadFilter(); shf.type = 'highpass'; shf.frequency.value = 5000;
+      const shg = c.createGain();
+      shg.gain.setValueAtTime(0.0001, st); shg.gain.exponentialRampToValueAtTime(0.25, st + 0.008); shg.gain.exponentialRampToValueAtTime(0.0001, st + 0.12);
+      sh.connect(shf).connect(shg).connect(c.destination); sh.start(st); sh.stop(st + 0.14);
+    }
   } catch (_) {}
 }
 
@@ -173,8 +251,7 @@ function startTickLoop(track, cellW, reelContainer) {
 
     if (idx !== lastIdx && idx >= 0 && idx < REEL_TOTAL) {
       lastIdx = idx;
-      // Vary pitch very slightly per item — adds life without being annoying.
-      playTick(400 + Math.random() * 60);
+      playChunk();
     }
 
     _tickRaf = requestAnimationFrame(frame);
@@ -539,6 +616,8 @@ function spinReel(forcedPool = null) {
       state.inventory.push(winner);
       state.saveInventory();
       state.isSpinning = false;
+      const isRare = ['epic', 'legendary', 'mythical'].includes(winner.rarity);
+      playSting(isRare);
       showWinSplash(winner, isMagicRespin);
     }
   }
