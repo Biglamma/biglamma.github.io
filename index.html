@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Let It Ride - a loot generation tool">
+  <meta name="description" content="A loot rolling tool">
   <meta name="theme-color" content="#000000">
   <meta property="og:title" content="Let It Ride">
   <meta property="og:description" content="Random loot generation with inventory and loot table">
   <title>Let It Ride</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="shortcut icon" href="favicon.ico">
   <link rel="preload" as="style" href="style.css">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -19,7 +21,7 @@
   <header class="hdr">
     <div class="hdr-left">
       <div class="hdr-logo" id="systemSwitcherBtn" role="button" aria-haspopup="true">
-        System V <span class="hdr-logo-arrow">▾</span>
+        System<span class="hdr-logo-arrow">▾</span>
       </div>
       <nav class="system-switcher-menu" id="systemSwitcherMenu" aria-label="Game system">
         <button type="button" class="system-menu-item active" data-system="mothership">Mothership</button>
@@ -46,7 +48,7 @@
       <div class="case-open-view" id="caseOpenView" hidden>
         <div class="case-preview" id="casePreview">
           <div class="case-preview-icon" id="casePreviewIcon">📦</div>
-          <div class="case-preview-name" id="casePreviewName"></div>
+          <div class="case-preview-name" id="casePreviewName">Placeholder</div>
         </div>
         <div class="reel-container" id="reelContainer" hidden>
           <div class="reel-item-track" id="reelItemTrack" aria-live="polite" aria-atomic="true"></div>
