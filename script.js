@@ -487,7 +487,6 @@ function renderLoot() {
           ${item.image ? `<img src="${item.image}" alt="${item.name}">` : ''}
           <div class="item-name">${item.name}</div>
           <div class="item-rarity" style="color:${col}">${CONFIG.RARITIES[item.rarity].label}</div>
-          ${disabled ? '<div class="excluded-badge">Excluded</div>' : ''}
         </div>`;
     }))
     .join('');
