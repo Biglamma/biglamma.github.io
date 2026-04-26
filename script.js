@@ -137,25 +137,25 @@ function playChunk() {
     }
 
     // Body — low-mid bandpass, the woody mass of the chunk
-    const n   = mkNoise(0.11);
+    const n   = mkNoise(0.05);
     const bp  = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 410; bp.Q.value = 4.2;
     const g   = c.createGain();
-    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.52, t + 0.003); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.088);
-    n.connect(bp).connect(g).connect(c.destination); n.start(t); n.stop(t + 0.11);
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.52, t + 0.002); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.040);
+    n.connect(bp).connect(g).connect(c.destination); n.start(t); n.stop(t + 0.05);
 
     // Sub thump — weight that separates it from a plastic tick
-    const sub  = mkNoise(0.09);
+    const sub  = mkNoise(0.04);
     const slp  = c.createBiquadFilter(); slp.type = 'lowpass'; slp.frequency.value = 105;
     const sg   = c.createGain();
-    sg.gain.setValueAtTime(0.0001, t); sg.gain.exponentialRampToValueAtTime(0.38, t + 0.004); sg.gain.exponentialRampToValueAtTime(0.0001, t + 0.085);
-    sub.connect(slp).connect(sg).connect(c.destination); sub.start(t); sub.stop(t + 0.09);
+    sg.gain.setValueAtTime(0.0001, t); sg.gain.exponentialRampToValueAtTime(0.38, t + 0.003); sg.gain.exponentialRampToValueAtTime(0.0001, t + 0.036);
+    sub.connect(slp).connect(sg).connect(c.destination); sub.start(t); sub.stop(t + 0.04);
 
     // Transient — sharp moment of contact
-    const tr  = mkNoise(0.014);
+    const tr  = mkNoise(0.010);
     const thp = c.createBiquadFilter(); thp.type = 'highpass'; thp.frequency.value = 2200;
     const tg  = c.createGain();
-    tg.gain.setValueAtTime(0.0001, t); tg.gain.exponentialRampToValueAtTime(0.28, t + 0.0005); tg.gain.exponentialRampToValueAtTime(0.0001, t + 0.011);
-    tr.connect(thp).connect(tg).connect(c.destination); tr.start(t); tr.stop(t + 0.014);
+    tg.gain.setValueAtTime(0.0001, t); tg.gain.exponentialRampToValueAtTime(0.28, t + 0.0005); tg.gain.exponentialRampToValueAtTime(0.0001, t + 0.008);
+    tr.connect(thp).connect(tg).connect(c.destination); tr.start(t); tr.stop(t + 0.010);
   } catch (_) {}
 }
 
@@ -195,17 +195,17 @@ function playSting(rare = false) {
   try {
     const c   = _getCtx();
     const t   = c.currentTime;
-    const rev = _mkReverb(c, 2.4, 2.6);
+    const rev = _mkReverb(c, 1.0, 3.5);
     const wet = c.createGain(); wet.gain.value = 0.52;
     const dry = c.createGain(); dry.gain.value = 0.75;
     rev.connect(wet).connect(c.destination); dry.connect(c.destination);
 
-    // G4 B4 D5 G5 — classic royal herald arpeggio, 180 ms stagger
+    // G4 B4 D5 G5 — classic royal herald arpeggio, 80 ms stagger
     const voices = [
-      { freq: 392.00, delay: 0,    dur: 3.0,  vol: 0.16 },
-      { freq: 493.88, delay: 0.18, dur: 2.82, vol: 0.15 },
-      { freq: 587.33, delay: 0.36, dur: 2.64, vol: 0.15 },
-      { freq: 783.99, delay: 0.54, dur: 2.46, vol: rare ? 0.22 : 0.18 },
+      { freq: 392.00, delay: 0,    dur: 1.2,  vol: 0.16 },
+      { freq: 493.88, delay: 0.08, dur: 1.12, vol: 0.15 },
+      { freq: 587.33, delay: 0.16, dur: 1.04, vol: 0.15 },
+      { freq: 783.99, delay: 0.24, dur: 0.96, vol: rare ? 0.22 : 0.18 },
     ];
     voices.forEach(({ freq, delay, dur, vol }) => {
       _mkBrassVoice(c, freq,       t + delay, dur, vol,       dry, rev);
@@ -214,14 +214,14 @@ function playSting(rare = false) {
 
     // Rare drop: shimmer burst at the peak note
     if (rare) {
-      const st  = t + 0.54;
-      const buf = c.createBuffer(1, Math.ceil(c.sampleRate * 0.14), c.sampleRate);
+      const st  = t + 0.24;
+      const buf = c.createBuffer(1, Math.ceil(c.sampleRate * 0.10), c.sampleRate);
       const bd  = buf.getChannelData(0); for (let i = 0; i < bd.length; i++) bd[i] = Math.random() * 2 - 1;
       const sh  = c.createBufferSource(); sh.buffer = buf;
       const shf = c.createBiquadFilter(); shf.type = 'highpass'; shf.frequency.value = 5000;
       const shg = c.createGain();
-      shg.gain.setValueAtTime(0.0001, st); shg.gain.exponentialRampToValueAtTime(0.25, st + 0.008); shg.gain.exponentialRampToValueAtTime(0.0001, st + 0.12);
-      sh.connect(shf).connect(shg).connect(c.destination); sh.start(st); sh.stop(st + 0.14);
+      shg.gain.setValueAtTime(0.0001, st); shg.gain.exponentialRampToValueAtTime(0.25, st + 0.008); shg.gain.exponentialRampToValueAtTime(0.0001, st + 0.08);
+      sh.connect(shf).connect(shg).connect(c.destination); sh.start(st); sh.stop(st + 0.10);
     }
   } catch (_) {}
 }
@@ -275,10 +275,12 @@ function resolveImageUrl(url) {
 }
 
 function getWeightedItem(pool) {
-  const total = pool.reduce((sum, i) => sum + (CONFIG.RARITIES[i.rarity]?.weight || 0), 0);
+  // Items may carry a _weight override (e.g. the magic portal trigger); fall
+  // back to the rarity-table weight for everything else.
+  const total = pool.reduce((sum, i) => sum + (i._weight ?? CONFIG.RARITIES[i.rarity]?.weight ?? 0), 0);
   let r = Math.random() * total;
   for (const item of pool) {
-    const w = CONFIG.RARITIES[item.rarity]?.weight || 0;
+    const w = item._weight ?? CONFIG.RARITIES[item.rarity]?.weight ?? 0;
     if (r < w) return item;
     r -= w;
   }
@@ -350,14 +352,18 @@ async function loadSystem(key) {
 
   state.items = autoAssignRarity(batches.flat());
 
-  state.items.push({
-    name:     'Magical Item',
-    rarity:   'mythical',
-    category: 'equipment',
-    _key:     'magic_portal_trigger',
-  });
-
   if (sys.magicFiles) {
+    // The trigger is DnD-only — Mothership never sees it.
+    // _weight is set far below the mythical rarity weight so it surfaces
+    // rarely inside any case (≈ 0.2 % of the weighted pool).
+    state.items.push({
+      name:     'Magical Item',
+      rarity:   'mythical',
+      category: 'equipment',
+      _key:     'magic_portal_trigger',
+      _weight:  0.002,
+    });
+
     const magicBatches = await Promise.all(sys.magicFiles.map(async file => {
       try {
         const json = await (await fetch(`./${file}`)).json();
@@ -381,11 +387,9 @@ function autoAssignRarity(items) {
   const sorted = [...items].sort((a, b) => (parseInt(a.cost) || 0) - (parseInt(b.cost) || 0));
   const total  = sorted.length;
   return sorted.map((item, i) => {
-    // FIX: Added mythical tier at the very top 1%; fixed boundary so the top
-    // bucket is exclusive (i+1)/total so the last item doesn't fall through.
+    // Items cap at legendary; mythical is reserved for the magic portal trigger.
     const p      = (i + 1) / total;
-    const rarity = p >= 0.99 ? 'mythical'
-                 : p >= 0.95 ? 'legendary'
+    const rarity = p >= 0.95 ? 'legendary'
                  : p >= 0.80 ? 'epic'
                  : p >= 0.60 ? 'rare'
                  : p >= 0.30 ? 'uncommon'
@@ -523,7 +527,7 @@ function renderInventory() {
 const REEL_TOTAL  = 100;
 const REEL_WINNER = 80;
 const SPIN_EASING   = 'cubic-bezier(0.04, 0.95, 0.2, 1)';
-const SPIN_DURATION = 9;
+const SPIN_DURATION = 11;
 const SPIN_MAGIC_DURATION = 7;
 const SPIN_SETTLE_BUFFER  = 600;
 
